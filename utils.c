@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Copyright 2011 Rolf Klausen
  */
@@ -57,7 +57,7 @@ void die(char *m, ...)
         fprintf(stderr, "%s", s2);
 
         shutdown_display();
-        shutdown_gt();
+        shutdown_ds();
         exit(1);
 }
 
@@ -87,13 +87,13 @@ int perc(int i)
                 return false;
 }
 
-void *gtmalloc(size_t size)
+void *dsmalloc(size_t size)
 {
         void *p;
 
         p = malloc(size);
         if(!p)
-                die("Memory allocation in gtmalloc for size %d failed! Exiting.\n", (int) size);
+                die("Memory allocation in dsmalloc for size %d failed! Exiting.\n", (int) size);
 
         memset(p, 0, size);
         garbage[garbageindex] = p;
@@ -102,13 +102,13 @@ void *gtmalloc(size_t size)
         return p;
 }
 
-void *gtcalloc(size_t num, size_t size)
+void *dscalloc(size_t num, size_t size)
 {
         void *p;
 
         p = calloc(num, size);
         if(!p)
-                die("calloc %d * %d (total %d) in gtcalloc failed! Exiting.\n", (int) num, (int) size, (int) (num*size));
+                die("calloc %d * %d (total %d) in dscalloc failed! Exiting.\n", (int) num, (int) size, (int) (num*size));
 
         memset(p, 0, num*size);
         garbage[garbageindex] = p;
@@ -117,19 +117,19 @@ void *gtcalloc(size_t num, size_t size)
         return p;
 }
 
-void **gtmalloc2d(int y, int x, size_t size)
+void **dsmalloc2d(int y, int x, size_t size)
 {
         void **p;
         int i;
         
-        p = gtmalloc(y * size);
+        p = dsmalloc(y * size);
         for(i = 0; i < y; i++)
-                p[i] = gtmalloc(x * size);
+                p[i] = dsmalloc(x * size);
 
         return p;
 }
 
-void gtfree(void *ptr)
+void dsfree(void *ptr)
 {
         int i;
 
@@ -189,7 +189,7 @@ void yousee(char *fmt, ...)
         mess(s2);
 }
 
-void gtprintf(char *fmt, ...)
+void dsprintf(char *fmt, ...)
 {
         va_list argp;
         char s[1000];
@@ -201,7 +201,7 @@ void gtprintf(char *fmt, ...)
         mess(s);
 }
 
-void gtprintfc(int color, char *fmt, ...)
+void dsprintfc(int color, char *fmt, ...)
 {
         va_list argp;
         char s[1000];
@@ -217,9 +217,9 @@ char ask_char(char *question)
 {
         char c;
 
-        gtprintf(question);
+        dsprintf(question);
         update_screen();
-        c = gtgetch();
+        c = dsgetch();
         return c;
 }
 
@@ -230,16 +230,16 @@ char ask_for_hand()
         c = 0;
 
         while(1) {
-                gtprintf("Which hand - (l)eft or (r)ight?");
+                dsprintf("Which hand - (l)eft or (r)ight?");
                 update_screen();
-                c = gtgetch();
+                c = dsgetch();
 //fprintf(stderr, "DEBUG: %s:%d - you pressed key with decimal value %d\n", __FILE__, __LINE__, c);
                 if(c == 13 || c == 27)         // ENTER or ESCAPE
                         return 0;
                 else if(c == 'l' || c == 'r')
                         return c;
                 else
-                        gtprintf("Only (l)eft or (r)ight, please.");
+                        dsprintf("Only (l)eft or (r)ight, please.");
         }
 
 }
@@ -258,7 +258,7 @@ bool yesno(char *fmt, ...)
         mess(s);
 
         update_screen();
-        c = gtgetch();
+        c = dsgetch();
         if(c == 'y' || c == 'Y')
                 return true;
         if(c == 'n' || c == 'N')
@@ -271,9 +271,9 @@ void more()
 {
         char c;
 
-        gtprintfc(COLOR_WHITE, "-- more --");
+        dsprintfc(COLOR_WHITE, "-- more --");
         while(1) {
-                c = gtgetch();
+                c = dsgetch();
                 if(c == 13 || c == 32) {
                         delete_last_message();
                         return;
@@ -282,7 +282,7 @@ void more()
 }
 
 #ifdef GT_USE_NCURSES
-void gtprintfwc(WINDOW *win, int color, char *fmt, ...)
+void dsprintfwc(WINDOW *win, int color, char *fmt, ...)
 {
         va_list argp;
         char s[1000];
@@ -324,7 +324,7 @@ char *a_an(char *s)
         static char ret[4];
         char *test;
 
-        test = gtmalloc((strlen(s) + 5) * sizeof(char));
+        test = dsmalloc((strlen(s) + 5) * sizeof(char));
 
         if(s[0] == 'a' || s[0] == 'A' ||
            s[0] == 'e' || s[0] == 'A' ||

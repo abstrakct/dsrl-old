@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Saving and loading!
  *
@@ -140,7 +140,7 @@ void save_monsterdef(monster_t *m, FILE *f)
 
         fwrite("MONSTERDEF", sizeof(char), 10, f);
         fwrite(&s, sizeof(struct monsterdef_save_struct), 1, f);
-        //gtprintf("saved monsterdef %s id=%d", s.name, s.id);
+        //dsprintf("saved monsterdef %s id=%d", s.name, s.id);
 }
 
 void save_objdef(obj_t *o, FILE *f)
@@ -167,7 +167,7 @@ void save_objdef(obj_t *o, FILE *f)
 
         fwrite("OBJDEF", sizeof(char), 6, f);
         fwrite(&s, sizeof(struct objdef_save_struct), 1, f);
-        //gtprintf("saved objdef %s", s.basename);
+        //dsprintf("saved objdef %s", s.basename);
 }
 
 void save_player(actor_t *p, FILE *f)
@@ -212,14 +212,14 @@ void save_player(actor_t *p, FILE *f)
 
 void generate_savefilename(char *filename)
 {
-        sprintf(filename, "%s/%d.gtsave", SAVE_DIRECTORY, game->seed);
+        sprintf(filename, "%s/%d.dssave", SAVE_DIRECTORY, game->seed);
 }
 
 /*
  * Rough structure of the save file:
  *
  * - header struct
- * - gtconfig struct
+ * - dsconfig struct
  * - game struct
  * - the player (player_save_struct)
  * - the monsterdefs (monsterdef_save_struct)
@@ -237,7 +237,7 @@ bool save_game(char *filename)
         monster_t *m;
         obj_t *o;
 
-        gtprintf("Saving game to file %s", filename);
+        dsprintf("Saving game to file %s", filename);
         f = fopen(filename, "w");
 
         header.magic = GT_SAVEFILE_MAGIC;
@@ -246,7 +246,7 @@ bool save_game(char *filename)
         header.version.revision = GT_VERSION_REV;
 
         fwrite(&header, sizeof(struct savefile_header), 1, f);
-        fwrite(&gtconfig, sizeof(gt_config_t), 1, f);
+        fwrite(&dsconfig, sizeof(ds_config_t), 1, f);
         fwrite(game, sizeof(game_t), 1, f);
 
         /* then, let's save the player */
@@ -274,12 +274,12 @@ bool save_game(char *filename)
 
         fclose(f);
 
-        if(gtconfig.compress_savefile) {
+        if(dsconfig.compress_savefile) {
                 sprintf(cmd, "xz %s", filename);
                 system(cmd);
         }
 
-        gtprintf("Saving successful!");
+        dsprintf("Saving successful!");
         return true;
 }
 
@@ -296,7 +296,7 @@ obj_t *load_object(FILE *f)
 
         fread(str, sizeof(char), 7, f);
         if(!strncmp(str, " OBJECT", 7)) {
-                o = gtmalloc(sizeof(obj_t));
+                o = dsmalloc(sizeof(obj_t));
                 fread(o, sizeof(obj_t), 1, f);
                 add_to_master_object_list(o); 
         } else if(!strncmp(str, "NOBJECT", 7)) {
@@ -343,7 +343,7 @@ bool load_monster(monster_t *m, level_t *l, FILE *f)
         }
 
         if(!m)
-                m = gtmalloc(sizeof(monster_t));
+                m = dsmalloc(sizeof(monster_t));
 
         fread(&m->id,       sizeof(short), 1, f);
         fread(&m->mid,      sizeof(int),   1, f);
@@ -405,7 +405,7 @@ bool load_cell(cell_t *c, level_t *l, FILE *f)
         /* cell has monster? */
         fread(&flag, sizeof(bool), 1, f);
         if(flag) {
-                c->monster = gtmalloc(sizeof(monster_t));
+                c->monster = dsmalloc(sizeof(monster_t));
                 load_monster(c->monster, l, f);
         }
 
@@ -614,7 +614,7 @@ bool load_game(char *filename, int ingame)
         if(header.version.major != GT_VERSION_MAJ || header.version.minor != GT_VERSION_MIN || header.version.revision != GT_VERSION_REV)
                 fprintf(stderr, "Warning: Save file doesn't match current version number. This may or may not work...!");
 
-        fread(&gtconfig, sizeof(gt_config_t), 1, f);
+        fread(&dsconfig, sizeof(ds_config_t), 1, f);
         fread(game, sizeof(game_t), 1, f);
         clear_master_object_list();
         game->num_objects = 0;
@@ -628,7 +628,7 @@ bool load_game(char *filename, int ingame)
         /* now, loading monsterdefs, linked lists, all that.. might be tricky! */
         for(i=0; i <= game->monsterdefs; i++) {
                 if(!ingame)  // only alloc memory if we are loading at startup
-                        m = gtmalloc(sizeof(monster_t));
+                        m = dsmalloc(sizeof(monster_t));
                 else
                         m = monsterdefs;
                 if(!load_monsterdef(m, f)) {
@@ -647,7 +647,7 @@ bool load_game(char *filename, int ingame)
         /* objdefs */
         for(i=0; i <= game->objdefs; i++) {
                 if(!ingame)  // only alloc memory if we are loading at startup
-                        o = gtmalloc(sizeof(obj_t));
+                        o = dsmalloc(sizeof(obj_t));
                 else
                         o = objdefs;
                 if(!load_objdef(o, f)) {

@@ -1,6 +1,6 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
- *
+ * Dark Shadows - The Roguelike
+ * 
  * Copyright 2011 Rolf Klausen
  */
 
@@ -58,7 +58,7 @@ game_t    *game;
 world_t   *world;
 actor_t   *player;
 struct actionqueue *aq;
-gt_config_t gtconfig;
+ds_config_t dsconfig;
 long actionnum;
 FILE *messagefile;
 bool mapchanged;
@@ -81,7 +81,7 @@ WINDOW *wmap;
 WINDOW *wleft;
 #endif
 
-struct option gt_options[] = {
+struct option ds_options[] = {
         { "seed",    1,   0, 's' },
         { "load",    1,   0, 'l' },
         { "version", 0,   0, 'v' },
@@ -92,27 +92,27 @@ void init_variables()
 {
         garbageindex = 0;
 
-        monsterdefs = (monster_t *) gtmalloc(sizeof(monster_t));
+        monsterdefs = (monster_t *) dsmalloc(sizeof(monster_t));
         monsterdefs->head = monsterdefs;
         mid_counter = 1000;
 
-        objdefs = (obj_t *) gtmalloc(sizeof(obj_t));
+        objdefs = (obj_t *) dsmalloc(sizeof(obj_t));
         objdefs->head = objdefs;
 
-        aq = (struct actionqueue *) gtmalloc(sizeof(struct actionqueue));
+        aq = (struct actionqueue *) dsmalloc(sizeof(struct actionqueue));
         aq->head = aq;
         aq->next = 0;
         aq->action = ACTION_NOTHING;
         actionnum = 0;
 
-        world = (world_t *) gtmalloc(sizeof(world_t));
+        world = (world_t *) dsmalloc(sizeof(world_t));
 
-        world->dng = gtcalloc(26, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = dungeons
+        world->dng = dscalloc(26, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = dungeons
         world->out = world->dng;                      // i.e. it points to world->dng[0]
         world->out->xsize = XSIZE;
         world->out->ysize = YSIZE;
 
-        game = (game_t *) gtmalloc(sizeof(game_t));
+        game = (game_t *) dsmalloc(sizeof(game_t));
         game->dead = 0;
         game->seed = time(0);
         srand(game->seed);
@@ -121,7 +121,7 @@ void init_variables()
         loadgame = false;
 
         game->wizardmode = false;
-        player = (actor_t *) gtmalloc(sizeof(actor_t));
+        player = (actor_t *) dsmalloc(sizeof(actor_t));
 }
 
 /*********************************************
@@ -154,7 +154,7 @@ void init_player()
         strcpy(player->name, "Whiskeyjack");
 }
 
-void shutdown_gt()
+void shutdown_ds()
 {
         int i;
 
@@ -178,14 +178,14 @@ void parse_commandline(int argc, char **argv)
         int c;
         char s[15];
 
-        while((c = getopt_long(argc, argv, "s:v", gt_options, &option_index)) != -1) {
+        while((c = getopt_long(argc, argv, "s:v", ds_options, &option_index)) != -1) {
                 switch(c) {
                         case 's': game->seed = atoi(optarg);
                                   srand(game->seed);
                                   generate_savefilename(game->savefile);
                                   fprintf(stderr, "DEBUG: %s:%d - set random seed to %d (parse_commandline)\n", __FILE__, __LINE__, game->seed);
                                   break;
-                        case 'v': get_version_string(s); printf("Gullible's Travails v%s\n", s); exit(0); break;
+                        case 'v': get_version_string(s); printf("Dark Shadows - The Roguelike - v%s\n", s); exit(0); break;
                         case 'l': strcpy(game->savefile, optarg);
                                   loadgame = true;
                                   break;
@@ -242,7 +242,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_DOWN:
                         if(passable(world->curlevel, ply+1, plx)) {
                                 if(world->curlevel->c[ply+1][plx].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply+1][plx].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx].monster;
                                         queue(ACTION_ATTACK);
@@ -270,7 +270,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_UP:
                         if(passable(world->curlevel, ply-1,plx)) {
                                 if(world->curlevel->c[ply-1][plx].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply-1][plx].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx].monster;
                                         queue(ACTION_ATTACK);
@@ -296,7 +296,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_LEFT:
                         if(passable(world->curlevel, ply, plx-1)) {
                                 if(world->curlevel->c[ply][plx-1].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply][plx-1].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx-1].monster;
                                         queue(ACTION_ATTACK);
@@ -322,7 +322,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_RIGHT:
                         if(passable(world->curlevel, ply,plx+1)) {
                                 if(world->curlevel->c[ply][plx+1].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply][plx+1].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx+1].monster;
                                         queue(ACTION_ATTACK);
@@ -350,7 +350,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_NW:
                         if(passable(world->curlevel, ply-1,plx-1)) {
                                 if(world->curlevel->c[ply-1][plx-1].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply-1][plx-1].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx-1].monster;
                                         queue(ACTION_ATTACK);
@@ -387,7 +387,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_NE:
                         if(passable(world->curlevel, ply-1,plx+1)) {
                                 if(world->curlevel->c[ply-1][plx+1].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply-1][plx+1].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx+1].monster;
                                         queue(ACTION_ATTACK);
@@ -427,7 +427,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_SW:
                         if(passable(world->curlevel, ply+1, plx-1)) {
                                 if(world->curlevel->c[ply+1][plx-1].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply+1][plx-1].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx-1].monster;
                                         queue(ACTION_ATTACK);
@@ -465,7 +465,7 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_SE:
                         if(passable(world->curlevel, ply+1, plx+1)) {
                                 if(world->curlevel->c[ply+1][plx+1].monster) {
-                                        //gtprintf("You attack the %s!", world->curlevel->c[ply+1][plx+1].monster->name);
+                                        //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx+1].monster;
                                         queue(ACTION_ATTACK);
@@ -537,7 +537,7 @@ bool do_action(int action)
                                 if(game->currentlevel == 0) {
                                         world->dng[1].c[tmpy][tmpx].desty = ply;
                                         world->dng[1].c[tmpy][tmpx].destx = plx;
-                                        gtprintf("setting return destination to %d,%d", ply, plx);
+                                        dsprintf("setting return destination to %d,%d", ply, plx);
                                 }
 
                                 game->currentlevel++;
@@ -577,7 +577,7 @@ bool do_action(int action)
                         if(o)
                                 wieldwear(o);
                         else
-                                gtprintf("HUH????????????????????");
+                                dsprintf("HUH????????????????????");
                         player->ticks -= TICKS_WIELDWEAR;
                         break;
                 case ACTION_UNWIELDWEAR:
@@ -585,7 +585,7 @@ bool do_action(int action)
                         if(o)
                                 unwieldwear(o);
                         else
-                                gtprintf("HUH????????????????????");
+                                dsprintf("HUH????????????????????");
 
                         player->ticks -= TICKS_WIELDWEAR;
                         break;
@@ -594,7 +594,7 @@ bool do_action(int action)
                         if(o)
                                 drop(o, player);
                         else
-                                gtprintf("Drop what?");
+                                dsprintf("Drop what?");
                         player->ticks -= TICKS_WIELDWEAR;
                         break;  
                 case ACTION_FIX_VIEW:
@@ -621,7 +621,7 @@ bool do_action(int action)
                         break;
                 default:
                         fprintf(stderr, "DEBUG: %s:%d - Unknown action %d attempted!\n", __FILE__, __LINE__, action);
-                        gtprintf("DEBUG: %s:%d - Unknown action %d attempted!\n", __FILE__, __LINE__, action);
+                        dsprintf("DEBUG: %s:%d - Unknown action %d attempted!\n", __FILE__, __LINE__, action);
                         fullturn = false;
                         //updatescreen = false;
                         break;
@@ -656,7 +656,7 @@ void queue(int action)
                 tmp = tmp->next; 
         }
 
-        tmp = (struct actionqueue *) gtmalloc(sizeof(struct actionqueue));
+        tmp = (struct actionqueue *) dsmalloc(sizeof(struct actionqueue));
         tmp->head = aq;
         tmp->next = 0;
         tmp->action = action;
@@ -715,7 +715,7 @@ bool do_next_thing_in_queue() // needs a better name..
                 ret = do_action(tmp->action);
                 aq->num--;
                 aq->next = tmp->next;
-                gtfree(tmp);
+                dsfree(tmp);
         }
 
         return ret;
@@ -743,24 +743,24 @@ void look()
 
         if(cf(ply, plx) & CF_HAS_STAIRS_DOWN) {
                 if(game->currentlevel == 0)
-                        gtprintf("There is a portal to the underworld here!");
+                        dsprintf("There is a portal to the underworld here!");
                 else                                
-                        gtprintf("There is a staircase leading down here.");
+                        dsprintf("There is a staircase leading down here.");
         }
 
         if(cf(ply, plx) & CF_HAS_STAIRS_UP) {
                 if(game->currentlevel == 1) 
-                        gtprintf("There is a portal to the outside world here!");
+                        dsprintf("There is a portal to the outside world here!");
                 else
-                        gtprintf("There is a staircase leading up here.");
+                        dsprintf("There is a staircase leading up here.");
         }
 
         if(ci(ply, plx)) {
                 if(ci(ply, plx) && ci(ply, plx)->gold) {
-                        if(gtconfig.ap[OT_GOLD])
+                        if(dsconfig.ap[OT_GOLD])
                                 do_action(ACTION_PICKUP);
                         else
-                                gtprintf("There is %d gold %s here.", ci(ply, plx)->gold, (ci(ply, plx)->gold > 1) ? "pieces" : "piece");
+                                dsprintf("There is %d gold %s here.", ci(ply, plx)->gold, (ci(ply, plx)->gold > 1) ? "pieces" : "piece");
                 }
 
                 if(ci(ply, plx)->num_used > 0) {
@@ -773,13 +773,13 @@ void look()
                                         return;
 
                                 ob = ci(ply, plx)->object[slot];
-                                if(gtconfig.ap[ob->type] && !hasbit(ob->flags, OF_DONOTAP)) {
+                                if(dsconfig.ap[ob->type] && !hasbit(ob->flags, OF_DONOTAP)) {
                                         do_action(ACTION_PICKUP);
                                 } else {
                                         if(is_pair(ob))
-                                                gtprintf("There is a pair of %s here.", ob->fullname);
+                                                dsprintf("There is a pair of %s here.", ob->fullname);
                                         else
-                                                gtprintf("There is %s here.", a_an(ob->fullname));
+                                                dsprintf("There is %s here.", a_an(ob->fullname));
                                 }
                         }
 
@@ -794,18 +794,18 @@ void look()
                                         return;
 
                                 /*if(is_pair(ci(ply, plx)->object[slot]))
-                                        gtprintf("There is a pair of %s here.", ci(ply, plx)->object[slot]->fullname);
+                                        dsprintf("There is a pair of %s here.", ci(ply, plx)->object[slot]->fullname);
                                 else*/
-                                        gtprintf("There is %s and %s here.", a_an(ci(ply, plx)->object[slot]->fullname), a_an(ci(ply, plx)->object[slot2]->fullname));
+                                        dsprintf("There is %s and %s here.", a_an(ci(ply, plx)->object[slot]->fullname), a_an(ci(ply, plx)->object[slot2]->fullname));
                         }
 
                         if(ci(ply, plx)->num_used > 2) {
                                 int i;
 
-                                gtprintfc(COLOR_INFO, "There are several things here:");
+                                dsprintfc(COLOR_INFO, "There are several things here:");
                                 for(i=0;i<52;i++) {
                                         if(ci(ply, plx)->object[i])
-                                                gtprintf("%s", a_an(ci(ply, plx)->object[i]->fullname));
+                                                dsprintf("%s", a_an(ci(ply, plx)->object[i]->fullname));
                                 }
                         }
                 }
@@ -857,7 +857,7 @@ int main(int argc, char *argv[])
         init_variables();
 
         get_version_string(game->version);
-        printf("Gullible's Travails v%s\n", game->version);
+        printf("Dark Shadows - The Roguelike - v%s\n", game->version);
 
         parse_commandline(argc, argv);
 
@@ -875,7 +875,7 @@ int main(int argc, char *argv[])
                 if(!load_game(game->savefile, 0))
                         die("Couldn't open file %s\n", game->savefile);
 
-                sprintf(messagefilename, "%s/messages.%d.gtsave", SAVE_DIRECTORY, game->seed);
+                sprintf(messagefilename, "%s/messages.%d.dssave", SAVE_DIRECTORY, game->seed);
                 messagefile = fopen(messagefilename, "a");
                 
                 init_display();
@@ -887,7 +887,7 @@ int main(int argc, char *argv[])
                 init_level(world->out);
                 generate_world();
 
-                sprintf(messagefilename, "%s/messages.%d.gtsave", SAVE_DIRECTORY, game->seed);
+                sprintf(messagefilename, "%s/messages.%d.dssave", SAVE_DIRECTORY, game->seed);
                 messagefile = fopen(messagefilename, "a");
 
                 init_display();
@@ -958,7 +958,7 @@ int main(int argc, char *argv[])
                                 queuex(20, ACTION_PLAYER_MOVE_RIGHT);
                                 break;
                         case CMD_TOGGLEFOV:
-                                gtprintf("Setting all cells to visible.");
+                                dsprintf("Setting all cells to visible.");
                                 set_level_visited(world->curlevel);
                                 queue(ACTION_NOTHING);
                                 break;
@@ -969,7 +969,7 @@ int main(int argc, char *argv[])
                                 break;
                         case CMD_WIZARDMODE:
                                 game->wizardmode = (game->wizardmode ? false : true); queue(ACTION_NOTHING);
-                                gtprintf("Wizard mode %s!", game->wizardmode ? "on" : "off");
+                                dsprintf("Wizard mode %s!", game->wizardmode ? "on" : "off");
                                 break;
                         case CMD_SAVE:
                                 save_game(game->savefile);
@@ -977,9 +977,9 @@ int main(int argc, char *argv[])
                                 break;
                         case CMD_LOAD:
                                 if(!load_game(game->savefile, 1))
-                                        gtprintf("Loading failed!");
+                                        dsprintf("Loading failed!");
                                 else
-                                        gtprintf("Loading successful!");
+                                        dsprintf("Loading successful!");
                                 queue(ACTION_NOTHING);
                                 break;
                         case CMD_DUMPOBJECTS:
@@ -990,21 +990,21 @@ int main(int argc, char *argv[])
                                 player->viewradius++;
                                 //world->out->lakelimit++;
                                 //generate_terrain(1);
-                                //gtprintf("lakelimit = %d", world->out->lakelimit);
+                                //dsprintf("lakelimit = %d", world->out->lakelimit);
                                 queue(ACTION_NOTHING);
                                 break;
                         case CMD_DECFOV:
                                 player->viewradius--;
                                 //world->out->lakelimit--;
                                 //generate_terrain(1);
-                                //gtprintf("lakelimit = %d", world->out->lakelimit);
+                                //dsprintf("lakelimit = %d", world->out->lakelimit);
                                 queue(ACTION_NOTHING);
                                 break;
                         case CMD_DUMPCOLORS:
                                 for(x = 0;  x < 64; x++) {
-                                        /*gtprintfwc(wstat, x, "This is color %d  ", x);
+                                        /*dsprintfwc(wstat, x, "This is color %d  ", x);
                                         wattron(wstat, A_BOLD);
-                                        gtprintfwc(wstat, x, "This is BOLD color %d  ", x);
+                                        dsprintfwc(wstat, x, "This is BOLD color %d  ", x);
                                         wattroff(wstat, A_BOLD);*/
                                 }
                                 queue(ACTION_NOTHING);
@@ -1016,7 +1016,7 @@ int main(int argc, char *argv[])
                                         x = ri(11, world->curlevel->xsize);
                                         y = ri(11, world->curlevel->ysize);
                                 }
-                                gtprintf("floodfilling from %d, %d\n", y, x);
+                                dsprintf("floodfilling from %d, %d\n", y, x);
                                 floodfill(world->curlevel, y, x);
                                 queue(ACTION_NOTHING);
                                 break;
@@ -1032,7 +1032,7 @@ int main(int argc, char *argv[])
                                         queue(ACTION_GO_DOWN_STAIRS);
                                         queue(ACTION_FIX_VIEW);
                                 } else {
-                                        gtprintf("You can't go up here!");
+                                        dsprintf("You can't go up here!");
                                         queue(ACTION_NOTHING);
                                 }
                                 break;
@@ -1041,7 +1041,7 @@ int main(int argc, char *argv[])
                                         queue(ACTION_GO_UP_STAIRS);
                                         queue(ACTION_FIX_VIEW);
                                 } else {
-                                        gtprintf("You can't go up here!");
+                                        dsprintf("You can't go up here!");
                                         queue(ACTION_NOTHING);
                                 }
                                 break;
@@ -1062,7 +1062,7 @@ int main(int argc, char *argv[])
         } while(!game->dead);
 
         shutdown_display();
-        shutdown_gt();
+        shutdown_ds();
 
         return 0;
 }

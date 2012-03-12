@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Copyright 2011 Rolf Klausen
  */
@@ -13,11 +13,11 @@ void shutdown_display();
 void draw_world(level_t *level);
 void draw_wstat();
 
-void gtmapaddch(int y, int x, int color, char c);
+void dsmapaddch(int y, int x, int color, char c);
 void update_screen();
 void update_player();
 void initial_update_screen();
-int  gtgetch();
+int  dsgetch();
 
 void domess();
 void scrollmessages();

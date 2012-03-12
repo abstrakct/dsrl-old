@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * This file deals with general creature/actor stuff
  *
@@ -237,7 +237,7 @@ void level_up_player()
         player->maxhp += ri(pphy/2, pphy);
         increase_hp(player, d(1, player->level));
 
-        gtprintfc(COLOR_GREEN, "Congratulations! You've reached level %d!", player->level);
+        dsprintfc(COLOR_GREEN, "Congratulations! You've reached level %d!", player->level);
         more();
 
         // TODO: Add other level up effects here!
@@ -292,7 +292,7 @@ void player_die(actor_t *killer)
                 return;
         }
 
-        gtprintf(" ");
+        dsprintf(" ");
         youc(COLOR_WHITE, "die...");
         more();
         shutdown_display();
@@ -311,7 +311,7 @@ void player_die(actor_t *killer)
         printf("\t\tYou killed a total of %d monsters.\n", player->kills);
         printf("\t\tYou got a total of %d experience points.\n\t\tYou got a final score of %d points.\n\n\n\n\n\n", player->xp, calculate_final_score());
 
-        shutdown_gt();
+        shutdown_ds();
         exit(0);
 }
 
@@ -343,7 +343,7 @@ void attack(actor_t *attacker, actor_t *defender)
         damage -= defender->ac;       // TODO: Adjust/change 
 
 
-        //gtprintfc(C_BLACK_MAGENTA, "DEBUG: %s:%d - attack = %d   defense = %d   damage = %d\n", __FILE__, __LINE__, attack, defense, damage);
+        //dsprintfc(C_BLACK_MAGENTA, "DEBUG: %s:%d - attack = %d   defense = %d   damage = %d\n", __FILE__, __LINE__, attack, defense, damage);
         if(attack >= defense) {  // it's a hit!
                 if(attacker == player) {
                         if(damage <= 0)
@@ -352,9 +352,9 @@ void attack(actor_t *attacker, actor_t *defender)
                                 youc(C_BLACK_RED, "hit the %s with %s for %d damage!", defender->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
                 } else {
                         if(damage <= 0)
-                                gtprintfc(C_BLACK_WHITE, "The %s hits you, but does no damage!", attacker->name);
+                                dsprintfc(C_BLACK_WHITE, "The %s hits you, but does no damage!", attacker->name);
                         else
-                                gtprintfc(C_BLACK_RED, "The %s hits you with %s for %d damage", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
+                                dsprintfc(C_BLACK_RED, "The %s hits you with %s for %d damage", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
                 }
 
                 if(damage > 0)
@@ -373,7 +373,7 @@ void attack(actor_t *attacker, actor_t *defender)
                 if(attacker == player)
                         youc(C_BLACK_WHITE, "miss the %s!", defender->name);
                 else
-                        gtprintfc(C_BLACK_WHITE, "The %s tries to hit you, but fails!", attacker->name);
+                        dsprintfc(C_BLACK_WHITE, "The %s tries to hit you, but fails!", attacker->name);
         }
 
         if(attacker == player)

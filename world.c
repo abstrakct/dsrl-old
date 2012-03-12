@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * This file deals with world generation.
  *
@@ -56,13 +56,13 @@ void init_level(level_t *level)
         int i;
         
         if(level->c) {
-                gtfree(level->c);
+                dsfree(level->c);
                 for(i = 0; i<level->xsize; i++)
-                        gtfree(level->c[i]);
+                        dsfree(level->c[i]);
         }
 
-        level->c = (cell_t **) gtmalloc2d(level->ysize, level->xsize, sizeof(cell_t));
-        level->monsters = gtmalloc(sizeof(monster_t));
+        level->c = (cell_t **) dsmalloc2d(level->ysize, level->xsize, sizeof(cell_t));
+        level->monsters = dsmalloc(sizeof(monster_t));
 }
 
 void zero_level(level_t *l)
@@ -157,7 +157,7 @@ void generate_dungeon_type_1(int d)
         nrx = l->xsize / maxroomsizex;
         numrooms = nrx * nry;
 
-        r = (struct room **) gtmalloc2d(nry+1, nrx+1, sizeof(struct room));
+        r = (struct room **) dsmalloc2d(nry+1, nrx+1, sizeof(struct room));
 
         printf("Generating %d x %d = %d rooms (levelsize = %d x %d)\n", nry, nrx, numrooms, l->ysize, l->xsize);
         
@@ -1112,20 +1112,20 @@ void generate_world()
         world->out->lakelimit = 4;
         generate_terrain(0);
 
-        world->forests  = ri(gtconfig.minf, gtconfig.maxf);
-        world->cities   = ri(gtconfig.minc, gtconfig.maxc);
-        world->villages = ri(gtconfig.minv, gtconfig.maxv);
+        world->forests  = ri(dsconfig.minf, dsconfig.maxf);
+        world->cities   = ri(dsconfig.minc, dsconfig.maxc);
+        world->villages = ri(dsconfig.minv, dsconfig.maxv);
 
         //fprintf(stderr, "DEBUG: %s:%d - Generating %d forests\n", __FILE__, __LINE__, world->forests);
-        world->forest = (forest_t *) gtcalloc((size_t)world->forests, sizeof(forest_t));
+        world->forest = (forest_t *) dscalloc((size_t)world->forests, sizeof(forest_t));
         generate_forest(world->forests);
 
         //fprintf(stderr, "DEBUG: %s:%d - Generating %d villages\n", __FILE__, __LINE__, world->villages);
-        world->village = gtcalloc((size_t)world->villages, sizeof(city_t));
+        world->village = dscalloc((size_t)world->villages, sizeof(city_t));
         generate_village(world->villages);
 
         //fprintf(stderr, "DEBUG: %s:%d - Generating %d cities\n", __FILE__, __LINE__, world->cities);
-        world->city = gtcalloc((size_t)world->cities, sizeof(city_t));
+        world->city = dscalloc((size_t)world->cities, sizeof(city_t));
         generate_city(world->cities);
 
 

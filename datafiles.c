@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Copyright 2011 Rolf Klausen
  */
@@ -36,7 +36,7 @@ int parse_roomdef_file(char *filename)
         fscanf(f, "%d,%d\n", &y, &x);
         r.y = y;
         r.x = x;
-        r.c = (cell_t **) gtmalloc2d(y, x, sizeof(cell_t));
+        r.c = (cell_t **) dsmalloc2d(y, x, sizeof(cell_t));
 
         for(i = 0; i < y; i++) {
                 for(j = 0; j < x; j++) {
@@ -87,7 +87,7 @@ int parse_monsters()
         for(j=0;j<i;j++) {
                 monster_t *m;
 
-                m = (monster_t *) gtmalloc(sizeof(monster_t));
+                m = (monster_t *) dsmalloc(sizeof(monster_t));
                 id = j+1;
 
                 sprintf(sname, "monsters.[%d].name", j);
@@ -221,7 +221,7 @@ int parse_armor()
                 obj_t *o;
                 int x;
 
-                o = (obj_t *) gtmalloc(sizeof(obj_t));
+                o = (obj_t *) dsmalloc(sizeof(obj_t));
 
                 sprintf(sname, "armor.[%d].name", j);
                 config_lookup_string(cf, sname, &value);
@@ -277,7 +277,7 @@ int parse_weapons()
                 obj_t *o;
                 int x;
 
-                o = (obj_t *) gtmalloc(sizeof(obj_t));
+                o = (obj_t *) dsmalloc(sizeof(obj_t));
 
                 sprintf(sname, "weapon.[%d].name", j);
                 config_lookup_string(cf, sname, &value);
@@ -356,7 +356,7 @@ int parse_amulet()
                 obj_t *o;
                 int x;
 
-                o = (obj_t *) gtmalloc(sizeof(obj_t));
+                o = (obj_t *) dsmalloc(sizeof(obj_t));
 
                 sprintf(sname, "amulet.[%d].name", j);
                 config_lookup_string(cf, sname, &value);
@@ -428,7 +428,7 @@ int parse_bracelet()
                 int x;
                 int y;
 
-                o = (obj_t *) gtmalloc(sizeof(obj_t));
+                o = (obj_t *) dsmalloc(sizeof(obj_t));
 
                 sprintf(sname, "bracelet.[%d].name", j);
                 config_lookup_string(cf, sname, &value);
@@ -533,27 +533,27 @@ int parse_configfile()
         }
 
         sprintf(sname, "config.[0].min_forests");
-        config_lookup_int(cf, sname, &gtconfig.minf);
+        config_lookup_int(cf, sname, &dsconfig.minf);
         sprintf(sname, "config.[0].max_forests");
-        config_lookup_int(cf, sname, &gtconfig.maxf);
+        config_lookup_int(cf, sname, &dsconfig.maxf);
         sprintf(sname, "config.[0].min_cities");
-        config_lookup_int(cf, sname, &gtconfig.minc);
+        config_lookup_int(cf, sname, &dsconfig.minc);
         sprintf(sname, "config.[0].max_cities");
-        config_lookup_int(cf, sname, &gtconfig.maxc);
+        config_lookup_int(cf, sname, &dsconfig.maxc);
         sprintf(sname, "config.[0].min_villages");
-        config_lookup_int(cf, sname, &gtconfig.minv);
+        config_lookup_int(cf, sname, &dsconfig.minv);
         sprintf(sname, "config.[0].max_villages");
-        config_lookup_int(cf, sname, &gtconfig.maxv);
+        config_lookup_int(cf, sname, &dsconfig.maxv);
         sprintf(sname, "config.[0].dxsize");
-        config_lookup_int(cf, sname, &gtconfig.dxsize);
+        config_lookup_int(cf, sname, &dsconfig.dxsize);
         sprintf(sname, "config.[0].dysize");
-        config_lookup_int(cf, sname, &gtconfig.dysize);
+        config_lookup_int(cf, sname, &dsconfig.dysize);
         sprintf(sname, "config.[0].compress_savefile");
-        config_lookup_bool(cf, sname, &gtconfig.compress_savefile);
+        config_lookup_bool(cf, sname, &dsconfig.compress_savefile);
         sprintf(sname, "config.[0].autopickup");
         config_lookup_string(cf, sname, &value);
 
-        strcpy(gtconfig.autopickup, value);
+        strcpy(dsconfig.autopickup, value);
 
         printf(" OK\n");
         
@@ -564,7 +564,7 @@ int parse_data_files(int option)
 {
         int ret;
 
-        cf = (config_t *) gtmalloc(sizeof(config_t));
+        cf = (config_t *) dsmalloc(sizeof(config_t));
         config_init(cf);
 
         if (!config_read_file(cf, MAIN_DATA_FILE)) {

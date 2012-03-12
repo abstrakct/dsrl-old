@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * This file deals with diplaying output!
  *
@@ -98,8 +98,8 @@ void init_display()
         meta(wall, TRUE);
         intrflush(wmap, FALSE);
 
-        gtprintf("*** Welcome to Gullible's Travails v%s ***", game->version);
-        gtprintf("Press q to exit.");
+        dsprintf("*** Welcome to Dark Shadows - The Rogulike - v%s ***", game->version);
+        dsprintf("Press q to exit.");
 
         touchwin(wmap);
         touchwin(wstat);
@@ -218,10 +218,10 @@ void dofovlight(actor_t *actor, level_t *l, float x, float y)
         oy = (float) actor->y + 0.5f;
 
 
-        //gtprintf("\tentering dofovlight");
+        //dsprintf("\tentering dofovlight");
         for(i = 0; i < (actor->viewradius/2); i++) {       // TODO: add a lightradius in actor_t, calculate it based on stuff
                 if((int)oy >= 0 && (int)ox >= 0 && (int)oy < l->ysize && (int)ox < l->xsize) {
-                        //gtprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
+                        //dsprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
                         if(hasbit(l->c[(int)oy][(int)ox].flags, CF_LIT))
                                 return;
 
@@ -230,7 +230,7 @@ void dofovlight(actor_t *actor, level_t *l, float x, float y)
                         }
 
                         if(blocks_light((int) oy, (int) ox)) {
-                                //gtprintf("cell %d,%d blocks light", (int)oy, (int)ox);
+                                //dsprintf("cell %d,%d blocks light", (int)oy, (int)ox);
                                 return;
                         }
 
@@ -245,7 +245,7 @@ void FOVlight(actor_t *a, level_t *l)
         float x, y;
         int i;
 
-        //gtprintf("entering FOVlight..");
+        //dsprintf("entering FOVlight..");
         clear_map_to_unlit(l);
         for(i = 0; i < 360; i++) {
                 x = cos((float) i * 0.01745f);
@@ -287,7 +287,7 @@ void draw_world(level_t *level)
                                                 color = level->c[j][i].litcolor;
                                         }
 
-                                        gtmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
+                                        dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
 
                                         /*
                                         if(level->c[j][i].height < 0) {
@@ -298,43 +298,43 @@ void draw_world(level_t *level)
                                                 c = 48+level->c[j][i].height;
                                         }
 
-                                        gtmapaddch(dy, dx, color, c);
+                                        dsmapaddch(dy, dx, color, c);
                                         */
 
                                         if(level->c[j][i].inventory) {
                                                 wattroff(wmap, A_BOLD);
                                                 if(level->c[j][i].inventory->gold > 0) {
                                                         wattron(wmap, A_BOLD);
-                                                        gtmapaddch(dy, dx, COLOR_YELLOW, objchars[OT_GOLD]);
+                                                        dsmapaddch(dy, dx, COLOR_YELLOW, objchars[OT_GOLD]);
                                                         wattroff(wmap, A_BOLD);
                                                 } else {                                                         // TODO ADD OBJECT COLORS!!!
                                                         slot = get_first_used_slot(level->c[j][i].inventory);
                                                         if(level->c[j][i].inventory->num_used > 0 && slot >= 0 && level->c[j][i].inventory->object[slot]) {
                                                                 color = level->c[j][i].inventory->object[slot]->color;
-                                                                gtmapaddch(dy, dx, color, objchars[level->c[j][i].inventory->object[slot]->type]);
+                                                                dsmapaddch(dy, dx, color, objchars[level->c[j][i].inventory->object[slot]->type]);
                                                         }
                                                 }
                                         }
 
                                         if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_CLOSED))
-                                                gtmapaddch(dy, dx, color, '+');
+                                                dsmapaddch(dy, dx, color, '+');
                                         else if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_OPEN))
-                                                gtmapaddch(dy, dx, color, '\'');
+                                                dsmapaddch(dy, dx, color, '\'');
                                         else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_DOWN))
-                                                gtmapaddch(dy, dx, COLOR_WHITE, '>');
+                                                dsmapaddch(dy, dx, COLOR_WHITE, '>');
                                         else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_UP))
-                                                gtmapaddch(dy, dx, COLOR_WHITE, '<');
+                                                dsmapaddch(dy, dx, COLOR_WHITE, '<');
                                 }
 
 
                                 if(level->c[j][i].visible && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
-                                        gtmapaddch(dy, dx, COLOR_RED, (char) level->c[j][i].monster->c);
+                                        dsmapaddch(dy, dx, COLOR_RED, (char) level->c[j][i].monster->c);
 
                                 if(level->c[j][i].type == AREA_WALL) {
-                                        gtmapaddch(dy, dx, COLOR_PLAIN, mapchars[DNG_WALL]);
+                                        dsmapaddch(dy, dx, COLOR_PLAIN, mapchars[DNG_WALL]);
                                 }
                         if(j == ply && i == plx)
-                                gtmapaddch(dy, dx, COLOR_PLAYER, '@');
+                                dsmapaddch(dy, dx, COLOR_PLAYER, '@');
                         }
                 }
         }
@@ -407,11 +407,11 @@ void draw_wstat()
 
 void update_player()
 {
-        gtmapaddch(player->oldy, player->oldx, cc(player->oldy, player->oldx), mapchars[(int) ct(player->oldy, player->oldx)]);
-        gtmapaddch(ply, plx, COLOR_PLAYER, '@');
+        dsmapaddch(player->oldy, player->oldx, cc(player->oldy, player->oldx), mapchars[(int) ct(player->oldy, player->oldx)]);
+        dsmapaddch(ply, plx, COLOR_PLAYER, '@');
 }
 
-void gtmapaddch(int y, int x, int color, char c)
+void dsmapaddch(int y, int x, int color, char c)
 {
         wattron(wmap, COLOR_PAIR(color));
         mvwaddch(wmap, y, x, c);
@@ -436,7 +436,7 @@ void initial_update_screen()
 
 // Input and messages
 
-int gtgetch()
+int dsgetch()
 {
         int c;
         c = wgetch(wmap);
@@ -619,10 +619,10 @@ void dofovlight(actor_t *actor, level_t *l, float x, float y)
         oy = (float) actor->y + 0.5f;
 
 
-        //gtprintf("\tentering dofovlight");
+        //dsprintf("\tentering dofovlight");
         for(i = 0; i < (actor->viewradius/2); i++) {       // TODO: add a lightradius in actor_t, calculate it based on stuff
                 if((int)oy >= 0 && (int)ox >= 0 && (int)oy < l->ysize && (int)ox < l->xsize) {
-                        //gtprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
+                        //dsprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
                         if(hasbit(l->c[(int)oy][(int)ox].flags, CF_LIT))
                                 return;
 
@@ -631,7 +631,7 @@ void dofovlight(actor_t *actor, level_t *l, float x, float y)
                         }
 
                         if(blocks_light((int) oy, (int) ox)) {
-                                //gtprintf("cell %d,%d blocks light", (int)oy, (int)ox);
+                                //dsprintf("cell %d,%d blocks light", (int)oy, (int)ox);
                                 return;
                         }
 
@@ -646,7 +646,7 @@ void FOVlight(actor_t *a, level_t *l)
         float x, y;
         int i;
 
-        //gtprintf("entering FOVlight..");
+        //dsprintf("entering FOVlight..");
         clear_map_to_unlit(l);
         for(i = 0; i < 360; i++) {
                 x = cos((float) i * 0.01745f);
@@ -671,7 +671,7 @@ void draw_world(level_t *level)
         printf("Imagine a beautiful landscape... Trees, mountains, birds...\n");
 }
 
-void gtmapaddch(int y, int x, int color, char c)
+void dsmapaddch(int y, int x, int color, char c)
 {
         printf("%c", c);
 }
@@ -686,7 +686,7 @@ void update_screen()
         printf("%s:%d - update_screen\n", __FILE__, __LINE__);
 }
 
-int gtgetch()
+int dsgetch()
 {
         return ri(97,122);
 }

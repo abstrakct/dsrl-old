@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Copyright 2011 Rolf Klausen
  */
@@ -44,7 +44,7 @@ void makedistancemap(int desty, int destx)
         int y, x, newdist;
         bool flag;
 
-        //gtprintf("%d - makedistancemap - START!", game->turn);
+        //dsprintf("%d - makedistancemap - START!", game->turn);
         for(y = 0; y < world->curlevel->ysize; y++) {
                 for(x = 0; x < world->curlevel->xsize; x++) {
                         distancemap[y][x] = 99999;
@@ -79,7 +79,7 @@ void makedistancemap(int desty, int destx)
                         }
                 }
         }
-        //gtprintf("%d - makedistancemap - END!", game->turn);
+        //dsprintf("%d - makedistancemap - END!", game->turn);
 }
 
 co get_next_step(int y, int x)
@@ -206,7 +206,7 @@ void simpleai(monster_t *m)
 {
         int dir, ox, oy;
 
-        //gtprintf("hello it's simpleai!");
+        //dsprintf("hello it's simpleai!");
         dir = ri(1,9);
         ox = m->x; oy = m->y;
 
@@ -361,7 +361,7 @@ void hostile_ai(actor_t *m)
 void heal_monster(actor_t *m, int num)
 {
         increase_hp(m, num);
-        gtprintf("The %s looks a bit healthier! (%d)", m->name, num);
+        dsprintf("The %s looks a bit healthier! (%d)", m->name, num);
 }
 
 void move_monsters()
@@ -451,7 +451,7 @@ void spawn_monster(int n, monster_t *head, int maxlevel)
         int hpadj;
 
         tmp = head->next;
-        head->next = gtmalloc(sizeof(monster_t));
+        head->next = dsmalloc(sizeof(monster_t));
         *head->next = get_monsterdef(n);
         hpadj = head->next->level * 2;
         head->next->maxhp += ri((-(hpadj/2)), hpadj);
@@ -461,7 +461,7 @@ void spawn_monster(int n, monster_t *head, int maxlevel)
         head->next->prev = head;
         head->next->head = head;
         setbit(head->next->flags, MF_SLEEPING);
-        //gtprintf("spawned monster %s\n", head->next->name);
+        //dsprintf("spawned monster %s\n", head->next->name);
         
         mid_counter++;
         head->next->mid = mid_counter;
@@ -481,7 +481,7 @@ void kill_monster(void *level, monster_t *m, actor_t *killer)
                         player->kills++;
                 }
         } else {
-                gtprintf("monster's x&y doesn't correspond to cell?");
+                dsprintf("monster's x&y doesn't correspond to cell?");
         }
 }
 
@@ -491,7 +491,7 @@ void unspawn_monster(monster_t *m)
                 m->prev->next = m->next;
                 if(m->next)
                         m->next->prev = m->prev;
-                gtfree(m);
+                dsfree(m);
         }
 }
 

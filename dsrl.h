@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Copyright 2011 Rolf Klausen
  */
@@ -8,13 +8,13 @@
 
 #define GT_VERSION_MAJ 0
 #define GT_VERSION_MIN 0
-#define GT_VERSION_REV 2
+#define GT_VERSION_REV 1
 
 #define MAIN_DATA_FILE "data/data.cfg"
 
 #define DEVELOPMENT_MODE
 
-typedef struct {                              // gt_config_t
+typedef struct {                              // ds_config_t
         int  minf, maxf;
         int  minc, maxc;
         int  minv, maxv;
@@ -23,7 +23,7 @@ typedef struct {                              // gt_config_t
         int  compress_savefile;                // compress the savefile?
         char autopickup[10];
         bool ap[10];                          // adjust later, match object type
-} gt_config_t;
+} ds_config_t;
 
 typedef struct {                              // game_t
         char         version[20];
@@ -119,7 +119,7 @@ extern FILE *messagefile;
 extern message_t messages[500];
 extern int currmess, maxmess;
 extern struct actionqueue *aq;
-extern gt_config_t gtconfig;
+extern ds_config_t dsconfig;
 extern int tempxsize, tempysize;
 
 /*extern WINDOW *wall;
@@ -132,6 +132,6 @@ extern WINDOW *wmap;*/
 
 bool do_next_thing_in_queue();
 void queue(int action);
-void shutdown_gt();
+void shutdown_ds();
 
 #endif

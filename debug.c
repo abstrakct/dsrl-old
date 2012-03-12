@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Various debugging stuff.
  *
@@ -26,10 +26,10 @@ void dump_monsterdefs()
         n = monsterdefs->head;
         for(i=0;i<monsterdefs->head->x;i++) {
                 m = n->next;
-                gtprintf("%s\t%c\nstr\t%d\tphy\t%d\tintl\t%d\twis\t%d\tdex\t%d\tcha\t%d\n", m->name, m->c, m->attr.str, m->attr.phy, m->attr.intl, m->attr.wis, m->attr.dex, m->attr.cha);
-                gtprintf("hp\t%d\t\tlevel\t%d\tspeed\t%.1f\n", m->hp, m->level, m->speed);
-                gtprintf("Can use weapon: %s\tCan use armor: %s\tCan have gold: %s\n", m->flags & MF_CANUSEWEAPON ? "Yes" : "No", m->flags & MF_CANUSEARMOR ? "Yes" : "No", m->flags & MF_CANHAVEGOLD ? "Yes" : "No");
-                gtprintf("\n");
+                dsprintf("%s\t%c\nstr\t%d\tphy\t%d\tintl\t%d\twis\t%d\tdex\t%d\tcha\t%d\n", m->name, m->c, m->attr.str, m->attr.phy, m->attr.intl, m->attr.wis, m->attr.dex, m->attr.cha);
+                dsprintf("hp\t%d\t\tlevel\t%d\tspeed\t%.1f\n", m->hp, m->level, m->speed);
+                dsprintf("Can use weapon: %s\tCan use armor: %s\tCan have gold: %s\n", m->flags & MF_CANUSEWEAPON ? "Yes" : "No", m->flags & MF_CANUSEARMOR ? "Yes" : "No", m->flags & MF_CANHAVEGOLD ? "Yes" : "No");
+                dsprintf("\n");
                 n = m;
         }
 }
@@ -40,7 +40,7 @@ void dump_monsters(monster_t *list)
 
         m = list->next;
         while(m) {
-               gtprintf("monsterdump: %s\n", m->name);
+               dsprintf("monsterdump: %s\n", m->name);
                m = m->next;
         }
 }
@@ -51,26 +51,26 @@ void dump_objects(inv_t *i)
         int j;
 
         if(!i) {
-                gtprintf("No objects here!");
+                dsprintf("No objects here!");
                 return;
         }
 
         for(j = 0; j < 52; j++) {
                 o = i->object[j];
                 if(o) {
-                        gtprintf("\n");
-                        gtprintf("OID:      %d\tBasename: %s\tType:     %s", o->oid, o->basename, otypestrings[o->type]);
+                        dsprintf("\n");
+                        dsprintf("OID:      %d\tBasename: %s\tType:     %s", o->oid, o->basename, otypestrings[o->type]);
                         if(o->type == OT_GOLD)
-                                gtprintf("Amount:   %d\n", o->quantity);
+                                dsprintf("Amount:   %d\n", o->quantity);
                         if(is_armor(o))
-                                gtprintf("AC:       %d\n", o->ac);
-                        gtprintf("Attack modifier:%s%d\n", (o->attackmod >= 0 ? " +" : " "), o->attackmod);
-                        gtprintf("Damage modifier:%s%d\n", (o->damagemod >= 0 ? " +" : " "), o->damagemod);
-                        gtprintf("Unique:   %s\n", is_unique(o) ? "yes" : "no");
+                                dsprintf("AC:       %d\n", o->ac);
+                        dsprintf("Attack modifier:%s%d\n", (o->attackmod >= 0 ? " +" : " "), o->attackmod);
+                        dsprintf("Damage modifier:%s%d\n", (o->damagemod >= 0 ? " +" : " "), o->damagemod);
+                        dsprintf("Unique:   %s\n", is_unique(o) ? "yes" : "no");
                         if(is_weapon(o))
-                                gtprintf("Damage:   %dd%d\n", o->dice, o->sides);
+                                dsprintf("Damage:   %dd%d\n", o->dice, o->sides);
 
-                        gtprintf("\n");
+                        dsprintf("\n");
                 }
         }
 
@@ -84,7 +84,7 @@ void dump_action_queue()
         tmp = aq;
         i = 0;
         while(tmp) {
-                gtprintf("item %d\taction %d\tnum %d\n", i, tmp->action, tmp->num);
+                dsprintf("item %d\taction %d\tnum %d\n", i, tmp->action, tmp->num);
                 tmp = tmp->next; 
                 i++;
         }

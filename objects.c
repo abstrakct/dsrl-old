@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * objects.c - general handling of objects, inventory, etc.
  *
@@ -89,9 +89,9 @@ bool shall_autopickup(int type)
 {
         int i, j;
 
-        j = strlen(gtconfig.autopickup);
+        j = strlen(dsconfig.autopickup);
         for(i=0;i<j;i++)
-                if(gtconfig.autopickup[i] == objchars[type])
+                if(dsconfig.autopickup[i] == objchars[type])
                         return true;
 
         return false;
@@ -103,7 +103,7 @@ void start_autopickup()
 
         for(i = 1; i <= OBJECT_TYPES; i++) {
                 if(shall_autopickup(i))
-                        gtconfig.ap[i] = true;
+                        dsconfig.ap[i] = true;
         }
 }
 
@@ -112,7 +112,7 @@ void stop_autopickup()
         int i;
 
         for(i = 1; i <= OBJECT_TYPES; i++) {
-                gtconfig.ap[i] = false;
+                dsconfig.ap[i] = false;
         }
 }
 
@@ -177,7 +177,7 @@ void unspawn_object(obj_t *m)
 {
         if(m) {
                 remove_from_master_object_list(m);
-                gtfree(m);
+                dsfree(m);
         }
 }
 
@@ -294,7 +294,7 @@ obj_t *spawn_object(int n, void *level)
         else
                 lev = 1;
 
-        new = gtmalloc(sizeof(obj_t));
+        new = dsmalloc(sizeof(obj_t));
         if(!new)
                 return false;
         
@@ -515,7 +515,7 @@ inv_t *init_inventory()
 {
         inv_t *i;
 
-        i = gtmalloc(sizeof(inv_t));
+        i = dsmalloc(sizeof(inv_t));
 
         return i;
 }
@@ -540,7 +540,7 @@ void puton(int slot, obj_t *o)
                 setbit(o->flags, OF_ID_MOD);
                 do_identify_all(o);
                 generate_fullname(o);
-                gtprintfc(COLOR_INFO, "This is %s!", a_an(o->fullname));
+                dsprintfc(COLOR_INFO, "This is %s!", a_an(o->fullname));
         }
 }
 
@@ -551,13 +551,13 @@ void wear(obj_t *o)
 
                 c = ask_for_hand();
                 if(!c) {
-                        gtprintf("Alright then.");
+                        dsprintf("Alright then.");
                         return;
                 }
                 if(c == 'l') {
                         if(pw_leftbracelet) {
                                 if(!yesno("Do you want to remove your %s", pw_leftbracelet->fullname)) {
-                                        gtprintf("OK then.");
+                                        dsprintf("OK then.");
                                         return;
                                 } else {
                                         unwear(pw_leftbracelet);
@@ -569,7 +569,7 @@ void wear(obj_t *o)
                 } else if(c == 'r') {
                         if(pw_rightbracelet) {
                                 if(!yesno("Do you want to remove your %s", pw_rightbracelet->fullname)) {
-                                        gtprintf("OK then.");
+                                        dsprintf("OK then.");
                                         return;
                                 } else {
                                         unwear(pw_rightbracelet);
@@ -581,14 +581,14 @@ void wear(obj_t *o)
                 }
 
                 if(!o->attackmod)
-                        gtprintfc(COLOR_INFO, "The %s seems to be malfunctioning!", o->fullname);      // change this when we implement the identification system!
+                        dsprintfc(COLOR_INFO, "The %s seems to be malfunctioning!", o->fullname);      // change this when we implement the identification system!
 
         }
 
         if(is_amulet(o)) {
                 if(pw_amulet) {
                         if(!yesno("Do you want to remove your %s", pw_amulet->fullname)) {
-                                gtprintf("OK then.");
+                                dsprintf("OK then.");
                                 return;
                         } else {
                                 unwear(pw_amulet);
@@ -603,7 +603,7 @@ void wear(obj_t *o)
                 if(is_bodyarmor(o)) {
                         if(pw_body) {
                                 if(!yesno("Do you want to remove your %s", pw_body->fullname)) {
-                                        gtprintf("OK then.");
+                                        dsprintf("OK then.");
                                         return;
                                 } else {
                                         unwear(pw_body);
@@ -619,7 +619,7 @@ void wear(obj_t *o)
                 if(is_headgear(o)) {
                         if(pw_headgear) {
                                 if(!yesno("Do you want to remove your %s", pw_headgear->fullname)) {
-                                        gtprintf("OK then.");
+                                        dsprintf("OK then.");
                                         return;
                                 } else {
                                         unwear(pw_headgear);
@@ -749,7 +749,7 @@ void pick_up(obj_t *o, void *p)
         a->inventory->num_used++;
 
         //assign_free_slot(o);
-        gtprintfc(COLOR_INFO, "%c - %s", slot_to_letter(slot), a_an(o->fullname));
+        dsprintfc(COLOR_INFO, "%c - %s", slot_to_letter(slot), a_an(o->fullname));
 }
 
 void place_object_in_cell(obj_t *o, cell_t *c)

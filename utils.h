@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Copyright 2011 Rolf Klausen
  */
@@ -31,10 +31,10 @@
 void get_version_string(char *s);
 void die(char *m, ...);
 
-void  *gtmalloc(size_t size);
-void  *gtcalloc(size_t num, size_t size);
-void **gtmalloc2d(int y, int x, size_t size);
-void   gtfree(void *ptr);
+void  *dsmalloc(size_t size);
+void  *dscalloc(size_t num, size_t size);
+void **dsmalloc2d(int y, int x, size_t size);
+void   dsfree(void *ptr);
 
 int dice(int num, int sides, signed int modifier);
 int perc(int i);
@@ -43,10 +43,10 @@ int ri(int a, int b);
 void you(char *fmt, ...);
 void youc(int color, char *fmt, ...);
 void yousee(char *fmt, ...);
-void gtprintf(char *fmt, ...);
-void gtprintfc(int color, char *fmt, ...);
+void dsprintf(char *fmt, ...);
+void dsprintfc(int color, char *fmt, ...);
 #ifdef GT_USE_NCURSES
-void gtprintfwc(WINDOW *win, int color, char *fmt, ...);
+void dsprintfwc(WINDOW *win, int color, char *fmt, ...);
 #endif
 char ask_char(char *question);
 char ask_for_hand();

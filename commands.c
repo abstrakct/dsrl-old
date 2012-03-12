@@ -1,5 +1,5 @@
 /*
- * Gullible's Travails - 2011 Rewrite!
+ * Dark Shadows - The Roguelike
  *
  * Copyright 2011 Rolf Klausen
  */
@@ -87,7 +87,7 @@ int get_command()
 {
         int key, i;
 
-        key = gtgetch();
+        key = dsgetch();
         if(key == 'q')
                 return CMD_QUIT;       // easy exit even if C&C breaks down!
 
@@ -96,7 +96,7 @@ int get_command()
                         return curcommands[i].cmd;
         }
 
-        gtprintf("unknown key: %d", key);
+        dsprintf("unknown key: %d", key);
 
         return 0;
 }
