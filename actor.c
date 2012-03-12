@@ -303,7 +303,7 @@ void player_die(actor_t *killer)
         else
                 printf("\t\tWas killed by %s, using %s,\n", a_an(killer->name), a_an(killer->weapon->fullname));
 
-        if(game->context == CONTEXT_DUNGEON)
+        if(game->context == CONTEXT_INSIDE)
                 printf("\t\tat level %d of the dungeon.\n", game->currentlevel);
         if(game->context == CONTEXT_OUTSIDE)
                 printf("\t\twhile outside the dungeon.\n");

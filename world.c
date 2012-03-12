@@ -65,7 +65,18 @@ void init_level(level_t *level)
         level->monsters = dsmalloc(sizeof(monster_t));
 }
 
-void zero_level(level_t *l)
+void fill_level_with_nothing(level_t *l)
+{
+        int x, y;
+
+        for(y = 0; y < l->ysize; y++) {
+                for(x = 0; x < l->xsize; x++) {
+                        l->c[y][x].type = AREA_NOTHING;
+                }
+        }
+}
+
+void fill_level_with_walls(level_t *l)
 {
         int x, y;
 
@@ -128,6 +139,13 @@ void insert_roomdef_at(level_t *l, int y, int x)
                                         addfloor(l, y+i, x+j); 
                                         if(hasbit(r.c[i][j].flags, CF_HAS_DOOR_CLOSED))
                                                 adddoor(l, y+i, x+j, false);
+                                        if(hasbit(r.c[i][j].flags, CF_IS_STARTING_POINT)) {
+                                                player->y = y+i;
+                                                player->x = y+j;
+                                        }
+                                        break;
+                                case DNG_NOTHING:
+                                        l->c[y+i][x+j].type = DNG_NOTHING;
                                         break;
                                 default:
                                         break;
@@ -428,224 +446,6 @@ bool area_is_ok(int y1, int x1, int y2, int x2)
         return true;
 }
 
-/*********************************************
-* Description - Generate an area
-* i = index into array
-* type = Type of area (see AREA_defines)
-* modifier = modifier for maxsize.
-* maxsize = well, max size
-* Author - RK
-* Date - Dec 12 2011
-* *******************************************/
-void generate_area(int i, int type, int modifier, int maxsize)
-{
-        int tx, ty, xsize, ysize; 
-        int fx, fy;
-        int a, chance = 0;
-        int csx, cex, csy, cey;
-        float outerlinesx, outerlinesy;
-        int edgex, edgey;
-        //int color;
-
-        tx = ty = xsize = ysize = 0;
-
-        while(!area_is_ok(ty, tx, ty+ysize, tx+xsize)) {
-                tx = ri(1, world->out->xsize - maxsize - 5);  // starting X
-                ty = ri(1, world->out->ysize - maxsize - 5);  // starting y
-                xsize = ri(modifier, maxsize-1+modifier);  // total size X
-                ysize = ri(modifier, maxsize-1+modifier);  // total size Y
-        }
-
-        // let's not go over the edge
-        if(tx+xsize >= XSIZE)
-                xsize = XSIZE-tx;
-        if(ty+ysize >= YSIZE)
-                ysize = YSIZE-ty;
-
-        // now let's find center and edges 
-        csx = tx + (xsize/2) - (xsize/4);
-        cex = tx + (xsize/2) + (xsize/4);
-        csy = ty + (ysize/2) - (ysize/4);
-        cey = ty + (ysize/2) + (ysize/4);
-        outerlinesx = ((float) xsize / 100) * 10;   // outer 10%
-        outerlinesy = ((float) ysize / 100) * 10;
-        edgex = (int) outerlinesx;
-        edgey = (int) outerlinesy;
-        if(edgex <= 0)
-                edgex = 1;
-        if(edgey <= 0)
-                edgey = 1;
-
-        for(fy=ty;fy<(ty+ysize);fy++) {
-                for(fx=tx;fx<(tx+xsize);fx++) {
-                        switch(type) {
-                                // TODO: add namegens here
-                                case AREA_FOREST:
-                                        world->forest[i].x1 = tx;
-                                        world->forest[i].y1 = ty;
-                                        world->forest[i].x2 = tx+xsize-1;
-                                        world->forest[i].y2 = ty+ysize-1;
-                                        world->forest[i].flags = 0;;
-                                        world->out->c[fy][fx].type = AREA_FOREST_NOTREE;
-                                        world->out->c[fy][fx].color = COLOR_NORMAL;
-                                        break;
-                                case AREA_VILLAGE:
-                                        world->village[i].x1 = tx;
-                                        world->village[i].y1 = ty;
-                                        world->village[i].x2 = tx+xsize-1;
-                                        world->village[i].y2 = ty+ysize-1;
-                                        if(world->out->c[fy][fx].type == AREA_PLAIN) {
-                                                world->out->c[fy][fx].type = AREA_VILLAGE_NOHOUSE;
-                                                world->out->c[fy][fx].color = COLOR_NORMAL;
-                                        }
-                                        break;
-                                case AREA_CITY:
-                                        world->city[i].x1 = tx;
-                                        world->city[i].y1 = ty;
-                                        world->city[i].x2 = tx+xsize-1;
-                                        world->city[i].y2 = ty+ysize-1;
-                                        if(world->out->c[fy][fx].type == AREA_PLAIN) {
-                                                world->out->c[fy][fx].type = AREA_CITY_NOHOUSE;
-                                                world->out->c[fy][fx].color = COLOR_NORMAL;
-                                        }
-                                        break;
-                        }                        
-                }
-        }
-
-        for(fy=ty;fy<ty+ysize;fy++) {
-                for(fx=tx;fx<tx+xsize;fx++) {
-
-                        a = ri(1,100);
-                        chance = 60;
-
-                        // ensure less chance of trees at the edge of the forest and greater chance around the center
-                        //if(((fx == (tx-(xsize/2))) || (fx == (tx-(xsize/2)+1))) && ((fy == (ty-(ysize/2))) || (fy == (ty-(ysize/2)+1))))
-                        
-                        if(fx <= tx+edgex)
-                                chance = 90;
-                        if(fy <= ty+edgey)
-                                chance = 90;
-                        if(fy >= ty+ysize-edgey)
-                                chance = 90;
-                        if(fx >= tx+xsize-edgex)
-                                chance = 90;
-                        if(fx >= csx && fx <= cex && fy >= csy && fy <= cey) {
-                                // REMOVE AREA_ for interesting effect! possible dungeon gen!
-                                // eller -- switch plain/forest ...?
-                                if(type == AREA_CITY || type == AREA_VILLAGE) {
-                                        chance = 0;
-                                } else if(type == AREA_FOREST) {
-                                        chance = 20;
-                                }
-                        }
-
-                        if(a >= chance) {
-                                world->out->c[fy][fx].type = type;
-                                switch(type) {
-                                        case AREA_FOREST:
-                                                world->out->c[fy][fx].color = COLOR_FOREST;
-                                                break;
-                                        case AREA_VILLAGE:
-                                        case AREA_CITY:
-                                                world->out->c[fy][fx].color = COLOR_CITY;
-                                                break;
-                                }
-                                /*
-                                switch(type) {
-                                        case FOREST:
-                                                color = ri(0,4);
-                                                world->out->c[fy][fx].color = forestcolors[color];
-                                                break;
-                                        case VILLAGE:
-                                                color = ri(0,1); 
-                                                world->out->c[fy][fx].color = citycolors[color];
-                                                world->village[i].houses++;
-                                                break;
-                                        case CITY:
-                                                color = ri(0,1);
-                                                world->out->c[fy][fx].color = citycolors[color];
-                                                world->city[i].houses++;
-                                                break;
-                                        case DUNGEON:
-                                                color = ri(0,2);
-                                                world->out->c[fy][fx].color = dungeoncolors[color];
-                                                world->dungeons++;
-                                                world->out->c[fy][fx].flags |= HAS_DUNGEON;
-                                                break;
-                                }*/
-                        }
-                }
-        }
-}
-
-/*********************************************
-* Description - Wrapper function for generating %num forests
-* Author - RK
-* Date - Dec 12 2011
-* *******************************************/
-void generate_forest(int num)
-{
-        int i;
-
-        for(i = 0; i < num; i++)
-                generate_area(i, AREA_FOREST, 4, MAXFORESTSIZE);
-}
-
-/*
- * TODO: Make this work as forest generator!
- */
-void generate_forest2(int number)
-{
-        int i, j, x, y, q, r, num;
-        level_t *l;
-
-        l = world->out;
-        q = ri(2, MAXFORESTSIZE);
-        r = ri(2, MAXFORESTSIZE);
-
-        for(i = 2; i < q; i++) {
-                x = l->xsize / 2;
-                y = l->ysize / 2;
-                for(j = 2; j < r; j++) {
-                        num = dice(1, 4, 0);
-                        switch(num) {
-                                case 1: x++; break;
-                                case 2: x--; break;
-                                case 3: y++; break;
-                                case 4: y--; break;
-                        }
-
-                        addfloor(l, y, x);
-                }
-        }
-}
-
-/*********************************************
-* Description - Wrapper function for generating %num cities
-* Author - RK
-* Date - Dec 12 2011
-* *******************************************/
-void generate_city(int num)
-{
-        int i;
-
-        for(i = 0; i < num; i++)
-                generate_area(i, AREA_CITY, 2, LARGECITYSIZE);
-}
-
-/*********************************************
-* Description - Wrapper function for generating %num villages
-* Author - RK
-* Date - Dec 12 2011
-* *******************************************/
-void generate_village(int num)
-{
-        int i;
-
-        for(i = 0; i < num; i++)
-                generate_area(i, AREA_VILLAGE, 1, VILLAGESIZE);
-}
 
 void pathfinder(level_t *l, int y1, int x1, int y2, int x2)
 {
@@ -982,6 +782,18 @@ void create_stairs(int num, int s, int d)
         }
 }
 
+void generate_collinwood()
+{
+        world->dng[1].ysize = r.y+5;
+        world->dng[1].xsize = r.x+5;
+        world->dng[1].level = 1;
+        init_level(&world->dng[1]);
+        fill_level_with_walls(&world->dng[1]);
+        //fill_level_with_nothing(&world->dng[1]);
+        insert_roomdef_at(&world->dng[1], 1, 1);
+        game->createddungeons++;
+}
+
 void meta_generate_dungeon(int d, int type)
 {
         if(type && type <= 3) {
@@ -999,7 +811,7 @@ void meta_generate_dungeon(int d, int type)
                 world->dng[d].type  = type;
                 
                 init_level(&world->dng[d]);
-                zero_level(&world->dng[d]);
+                fill_level_with_walls(&world->dng[d]);
 
                 if(type == 1)
                         generate_dungeon_type_1(d);
@@ -1112,33 +924,18 @@ void generate_world()
         world->out->lakelimit = 4;
         generate_terrain(0);
 
-        world->forests  = ri(dsconfig.minf, dsconfig.maxf);
-        world->cities   = ri(dsconfig.minc, dsconfig.maxc);
-        world->villages = ri(dsconfig.minv, dsconfig.maxv);
-
-        //fprintf(stderr, "DEBUG: %s:%d - Generating %d forests\n", __FILE__, __LINE__, world->forests);
-        world->forest = (forest_t *) dscalloc((size_t)world->forests, sizeof(forest_t));
-        generate_forest(world->forests);
-
-        //fprintf(stderr, "DEBUG: %s:%d - Generating %d villages\n", __FILE__, __LINE__, world->villages);
-        world->village = dscalloc((size_t)world->villages, sizeof(city_t));
-        generate_village(world->villages);
-
-        //fprintf(stderr, "DEBUG: %s:%d - Generating %d cities\n", __FILE__, __LINE__, world->cities);
-        world->city = dscalloc((size_t)world->cities, sizeof(city_t));
-        generate_city(world->cities);
+        generate_collinwood();
 
 
-
-        spawn_monsters(ri(75,125), 3, world->out); 
-        spawn_golds(ri(75,125), 100, world->out);
-        spawn_objects(ri(world->out->xsize/4, world->out->ysize/4), world->out);
-
-        meta_generate_dungeon(1, 1);
+//        spawn_monsters(ri(75,125), 3, world->out); 
+//        spawn_golds(ri(75,125), 100, world->out);
+//        spawn_objects(ri(world->out->xsize/4, world->out->ysize/4), world->out);
+//
+//        meta_generate_dungeon(1, 1);
         //clear_area(&world->dng[1], 6, 6, r.y+6, r.x+6);
         //insert_roomdef_at(&world->dng[1], 6, 6);
 
-        for(i = 2; i <= 25; i++) {
+/*        for(i = 2; i <= 25; i++) {
                 int p;
 
                 p = ri(1,100);
@@ -1149,8 +946,8 @@ void generate_world()
                 if(p >= 82)
                         meta_generate_dungeon(i, 3);
         }
-
-        generate_stairs();
+*/
+//        generate_stairs();
 
 
         // create the edge of the world

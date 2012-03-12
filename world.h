@@ -27,6 +27,8 @@
 
 #define AREA_WALL           100
 
+#define COLLINWOOD_MAIN_FLOOR   1
+
 #define YSIZE 1024
 #define XSIZE 1024
 #define DUNGEON_SIZE 200
@@ -89,9 +91,6 @@ typedef struct {
         level_t  *out;               // shall point to dng[0]
         level_t  *dng;
         level_t  *curlevel;          // needed?
-        city_t   *city;
-        city_t   *village;
-        forest_t *forest;
         cell_t   **cmap;
         short    villages, cvillage;     // num of villages, current village
         short    cities, ccity;
@@ -106,13 +105,14 @@ typedef struct {
 
 // CELLFLAGS
 
-#define CF_HAS_STAIRS_DOWN (1<<0)
-#define CF_HAS_STAIRS_UP   (1<<1)
-#define CF_LIT             (1<<2)
-#define CF_VISITED         (1<<3)
-#define CF_HAS_DOOR_OPEN   (1<<4)
-#define CF_HAS_DOOR_CLOSED (1<<5)
-#define CF_HAS_DOOR_SECRET (1<<6)
+#define CF_HAS_STAIRS_DOWN   (1<<0)
+#define CF_HAS_STAIRS_UP     (1<<1)
+#define CF_LIT               (1<<2)
+#define CF_VISITED           (1<<3)
+#define CF_HAS_DOOR_OPEN     (1<<4)
+#define CF_HAS_DOOR_CLOSED   (1<<5)
+#define CF_HAS_DOOR_SECRET   (1<<6)
+#define CF_IS_STARTING_POINT (1<<7)
 
 
 void generate_world();

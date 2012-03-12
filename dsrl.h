@@ -10,6 +10,8 @@
 #define GT_VERSION_MIN 0
 #define GT_VERSION_REV 1
 
+#define GAME_NAME "Dark Shadows RL"
+
 #define MAIN_DATA_FILE "data/data.cfg"
 
 #define DEVELOPMENT_MODE
@@ -90,7 +92,7 @@ typedef struct coord {
 #define TICKS_WIELDWEAR  333
 
 #define CONTEXT_OUTSIDE 0
-#define CONTEXT_DUNGEON 1
+#define CONTEXT_INSIDE 1
 
 #define FALSE 0
 #define TRUE 1

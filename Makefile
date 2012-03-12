@@ -8,10 +8,10 @@ SOURCES = dsrl.c utils.c monsters.c datafiles.c world.c display.c debug.c savelo
 HEADERS = dsrl.h utils.h monsters.h datafiles.h world.h display.h debug.h saveload.h commands.h actor.h objects.h o_effects.h fractmod.h
 OBJS    = dsrl.o utils.o monsters.o datafiles.o world.o display.o debug.o saveload.o commands.o actor.o objects.o o_effects.o fractmod.o
 
-dsrl: $(OBJS)
+ds: $(OBJS)
 	$(CC) $(DEFINES) $(LDFLAGS) -o $@ $(OBJS)
 
-dsrl.: $(SOURCES) $(HEADERS)
+ds.: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) $(DEFINES) -o $@ $(SOURCES)
 
 #makeobjdefs: $(MKOBJS) $(MKHDRS) $(MKSRCS) 

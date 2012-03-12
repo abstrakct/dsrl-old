@@ -42,19 +42,22 @@ int parse_roomdef_file(char *filename)
                 for(j = 0; j < x; j++) {
                         fscanf(f, "%c", &c);
                         r.c[i][j].type = c;
-                        printf("%c", r.c[i][j].type);
+                        //printf("%c", r.c[i][j].type);
                         switch(c) {
+                                case ' ': r.c[i][j].type = DNG_NOTHING; break;
                                 case '#': r.c[i][j].type = DNG_WALL; break;
                                 case '.': r.c[i][j].type = DNG_FLOOR; break;
                                 case '+': r.c[i][j].type = DNG_FLOOR; 
                                           setbit(r.c[i][j].flags, CF_HAS_DOOR_CLOSED); break;
+                                case '@': r.c[i][j].type = DNG_FLOOR; 
+                                          setbit(r.c[i][j].flags, CF_IS_STARTING_POINT); break;
                                 case 't': break;
                                 case 'm': break;
-                                default: break;
+                                default: r.c[i][j].type = DNG_FLOOR; break;
                         }
                 }
                 fscanf(f, "\n");
-                printf("\n");
+                //printf("\n");
         }
 
         return 0;
@@ -62,7 +65,7 @@ int parse_roomdef_file(char *filename)
 
 int parse_roomdef_files()
 {
-        //return parse_roomdef_file("data/room/despair.1.room");
+        return parse_roomdef_file("data/area/collinwood.1");
 }
 
 int parse_monsters()

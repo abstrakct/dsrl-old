@@ -98,7 +98,7 @@ void init_display()
         meta(wall, TRUE);
         intrflush(wmap, FALSE);
 
-        dsprintf("*** Welcome to Dark Shadows - The Rogulike - v%s ***", game->version);
+        dsprintf("*** Welcome to %s v%s ***", GAME_NAME, game->version);
         dsprintf("Press q to exit.");
 
         touchwin(wmap);
@@ -266,7 +266,7 @@ void draw_world(level_t *level)
 
         werase(wmap);
         FOV(player, level);
-        if(game->context == CONTEXT_DUNGEON)
+        if(game->context == CONTEXT_INSIDE)
                 FOVlight(player, level);     // only necessary in dungeon
 
         /*
@@ -279,7 +279,7 @@ void draw_world(level_t *level)
                         if(j < level->ysize && i < level->xsize) {
                                 if(hasbit(level->c[j][i].flags, CF_VISITED)) {
                                         color = cc(j,i);
-                                        if(game->context == CONTEXT_DUNGEON)
+                                        if(game->context == CONTEXT_INSIDE)
                                                 wattron(wmap, A_BOLD);
 
                                         if(hasbit(level->c[j][i].flags, CF_LIT)) {
@@ -355,7 +355,7 @@ void draw_wstat()
         box(wleft, ACS_VLINE, ACS_HLINE);                                                                                                                                                                                                                                                                         
         box(wstat, ACS_VLINE, ACS_HLINE);                                                                                                                                                                                                                                                                         
 
-        mvwprintw(wleft, 1, 1, "Name:");
+        mvwprintw(wleft, 1, 1, "Name:   %s", player->name);
         mvwprintw(wleft, 2, 1, "Turn:   %d", game->turn);
         mvwprintw(wleft, 3, 1, "Weapon: %s", player->weapon ? player->weapon->fullname : "bare hands");
         //mvwprintw(wleft, 3, 1, "y,x     %d,%d", ply, plx);

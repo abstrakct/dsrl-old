@@ -132,13 +132,13 @@ void init_variables()
 void init_player()
 {
         // TODO: Character generation!!
-        plx = game->mapw / 2;
-        ply = game->maph / 2;
+        //plx = game->mapw / 2;
+        //ply = game->maph / 2;
         ppx = plx - game->mapw / 2;
         ppy = ply - game->maph / 2;
         game->mapcx = game->mapw + 2;
         game->mapcy = game->maph + 2;
-        player->viewradius = 16;
+        player->viewradius = 20;
         player->level = 1;
 
         player->attr.str  = dice(3, 6, 0);
@@ -151,7 +151,7 @@ void init_player()
         // TODO: Starting HP - FIX according to race etc.
         player->hp = player->maxhp = (dice(1, 10, 7)) + ability_modifier(player->attr.phy);
 
-        strcpy(player->name, "Whiskeyjack");
+        strcpy(player->name, "Barnabas Collins");
 }
 
 void shutdown_ds()
@@ -185,7 +185,7 @@ void parse_commandline(int argc, char **argv)
                                   generate_savefilename(game->savefile);
                                   fprintf(stderr, "DEBUG: %s:%d - set random seed to %d (parse_commandline)\n", __FILE__, __LINE__, game->seed);
                                   break;
-                        case 'v': get_version_string(s); printf("Dark Shadows - The Roguelike - v%s\n", s); exit(0); break;
+                        case 'v': get_version_string(s); printf("%s v%s\n", GAME_NAME, s); exit(0); break;
                         case 'l': strcpy(game->savefile, optarg);
                                   loadgame = true;
                                   break;
@@ -544,7 +544,7 @@ bool do_action(int action)
                                 world->cmap = world->dng[game->currentlevel].c;
                                 world->curlevel = &(world->dng[game->currentlevel]);
                                 if(game->currentlevel > 0)
-                                        game->context = CONTEXT_DUNGEON;
+                                        game->context = CONTEXT_INSIDE;
 
                                 ply = tmpy;
                                 plx = tmpx;
@@ -857,7 +857,7 @@ int main(int argc, char *argv[])
         init_variables();
 
         get_version_string(game->version);
-        printf("Dark Shadows - The Roguelike - v%s\n", game->version);
+        printf("%s v%s\n", GAME_NAME, game->version);
 
         parse_commandline(argc, argv);
 
@@ -884,23 +884,24 @@ int main(int argc, char *argv[])
                 world->cmap = world->dng[game->currentlevel].c;
                 world->curlevel = &world->dng[game->currentlevel];
         } else {
-                init_level(world->out);
-                generate_world();
-
                 sprintf(messagefilename, "%s/messages.%d.dssave", SAVE_DIRECTORY, game->seed);
                 messagefile = fopen(messagefilename, "a");
+
+                init_level(world->out);
+                generate_world();
 
                 init_display();
                 init_player();
                 player->inventory = init_inventory();
 
-                world->cmap = world->out->c;
-                world->curlevel = world->out;
-                game->context = CONTEXT_OUTSIDE;
+
+                world->curlevel = &world->dng[COLLINWOOD_MAIN_FLOOR];
+                world->cmap = world->curlevel->c;
+                game->context = CONTEXT_INSIDE;
 
                 // then move down a level...
-                move_player_to_stairs_down(0);
-                do_action(ACTION_GO_DOWN_STAIRS);
+                // move_player_to_stairs_down(0);
+                // do_action(ACTION_GO_DOWN_STAIRS);
                 fixview();
         }
 
