@@ -1,0 +1,98 @@
+                                DARK SHADOWS ROGUELIKE
+
+A gothic horror themed roguelike, based on / inspired by the cult tv series "Dark Shadows",
+mixed with a little bit of tongue-in-cheek humour.
+
+PLAN / NOTATER
+
+Man kan spille som en rekke typer karakter:
+  * Vampire
+  * Werewolf
+  * Phoenix
+  * Warlock/Witch
+  * Normal human
+  * Man-made monster
+  
+  
+  Evt:
+  * Doctor (can sedate people!)
+  * Governess
+  * Ghost
+  * Gypsy
+  * Zombie
+  * Senere: Leviathan?
+
+VAMPIRE
+-------
+Kan angripe mennesker, drikke blod av de - tilfeldig om de blir drept eller blir til vampyr
+som er spillerens "slave"?
+Må komme seg til kista før soloppgang!
+
+WEREWOLF
+--------
+Menneske om dagen - ulv om natten!
+Ulv: smidig, angriper med klør og tenner
+Kan drepes av sølvkuler/-våpen.
+
+PHOENIX
+-------
+Fire attacks!!
+Må sitte og stirre inn i ild/flammer jevnlig ("hunger")
+(kan ha urne med evig flamme)
+
+WARLOCK/WITCH
+-------------
+Kan formler og sånt. 
+Særlig sårbar for ild/flammer
+
+HUMAN
+-----
+Må drikke kaffe! Healing: sherry! Sover aldri.
+
+MAN-MADE MONSTER
+----------------
+Dum, men veldig nesten overmenneskelig sterk.
+Stor og kraftig, men tåler lite smerte.
+
+TING MAN MÅ HA MED:
+- Klokke (1 turn = 1 minutt? 0.1 minutt? random?)
+- Alltid fullmåne hver natt!
+- Våpen og kuler av sølv (kan drepe vampyrer og varulver)
+- Vampyrer må drikke blod
+- Mennesker må drikke... kaffe! Og er alltid våkne!
+- Sedatives?
+- Relativt fastlagt verden, men også mye generert.
+- The Pen
+- Vial of sherry
+- Cup of coffee
+- Silver wolf-head cane
+- Pentagram amulet
+- I ching? 
+- Talgelys og peis i alle rom - alltid tent
+- NPCs
+- Liste over fornavn. Velg tilfeldig. Etternavn = Collins, Evans, etc. (phoenix: stockbridge/murdock),
+- Spiller: Får velge fornavn. Etternavn velges av spillet, som regel Collins.
+
+LOCATIONS:
+- Collinwood
+  - 1. etasje
+  - Kjeller
+  - East Wing
+  - West Wing
+  - Tower
+- The old house
+- House by the sea
+- Widows' Hill
+- (det huset som victoria & burke skulle ha)
+- Eagle Hill Cemetary
+- The Blue Whale
+- Collinsport
+- Collinsport Inn
+- Collinsport Jail
+
+Evt:
+
+
+Ting man kan ha med:
+Time travel
+
