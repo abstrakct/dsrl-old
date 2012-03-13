@@ -52,6 +52,7 @@ typedef struct {
 #define CMD_INCFOV        1005
 #define CMD_DECFOV        1006
 #define CMD_DUMPCOLORS    1007
+#define CMD_INCTIME       1008
 
 // prototypes
 

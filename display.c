@@ -20,6 +20,7 @@
 #include "world.h"
 #include "datafiles.h"
 #include "display.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 #ifdef GT_USE_NCURSES
@@ -99,7 +100,7 @@ void init_display()
         intrflush(wmap, FALSE);
 
         dsprintf("*** Welcome to %s v%s ***", GAME_NAME, game->version);
-        dsprintf("Press q to exit.");
+        dsprintf(" "/*Press q to exit.*/);
 
         touchwin(wmap);
         touchwin(wstat);
@@ -355,7 +356,7 @@ void draw_wstat()
         box(wstat, ACS_VLINE, ACS_HLINE);                                                                                                                                                                                                                                                                         
 
         mvwprintw(wleft, 1, 1, "Name:   %s", player->name);
-        mvwprintw(wleft, 2, 1, "Turn:   %d", game->turn);
+        mvwprintw(wleft, 2, 1, "Time:   %02d:%02d - %s %d, %d", game->t.hour, game->t.minute, monthstring[game->t.month], game->t.day, game->t.year);
         mvwprintw(wleft, 3, 1, "Weapon: %s", player->weapon ? player->weapon->fullname : "bare hands");
         //mvwprintw(wleft, 3, 1, "y,x     %d,%d", ply, plx);
         //mvwprintw(wleft, 4, 1, "(py,px) (%d,%d)", ppy, ppx);

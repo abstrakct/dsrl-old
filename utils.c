@@ -22,6 +22,7 @@
 #include "utils.h"
 #include "world.h"
 #include "display.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 

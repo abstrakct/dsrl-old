@@ -21,6 +21,7 @@
 #include "display.h"
 #include "debug.h"
 #include "saveload.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 /*

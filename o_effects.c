@@ -20,6 +20,7 @@
 #include "datafiles.h"
 #include "display.h"
 #include "debug.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 typedef void (*effectfunctionpointer)(void *data);

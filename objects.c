@@ -20,6 +20,7 @@
 #include "world.h"
 #include "datafiles.h"
 #include "display.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 // statistical debug stuff

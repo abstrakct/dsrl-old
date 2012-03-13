@@ -18,6 +18,7 @@
 #include "utils.h"
 #include "world.h"
 #include "datafiles.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 config_t *cf;

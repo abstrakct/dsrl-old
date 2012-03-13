@@ -17,6 +17,7 @@
 #include "world.h"
 #include "datafiles.h"
 #include "display.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 unsigned int mid_counter;

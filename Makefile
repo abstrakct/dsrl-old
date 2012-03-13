@@ -4,9 +4,9 @@ CFLAGS = -Wall -g -ggdb3 -I. -DGT_USE_NCURSES
 LIBS = -lm -lconfig -lncursesw
 LDFLAGS = -Wl $(LIBS)  # ,-rpath=lib 
  
-SOURCES = dsrl.c utils.c monsters.c datafiles.c world.c display.c debug.c saveload.c commands.c actor.c objects.c o_effects.c fractmod.c
-HEADERS = dsrl.h utils.h monsters.h datafiles.h world.h display.h debug.h saveload.h commands.h actor.h objects.h o_effects.h fractmod.h
-OBJS    = dsrl.o utils.o monsters.o datafiles.o world.o display.o debug.o saveload.o commands.o actor.o objects.o o_effects.o fractmod.o
+SOURCES = dsrl.c utils.c monsters.c datafiles.c world.c display.c debug.c saveload.c commands.c actor.c objects.c o_effects.c fractmod.c dstime.c
+HEADERS = dsrl.h utils.h monsters.h datafiles.h world.h display.h debug.h saveload.h commands.h actor.h objects.h o_effects.h fractmod.h dstime.h
+OBJS    = dsrl.o utils.o monsters.o datafiles.o world.o display.o debug.o saveload.o commands.o actor.o objects.o o_effects.o fractmod.o dstime.o
 
 ds: $(OBJS)
 	$(CC) $(DEFINES) $(LDFLAGS) -o $@ $(OBJS)

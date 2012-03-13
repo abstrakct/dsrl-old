@@ -32,6 +32,7 @@
 #include "debug.h"
 #include "saveload.h"
 #include "commands.h"
+#include "dstime.h"
 #include "dsrl.h"
 
 char *otypestrings[50] = {
@@ -90,6 +91,8 @@ struct option ds_options[] = {
 
 void init_variables()
 {
+        int i, j;
+
         garbageindex = 0;
 
         monsterdefs = (monster_t *) dsmalloc(sizeof(monster_t));
@@ -122,6 +125,16 @@ void init_variables()
 
         game->wizardmode = false;
         player = (actor_t *) dsmalloc(sizeof(actor_t));
+
+        game->t.year   = 1967;
+        game->t.month  = 4;
+        game->t.day    = 18;
+        game->t.hour   = 18;
+        game->t.minute = 0;
+        game->t.second = 0;
+        i = ri(72, 7200);
+        for(j=0;j<i;j++)
+                inc_second(&game->t, 1);
 }
 
 /*********************************************
@@ -837,6 +850,7 @@ void do_turn()
                         
                 if(ret) {
                         game->turn++;
+                        inc_second(&game->t, d(1,3));    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
                         look();
                 }
 
@@ -1054,6 +1068,17 @@ int main(int argc, char *argv[])
                                 pathfinder(world->curlevel, player->y, player->x, player->y + ri(-15,15), player->x + ri(-15,15));
                                 queue(ACTION_NOTHING);
                                 break;
+                        case CMD_INCTIME:
+                                c = 5000000;
+                                while(c--) {
+                                        inc_second(&game->t, 1);
+                                };
+                                draw_world(world->curlevel);
+                                draw_wstat();
+                                update_screen();
+
+                                break;
+
                         default:
                                 queue(ACTION_NOTHING);
                                 game->turn--;

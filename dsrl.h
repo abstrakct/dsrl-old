@@ -46,6 +46,7 @@ typedef struct {                              // game_t
         bool         wizardmode;              // yay!
         char         savefile[255];           // filename of the save file for this game
         obj_t       *objects[2000];
+        dstime       t;
 } game_t;
 
 typedef struct {                              // message_t
