@@ -219,7 +219,7 @@ void dofovlight(actor_t *actor, level_t *l, float x, float y)
 
 
         //dsprintf("\tentering dofovlight");
-        for(i = 0; i < (actor->viewradius/2); i++) {       // TODO: add a lightradius in actor_t, calculate it based on stuff
+        for(i = 0; i < 16/*(actor->viewradius/2)*/; i++) {       // TODO: add a lightradius in actor_t, calculate it based on stuff
                 if((int)oy >= 0 && (int)ox >= 0 && (int)oy < l->ysize && (int)ox < l->xsize) {
                         //dsprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
                         if(hasbit(l->c[(int)oy][(int)ox].flags, CF_LIT))

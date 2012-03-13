@@ -138,7 +138,7 @@ void init_player()
         ppy = ply - game->maph / 2;
         game->mapcx = game->mapw + 2;
         game->mapcy = game->maph + 2;
-        player->viewradius = 20;
+        player->viewradius = 42;
         player->level = 1;
 
         player->attr.str  = dice(3, 6, 0);
@@ -149,7 +149,7 @@ void init_player()
         player->attr.intl = dice(3, 6, 0);
 
         // TODO: Starting HP - FIX according to race etc.
-        player->hp = player->maxhp = (dice(1, 10, 7)) + ability_modifier(player->attr.phy);
+        player->hp = player->maxhp = (dice(1, 8, 5)) + ability_modifier(player->attr.phy);
 
         strcpy(player->name, "Barnabas Collins");
 }

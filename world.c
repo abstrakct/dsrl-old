@@ -520,9 +520,9 @@ void addfloor(level_t *l, float y, float x)
 
 void addwall(level_t *l, int y, int x)
 {
-        l->c[y][x].type  = DNG_WALL;
-        l->c[y][x].color = COLOR_SHADE;
-        l->c[y][x].litcolor = COLOR_RED;
+        l->c[y][x].type     = DNG_WALL;
+        l->c[y][x].color    = C_BLACK_WHITE; //COLOR_RED | A_BOLD;
+        l->c[y][x].litcolor = C_BLACK_RED;
 }
 
 void adddoor(level_t *l, int y, int x, bool secret)

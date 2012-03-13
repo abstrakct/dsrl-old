@@ -41,8 +41,7 @@ int parse_roomdef_file(char *filename)
         for(i = 0; i < y; i++) {
                 for(j = 0; j < x; j++) {
                         fscanf(f, "%c", &c);
-                        r.c[i][j].type = c;
-                        //printf("%c", r.c[i][j].type);
+                        printf("%c", c);
                         switch(c) {
                                 case ' ': r.c[i][j].type = DNG_NOTHING; break;
                                 case '#': r.c[i][j].type = DNG_WALL; break;
@@ -57,7 +56,7 @@ int parse_roomdef_file(char *filename)
                         }
                 }
                 fscanf(f, "\n");
-                //printf("\n");
+                printf("\n");
         }
 
         return 0;
