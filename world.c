@@ -28,20 +28,22 @@
 #define LARGECITYSIZE 50
 #define VILLAGESIZE   20
 
+areadef_t areadef[50];
+
 char mapchars[50] = {
         ' ',  //nothing
-        '.',  //plain
-        '^',  //mountain
-        'T',  //forest
-        '#',  //city/house
-        'o',  //village
-        '>',  //area
-        '.',  //city    nohouse
-        '.',  //village nohouse
-        '.',  //foreest nohouse
-        '~',  //lake
-        '.',  //lake nohouse
-        '.',  //areafloor
+        '#',  //wall
+        '.',  //floor
+        ' ',  //
+        ' ',  //
+        ' ',  //
+        ' ',  //
+        ' ',  //
+        ' ',  //
+        ' ',  //
+        ' ',  //
+        ' ',  //
+        ' ',  //
         '#'   //areawall
 };
 
@@ -72,7 +74,7 @@ void fill_level_with_nothing(level_t *l)
 
         for(y = 0; y < l->ysize; y++) {
                 for(x = 0; x < l->xsize; x++) {
-                        l->c[y][x].type = AREA_NOTHING;
+                        l->c[y][x].type = CELL_NOTHING;
                 }
         }
 }
@@ -94,7 +96,7 @@ void clear_area(level_t *l, int y1, int x1, int y2, int x2)
 
         for(i = 0; i < (y2-y1); i++) {
                 for(j = 0; j < (x2-x1); j++) {
-                        l->c[y1+i][x1+j].type = DNG_WALL;
+                        l->c[y1+i][x1+j].type = CELL_WALL;
                         l->c[y1+i][x1+j].flags = 0;
                         if(l->c[y1+i][x1+j].monster)
                                 kill_monster(l, l->c[y1+i][x1+j].monster, 0);
@@ -111,13 +113,13 @@ void cleanup_area(level_t *l)
 
         for(y = 0; y < l->ysize; y++) {
                 for(x = 0; x < l->xsize; x++) {
-                        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED) && l->c[y][x].type == DNG_WALL)
-                                l->c[y][x].type = DNG_FLOOR;
+                        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED) && l->c[y][x].type == CELL_WALL)
+                                l->c[y][x].type = CELL_FLOOR;
 
                         if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED)) {
-                                if(l->c[y+1][x].type == DNG_WALL && l->c[y-1][x].type == DNG_WALL)
+                                if(l->c[y+1][x].type == CELL_WALL && l->c[y-1][x].type == CELL_WALL)
                                         break;
-                                if(l->c[y][x+1].type == DNG_WALL && l->c[y][x-1].type == DNG_WALL)
+                                if(l->c[y][x+1].type == CELL_WALL && l->c[y][x-1].type == CELL_WALL)
                                         break;
 
                                 clearbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED);
@@ -126,27 +128,27 @@ void cleanup_area(level_t *l)
         }
 }
 
-void insert_roomdef_at(level_t *l, int y, int x)
+void insert_areadef_at(level_t *l, int y, int x, int index)
 {
         int i, j;
 
-        for(i = 0; i < r.y; i++) {
-                for(j = 0; j < r.x; j++) {
-                        switch(r.c[i][j].type) {
-                                case DNG_WALL:
+        for(i = 0; i < areadef[index].y; i++) {
+                for(j = 0; j < areadef[index].x; j++) {
+                        switch(areadef[index].c[i][j].type) {
+                                case CELL_WALL:
                                         addwall(l, y+i, x+j);
                                         break;
-                                case DNG_FLOOR: 
+                                case CELL_FLOOR: 
                                         addfloor(l, y+i, x+j); 
-                                        if(hasbit(r.c[i][j].flags, CF_HAS_DOOR_CLOSED))
+                                        if(hasbit(areadef[index].c[i][j].flags, CF_HAS_DOOR_CLOSED))
                                                 adddoor(l, y+i, x+j, false);
-                                        if(hasbit(r.c[i][j].flags, CF_IS_STARTING_POINT)) {
+                                        if(hasbit(areadef[index].c[i][j].flags, CF_IS_STARTING_POINT)) {
                                                 player->y = y+i;
                                                 player->x = y+j;
                                         }
                                         break;
-                                case DNG_NOTHING:
-                                        l->c[y+i][x+j].type = DNG_NOTHING;
+                                case CELL_NOTHING:
+                                        l->c[y+i][x+j].type = CELL_NOTHING;
                                         break;
                                 default:
                                         break;
@@ -371,7 +373,7 @@ void generate_area_type_2(int d)
                         chance = 25;
 
                         if(a >= chance && fy != ty && fy != (ty+ysize) && fx != tx && fx != (tx+xsize)) {
-                                world->area[d].c[fy][fx].type = DNG_FLOOR;
+                                world->area[d].c[fy][fx].type = CELL_FLOOR;
                                 world->area[d].c[fy][fx].color = COLOR_NORMAL;
                         }
                 }
@@ -437,16 +439,15 @@ bool area_is_ok(int y1, int x1, int y2, int x2)
 
         for(i = y1; i < y2; i++) {
                 for(j = x1; j < x2; j++) {
-                        if(world->out->c[i][j].type == AREA_LAKE)
+                        if(world->out->c[i][j].type == CELL_LAKE)
                                 return false;
-                        if(world->out->c[i][j].type == AREA_MOUNTAIN)
+                        if(world->out->c[i][j].type == CELL_MOUNTAIN)
                                 return false;
                 }
         }
 
         return true;
 }
-
 
 void pathfinder(level_t *l, int y1, int x1, int y2, int x2)
 {
@@ -482,8 +483,8 @@ void pathfinder(level_t *l, int y1, int x1, int y2, int x2)
 void floodfill(level_t *l, int y, int x)
 {
 //fprintf(stderr, "DEBUG: %s:%d - entering floodfill! x,y = %d,%d\n", __FILE__, __LINE__, x, y);
-        if(l->c[y][x].type == DNG_FLOOR) {
-                l->c[y][x].type = DNG_FILL;
+        if(l->c[y][x].type == CELL_FLOOR) {
+                l->c[y][x].type  = CELL_WALL;
                 l->c[y][x].color = COLOR_LAKE;
                 floodfill(l, y-1, x);
                 floodfill(l, y+1, x);
@@ -512,8 +513,8 @@ void addfloor(level_t *l, float y, float x)
         if((int)y >= l->ysize || (int)x >= l->xsize || (int)y < 0 || (int)x < 0)
                 return;
 
-        if(l->c[(int)y][(int)x].type == DNG_WALL) {
-                l->c[(int)y][(int)x].type = DNG_FLOOR;
+        if(l->c[(int)y][(int)x].type == CELL_WALL) {
+                l->c[(int)y][(int)x].type = CELL_FLOOR;
                 l->c[(int)y][(int)x].color = COLOR_SHADE;
                 l->c[(int)y][(int)x].litcolor = COLOR_SHADE;
         }
@@ -521,7 +522,7 @@ void addfloor(level_t *l, float y, float x)
 
 void addwall(level_t *l, int y, int x)
 {
-        l->c[y][x].type     = DNG_WALL;
+        l->c[y][x].type     = CELL_WALL;
         l->c[y][x].color    = C_BLACK_WHITE; //COLOR_RED | A_BOLD;
         l->c[y][x].litcolor = C_BLACK_RED;
 }
@@ -550,7 +551,7 @@ void paint_room(level_t *l, int y, int x, int sy, int sx, int join_overlapping)
                 for(j = y; j <= (y+sy); j++) {
                         if((j == y) || (j == y+sy) || (i == x) || (i == x+sx)) {
                                 if(join_overlapping) {
-                                        if(l->c[j][i].type != DNG_FLOOR) {
+                                        if(l->c[j][i].type != CELL_FLOOR) {
                                                 addwall(l, j, i);
                                         }
                                 } else {
@@ -645,17 +646,15 @@ bool passable(level_t *l, int y, int x)
 
         type = l->c[y][x].type;
 
-        if(type == DNG_WALL && l->c[y][x].color == COLOR_LAKE)
+        if(type == CELL_WALL && l->c[y][x].color == COLOR_LAKE)
                 return true;
-        if(type == DNG_WALL)
+        if(type == CELL_WALL)
                 return false;
-        if(type == AREA_LAKE)
+        if(type == CELL_LAKE)
                 return false;
-        if(type == AREA_MOUNTAIN)
+        if(type == CELL_MOUNTAIN)
                 return false;
-        if(type == AREA_WALL)
-                return false;
-        if(type == AREA_NOTHING)
+        if(type == CELL_NOTHING)
                 return false;
 
         return true;
@@ -678,8 +677,6 @@ bool monster_passable(level_t *l, int y, int x)
         if(y >= l->ysize)
                 return false;
 
-        if(l->c[y][x].type == AREA_VILLAGE || l->c[y][x].type == AREA_CITY)
-                return false;
         if(l->c[y][x].monster)
                 return false;
         if(l->c[y][x].flags & CF_HAS_DOOR_CLOSED)
@@ -687,17 +684,13 @@ bool monster_passable(level_t *l, int y, int x)
         
         type = l->c[y][x].type;
 
-        if(type == DNG_WALL)
+        if(type == CELL_WALL)
                 return false;
-        if(type == AREA_LAKE)
+        if(type == CELL_NOTHING)
                 return false;
-        if(type == AREA_WALL)
+        if(type == CELL_MOUNTAIN)
                 return false;
-        if(type == AREA_NOTHING)
-                return false;
-        if(type == AREA_MOUNTAIN)
-                return false;
-        if(type == AREA_LAKE)
+        if(type == CELL_LAKE)
                 return false;
 
         return true;
@@ -785,16 +778,15 @@ void create_stairs(int num, int s, int d)
 
 void generate_collinwood()
 {
-        world->area[1].ysize = r.y+5;
-        world->area[1].xsize = r.x+5;
-        world->area[1].level = 1;
-        init_level(&world->area[1]);
-        fill_level_with_walls(&world->area[1]);
-        //fill_level_with_nothing(&world->area[1]);
-        insert_roomdef_at(&world->area[1], 1, 1);
+        world->area[AREA_COLLINWOOD_MAIN_FLOOR].ysize = areadef[AREA_COLLINWOOD_MAIN_FLOOR].y + 5;
+        world->area[AREA_COLLINWOOD_MAIN_FLOOR].xsize = areadef[AREA_COLLINWOOD_MAIN_FLOOR].x + 5;
+        world->area[AREA_COLLINWOOD_MAIN_FLOOR].level = 1;
+        init_level(&world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
+        fill_level_with_walls(&world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
+        insert_areadef_at(&world->area[AREA_COLLINWOOD_MAIN_FLOOR], 1, 1, AREA_COLLINWOOD_MAIN_FLOOR);
 
         spawn_monsters(ri(2,4), 3, &world->area[1]);
-        spawn_golds(ri(5, 15), 30, &world->area[1]);
+        spawn_golds(ri(2, 10), 30, &world->area[1]);
         spawn_objects(10, &world->area[1]);
 
         game->createdareas++;
@@ -885,14 +877,14 @@ void generate_terrain(int visible)
         for(x = 0; x < world->out->xsize; x++) {
                 for(y = 0; y < world->out->ysize; y++) {
                         if(world->out->c[y][x].height >= world->out->zero - world->out->lakelimit && world->out->c[y][x].height <= world->out->zero + world->out->lakelimit) {
-                                world->out->c[y][x].type = AREA_PLAIN;
+                                world->out->c[y][x].type = CELL_FLOOR;
                                 //world->out->c[y][x].flags = 0;
                                 world->out->c[y][x].color = COLOR_PLAIN;
                                 world->out->c[y][x].monster = NULL;
                                 world->out->c[y][x].inventory = NULL;
                                 world->out->c[y][x].visible = visible;
                         }
-                        if(world->out->c[y][x].height < world->out->zero - world->out->lakelimit) {
+                        /*if(world->out->c[y][x].height < world->out->zero - world->out->lakelimit) {
                                 world->out->c[y][x].type = AREA_LAKE;
                                 //world->out->c[y][x].flags = 0;
                                 world->out->c[y][x].color = COLOR_BLUE;
@@ -907,7 +899,7 @@ void generate_terrain(int visible)
                                 world->out->c[y][x].monster = NULL;
                                 world->out->c[y][x].inventory = NULL;
                                 world->out->c[y][x].visible = visible;
-                        }
+                        }*/
                 }
         }
 }
@@ -939,7 +931,7 @@ void generate_world()
 //
 //        meta_generate_area(1, 1);
         //clear_area(&world->area[1], 6, 6, r.y+6, r.x+6);
-        //insert_roomdef_at(&world->area[1], 6, 6);
+        //insert_areadef_at(&world->area[1], 6, 6);
 
 /*        for(i = 2; i <= 25; i++) {
                 int p;
@@ -958,16 +950,16 @@ void generate_world()
 
         // create the edge of the world
         for(x=0; x<world->out->xsize; x++) {
-                world->out->c[1][x].type   = AREA_WALL;
-                world->out->c[2][x].type   = AREA_WALL;
-                world->out->c[XSIZE-6][x].type = AREA_WALL;
-                world->out->c[XSIZE-5][x].type = AREA_WALL;
+                world->out->c[1][x].type   = CELL_WALL;
+                world->out->c[2][x].type   = CELL_WALL;
+                world->out->c[XSIZE-6][x].type = CELL_WALL;
+                world->out->c[XSIZE-5][x].type = CELL_WALL;
         }
         for(y=0; y<world->out->ysize; y++) {
-                world->out->c[y][1].type   = AREA_WALL;
-                world->out->c[y][2].type   = AREA_WALL;
-                world->out->c[y][YSIZE-6].type = AREA_WALL;
-                world->out->c[y][YSIZE-5].type = AREA_WALL;
+                world->out->c[y][1].type   = CELL_WALL;
+                world->out->c[y][2].type   = CELL_WALL;
+                world->out->c[y][YSIZE-6].type = CELL_WALL;
+                world->out->c[y][YSIZE-5].type = CELL_WALL;
         }
 
 

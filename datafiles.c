@@ -23,9 +23,9 @@
 
 config_t *cf;
 int objid;             // to keep track of all parsed objects, to give each a unique ID
-roomdef_t r;
+areadef_t r;
 
-int parse_roomdef_file(char *filename)
+int parse_areadef_file(char *filename, int index)
 {
         FILE *f;
         int y, x, i, j;
@@ -35,25 +35,25 @@ int parse_roomdef_file(char *filename)
         if(!f)
                 return 1;
         fscanf(f, "%d,%d\n", &y, &x);
-        r.y = y;
-        r.x = x;
-        r.c = (cell_t **) dsmalloc2d(y, x, sizeof(cell_t));
+        areadef[index].y = y;
+        areadef[index].x = x;
+        areadef[index].c = (cell_t **) dsmalloc2d(y, x, sizeof(cell_t));
 
         for(i = 0; i < y; i++) {
                 for(j = 0; j < x; j++) {
                         fscanf(f, "%c", &c);
                         //printf("%c", c);
                         switch(c) {
-                                case ' ': r.c[i][j].type = DNG_NOTHING; break;
-                                case '#': r.c[i][j].type = DNG_WALL; break;
-                                case '.': r.c[i][j].type = DNG_FLOOR; break;
-                                case '+': r.c[i][j].type = DNG_FLOOR; 
-                                          setbit(r.c[i][j].flags, CF_HAS_DOOR_CLOSED); break;
-                                case '@': r.c[i][j].type = DNG_FLOOR; 
-                                          setbit(r.c[i][j].flags, CF_IS_STARTING_POINT); break;
+                                case ' ': areadef[index].c[i][j].type = CELL_NOTHING; break;
+                                case '#': areadef[index].c[i][j].type = CELL_WALL; break;
+                                case '.': areadef[index].c[i][j].type = CELL_FLOOR; break;
+                                case '+': areadef[index].c[i][j].type = CELL_FLOOR; 
+                                          setbit(areadef[index].c[i][j].flags, CF_HAS_DOOR_CLOSED); break;
+                                case '@': areadef[index].c[i][j].type = CELL_FLOOR; 
+                                          setbit(areadef[index].c[i][j].flags, CF_IS_STARTING_POINT); break;
                                 case 't': break;
                                 case 'm': break;
-                                default: r.c[i][j].type = DNG_FLOOR; break;
+                                default: areadef[index].c[i][j].type = CELL_FLOOR; break;
                         }
                 }
                 fscanf(f, "\n");
@@ -63,9 +63,9 @@ int parse_roomdef_file(char *filename)
         return 0;
 }
 
-int parse_roomdef_files()
+int parse_areadef_files()
 {
-        return parse_roomdef_file("data/area/collinwood.1");
+        return parse_areadef_file("data/area/collinwood.1", AREA_COLLINWOOD_MAIN_FLOOR);
 }
 
 int parse_monsters()
@@ -597,7 +597,7 @@ int parse_data_files(int option)
 
         config_destroy(cf);
 
-        ret = parse_roomdef_files();
+        ret = parse_areadef_files();
 
         return ret;
 }

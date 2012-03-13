@@ -56,18 +56,8 @@ void init_display()
                 endwin();
                 die("Your terminal has no colors!");
         }
+        
         start_color();
-
-	/*init_pair(COLOR_PLAIN,   COLOR_WHITE,  COLOR_BLACK);
-	init_pair(COLOR_FOREST,  COLOR_GREEN,  COLOR_BLACK);
-	init_pair(COLOR_CITY,    COLOR_YELLOW, COLOR_BLACK);
-        init_pair(COLOR_WARNING, COLOR_RED,    COLOR_BLACK);
-	init_pair(COLOR_PLAYER,  COLOR_BLUE,   COLOR_BLACK);
-	init_pair(COLOR_LIGHT,   COLOR_YELLOW, COLOR_BLACK);
-	init_pair(COLOR_SHADE,   COLOR_WHITE, COLOR_BLACK);
-
-        init_pair(COLOR_INVISIBLE, COLOR_BLACK, COLOR_BLACK);*/
-
         setup_color_pairs();
 
         game->width = COLS;
@@ -120,17 +110,17 @@ bool blocks_light(int y, int x)
         if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED))
                 return true;
 
+        /*
         if(l->c[y][x].type == AREA_FOREST || l->c[y][x].type == AREA_CITY || l->c[y][x].type == AREA_VILLAGE) {    // trees and houses can be "see through" (e.g. if they are small)
                 if(perc(20))
                         return false;
                 else
                         return true;
         }
-
+        */
         switch(l->c[y][x].type) {
-                case AREA_NOTHING:
-                case AREA_WALL:
-                case DNG_WALL:
+                case CELL_NOTHING:
+                case CELL_WALL:
                        return true;
                 default:       
                        return false;
@@ -214,29 +204,38 @@ void dofovlight(actor_t *actor, level_t *l, float x, float y)
 {
         int i;
         float ox, oy;
+        int rx, ry;
 
         ox = (float) actor->x + 0.5f;
         oy = (float) actor->y + 0.5f;
 
+        // TODO IMPORTANT:
+        // better conversion from float to int!
+        // could solve FOV problems?!!
 
         //dsprintf("\tentering dofovlight");
+        
+        rx = (int)ox; //round(ox);
+        ry = (int)oy; //round(oy);
         for(i = 0; i < 16/*(actor->viewradius/2)*/; i++) {       // TODO: add a lightradius in actor_t, calculate it based on stuff
-                if((int)oy >= 0 && (int)ox >= 0 && (int)oy < l->ysize && (int)ox < l->xsize) {
+                if(ry >= 0 && rx >= 0 && ry < l->ysize && rx < l->xsize) {
                         //dsprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
-                        if(hasbit(l->c[(int)oy][(int)ox].flags, CF_LIT))
+                        if(hasbit(l->c[ry][rx].flags, CF_LIT))
                                 return;
 
-                        if(l->c[(int)oy][(int)ox].type == DNG_WALL) {
-                                setbit(l->c[(int)oy][(int)ox].flags, CF_LIT);
+                        if(l->c[ry][rx].type == CELL_WALL) {
+                                setbit(l->c[ry][rx].flags, CF_LIT);
                         }
 
-                        if(blocks_light((int) oy, (int) ox)) {
+                        if(blocks_light(ry, rx)) {
                                 //dsprintf("cell %d,%d blocks light", (int)oy, (int)ox);
                                 return;
                         }
 
                         ox += x;
                         oy += y;
+                        rx = (int)ox; //round(ox);
+                        ry = (int)oy; //round(oy);
                 }
         }
 }
@@ -267,7 +266,7 @@ void draw_world(level_t *level)
         werase(wmap);
         FOV(player, level);
         if(game->context == CONTEXT_INSIDE)
-                FOVlight(player, level);     // only necessary in area
+                FOVlight(player, level);     // only necessary inside
 
         /*
          * in this function, (j,i) are the coordinates on the map,
@@ -330,9 +329,9 @@ void draw_world(level_t *level)
                                 if(level->c[j][i].visible && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
                                         dsmapaddch(dy, dx, COLOR_RED, (char) level->c[j][i].monster->c);
 
-                                if(level->c[j][i].type == AREA_WALL) {
-                                        dsmapaddch(dy, dx, COLOR_PLAIN, mapchars[DNG_WALL]);
-                                }
+                                /*if(level->c[j][i].type == CELL_WALL) {
+                                        dsmapaddch(dy, dx, COLOR_PLAIN, mapchars[CELL_WALL]);
+                                }*/
                         if(j == ply && i == plx)
                                 dsmapaddch(dy, dx, COLOR_PLAYER, '@');
                         }
@@ -517,20 +516,15 @@ bool blocks_light(int y, int x)
         if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED))
                 return true;
 
-        if(l->c[y][x].type == AREA_FOREST || l->c[y][x].type == AREA_CITY || l->c[y][x].type == AREA_VILLAGE) {    // trees and houses can be "see through" (e.g. if they are small)
+        /*if(l->c[y][x].type == AREA_FOREST || l->c[y][x].type == AREA_CITY || l->c[y][x].type == AREA_VILLAGE) {    // trees and houses can be "see through" (e.g. if they are small)
                 if(perc(20))
                         return false;
                 else
                         return true;
-        }
+        }*/
 
         switch(l->c[y][x].type) {
-                case AREA_NOTHING:
-                case AREA_MOUNTAIN:
-                //case AREA_CITY:
-                //case AREA_VILLAGE:
-                case AREA_WALL:
-                case DNG_WALL:
+                case CELL_WALL:
                        return true;
                 default:       
                        return false;
@@ -626,7 +620,7 @@ void dofovlight(actor_t *actor, level_t *l, float x, float y)
                         if(hasbit(l->c[(int)oy][(int)ox].flags, CF_LIT))
                                 return;
 
-                        if(l->c[(int)oy][(int)ox].type == DNG_WALL) {
+                        if(l->c[(int)oy][(int)ox].type == CELL_WALL) {
                                 setbit(l->c[(int)oy][(int)ox].flags, CF_LIT);
                         }
 

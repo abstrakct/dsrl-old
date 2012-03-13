@@ -53,19 +53,19 @@ char *otypestrings[50] = {
 };
 
 // Important global variables
-monster_t *monsterdefs;
-obj_t     *objdefs;
-game_t    *game;
-world_t   *world;
-actor_t   *player;
-struct actionqueue *aq;
+monster_t   *monsterdefs;
+obj_t       *objdefs;
+game_t      *game;
+world_t     *world;
+actor_t     *player;
 ds_config_t dsconfig;
-long actionnum;
-FILE *messagefile;
-bool mapchanged;
-int tempxsize, tempysize;
-bool loadgame;
-void *actiondata;
+long        actionnum;
+FILE        *messagefile;
+bool        mapchanged;
+int         tempxsize, tempysize;
+bool        loadgame;
+void        *actiondata;
+struct      actionqueue *aq;
 
 actor_t *a_attacker, *a_victim;
 
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
                 player->inventory = init_inventory();
 
 
-                world->curlevel = &world->area[COLLINWOOD_MAIN_FLOOR];
+                world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
                 world->cmap = world->curlevel->c;
                 game->currentlevel = 1;
                 game->context = CONTEXT_INSIDE;
@@ -1028,7 +1028,7 @@ int main(int argc, char *argv[])
                         case CMD_FLOODFILL:
                                 x = ri(11, world->curlevel->xsize);
                                 y = ri(11, world->curlevel->ysize);
-                                while(world->curlevel->c[y][x].type != DNG_FLOOR) {
+                                while(world->curlevel->c[y][x].type != CELL_FLOOR) {
                                         x = ri(11, world->curlevel->xsize);
                                         y = ri(11, world->curlevel->ysize);
                                 }

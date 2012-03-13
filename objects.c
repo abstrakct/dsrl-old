@@ -37,10 +37,10 @@ char objchars[] = {
         ')',               // weapon
         '[',               // armor
         'o',               // bracelet
-        186,               // amulet  (evt. 186!)
-        '*',               // card    (evt. 246!)
+        '*',               // amulet  (evt. 186!)
         '/',               // wand
         191,               // potion
+        //'*',               // card    (evt. 246!)
 };
 
 char *materialstring[] = {
@@ -271,7 +271,7 @@ bool place_object_at(obj_t *obj, int y, int x, void *p)
 
         l = (level_t *) p;
         
-        if(l->c[y][x].type == AREA_PLAIN || l->c[y][x].type == DNG_FLOOR) {
+        if(l->c[y][x].type == CELL_FLOOR) {
                 if(!l->c[y][x].inventory)
                         l->c[y][x].inventory = init_inventory();
 
@@ -463,7 +463,7 @@ bool spawn_gold_at(int y, int x, int n, void *level)
         l = (level_t *) level;
         i = l->c[y][x].inventory;
 
-        if(l->c[y][x].type == AREA_PLAIN || l->c[y][x].type == DNG_FLOOR) {
+        if(l->c[y][x].type == CELL_FLOOR) {
                 if(!i)
                         i = init_inventory();
 

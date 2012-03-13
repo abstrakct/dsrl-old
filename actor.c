@@ -355,7 +355,7 @@ void attack(actor_t *attacker, actor_t *defender)
                         if(damage <= 0)
                                 dsprintfc(C_BLACK_WHITE, "The %s hits you, but does no damage!", attacker->name);
                         else
-                                dsprintfc(C_BLACK_RED, "The %s hits you with %s for %d damage", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
+                                dsprintfc(C_BLACK_RED, "The %s hits you with %s for %d damage.", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
                 }
 
                 if(damage > 0)

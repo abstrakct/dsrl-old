@@ -8,26 +8,16 @@
 
 #include <stdbool.h>
 
-#define AREA_NOTHING         0
-#define AREA_PLAIN	     1
-#define AREA_MOUNTAIN	     2
-#define AREA_FOREST	     3
-#define AREA_CITY	     4
-#define AREA_VILLAGE         5
-#define AREA_DUNGEON         6
-#define AREA_CITY_NOHOUSE    7
-#define AREA_VILLAGE_NOHOUSE 8
-#define AREA_FOREST_NOTREE   9
-#define AREA_LAKE           10
+#define CELL_NOTHING         0
+#define CELL_WALL            1
+#define CELL_FLOOR           2
 
-#define DNG_FLOOR           12
-#define DNG_WALL            13
-#define DNG_FILL            DNG_WALL
-#define DNG_NOTHING         AREA_NOTHING
+// These might be used later
+#define CELL_LAKE            100
+#define CELL_MOUNTAIN        101
 
-#define AREA_WALL           100
 
-#define COLLINWOOD_MAIN_FLOOR   1
+#define AREA_COLLINWOOD_MAIN_FLOOR   1
 
 #define YSIZE 1024
 #define XSIZE 1024
@@ -82,7 +72,7 @@ struct room {
 typedef struct levelstruct level_t;
 typedef cell_t** map_ptr;
 
-struct roomdef {
+struct areadefWTF {
         int ysize, xsize;
         map_ptr map;
 };
@@ -100,8 +90,9 @@ typedef struct {
 typedef struct {
         int    y, x;
         cell_t **c;
-} roomdef_t;
+} areadef_t;
 
+extern areadef_t areadef[50];
 
 // CELLFLAGS
 
