@@ -165,7 +165,7 @@ void   add_to_master_object_list(obj_t *o);
 void   clear_master_object_list();
 
 obj_t  get_objdef(int n);
-int    get_objdef_by_name(char *wanted);
+int    get_objdef_by_name(const char *wanted);
 obj_t *get_object_by_oid(inv_t *i, int oid);
 
 bool   is_pair(obj_t *o);

@@ -875,7 +875,7 @@ void generate_heightmap()
 
         world->out->zero /= (YSIZE*XSIZE);
         
-fprintf(stderr, "DEBUG: %s:%d - zero is defined as %d !\n", __FILE__, __LINE__, world->out->zero);
+//fprintf(stderr, "DEBUG: %s:%d - zero is defined as %d !\n", __FILE__, __LINE__, world->out->zero);
 }
         
 void generate_terrain(int visible)
@@ -919,7 +919,7 @@ void generate_terrain(int visible)
 * *******************************************/
 void generate_world()
 {
-        int x, y, i;
+        int x, y;
 
         /*
          * Generate the outside world first.
@@ -970,6 +970,6 @@ void generate_world()
         }
 
 
-fprintf(stderr, "DEBUG: %s:%d - Generated a total of %d objects.\n", __FILE__, __LINE__, game->num_objects);
-fprintf(stderr, "DEBUG: %s:%d - Generated a total of %d monsters.\n", __FILE__, __LINE__, game->num_monsters);
+//fprintf(stderr, "DEBUG: %s:%d - Generated a total of %d objects.\n", __FILE__, __LINE__, game->num_objects);
+//fprintf(stderr, "DEBUG: %s:%d - Generated a total of %d monsters.\n", __FILE__, __LINE__, game->num_monsters);
 }

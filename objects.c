@@ -74,7 +74,7 @@ obj_t *get_object_by_oid(inv_t *i, int oid)
         return 0;
 }
 
-int get_objdef_by_name(char *wanted)
+int get_objdef_by_name(const char *wanted)
 {
         obj_t *o;
 

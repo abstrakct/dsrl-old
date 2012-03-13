@@ -77,7 +77,7 @@ int parse_monsters()
         cfg_monsters = config_lookup(cf, "monsters");
         i = config_setting_length(cfg_monsters);
         game->monsterdefs = i;
-        printf("Parsing monster file... We have %d monsters", i);
+        //printf("Parsing monster file... We have %d monsters", i);
 
         /* 
          * main monster parsing loop 
@@ -200,10 +200,10 @@ int parse_monsters()
                 m->prev = monsterdefs;
                 monsterdefs = m;
 
-                printf("."); // simple "progress bar"
+                //printf("."); // simple "progress bar"
         }
         
-        printf(" OK\n");
+        //printf(" OK\n");
 
         monsterdefs->head->x = i; // store number of monsters in x of head.
         return 0;
@@ -218,7 +218,7 @@ int parse_armor()
 
         cfg = config_lookup(cf, "armor");
         i = config_setting_length(cfg);
-        printf("Parsing armor file... We have %d armors", i);
+        //printf("Parsing armor file... We have %d armors", i);
         for(j=0;j<i;j++) {
                 obj_t *o;
                 int x;
@@ -255,10 +255,10 @@ int parse_armor()
                 o->next = NULL;
                 objdefs = o;
 
-                printf(".");
+                //printf(".");
         }
 
-        printf(" OK\n");
+        //printf(" OK\n");
         objdefs->head->dice = i;
         game->objdefs = i;
 
@@ -274,7 +274,7 @@ int parse_weapons()
 
         cfg = config_lookup(cf, "weapon");
         i = config_setting_length(cfg);
-        printf("Parsing weapon file... We have %d weapons", i);
+        //printf("Parsing weapon file... We have %d weapons", i);
         for(j=0;j<i;j++) {
                 obj_t *o;
                 int x;
@@ -335,10 +335,10 @@ int parse_weapons()
                 objdefs = o;
 
                 game->objdefs++;
-                printf(".");
+                //printf(".");
         }
 
-        printf(" OK\n");
+        //printf(" OK\n");
 
         return 0;
 }
@@ -352,7 +352,7 @@ int parse_amulet()
 
         cfg = config_lookup(cf, "amulet");
         i = config_setting_length(cfg);
-        printf("Parsing jewelry file... We have %d amulets", i);
+        //printf("Parsing jewelry file... We have %d amulets", i);
         material = 1;
         for(j=0;j<i;j++) {
                 obj_t *o;
@@ -406,10 +406,10 @@ int parse_amulet()
                 objdefs = o;
 
                 game->objdefs++;
-                printf(".");
+                //printf(".");
         }
 
-        printf(" OK\n");
+        //printf(" OK\n");
 
         return 0;
 }
@@ -423,7 +423,7 @@ int parse_bracelet()
 
         cfg = config_lookup(cf, "bracelet");
         i = config_setting_length(cfg);
-        printf("Parsing jewelry file... We have %d bracelets", i);
+        //printf("Parsing jewelry file... We have %d bracelets", i);
         material = 1;
         for(j = 0; j < i; j++) {
                 obj_t *o;
@@ -490,10 +490,10 @@ int parse_bracelet()
                 objdefs = o;
 
                 game->objdefs++;
-                printf(".");
+                //printf(".");
         }
 
-        printf(" OK\n");
+        //printf(" OK\n");
 
         return 0;
 }
@@ -528,7 +528,7 @@ int parse_configfile()
 
         cfg = config_lookup(cf, "config");
         i = config_setting_length(cfg);
-        printf("Parsing configuration file...");
+        //printf("Parsing configuration file...");
         if(i > 1) {
                 printf("Something is wrong here...?\n");
                 return 1;
@@ -557,7 +557,7 @@ int parse_configfile()
 
         strcpy(dsconfig.autopickup, value);
 
-        printf(" OK\n");
+        //printf(" OK\n");
         
         return 0;
 }
@@ -579,7 +579,7 @@ int parse_data_files(int option)
         }
 
         objid = 1;
-        printf("Reading %s\n", MAIN_DATA_FILE);
+        //printf("Reading %s\n", MAIN_DATA_FILE);
 
         if(option == ONLY_CONFIG) {
                 ret = parse_configfile();

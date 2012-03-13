@@ -602,10 +602,10 @@ bool do_action(int action)
                         break;
                 case ACTION_HEAL_PLAYER:
                         i = 25 - pphy;
-                        if(i < 0)
+                        if(i <= 0)
                                 i = 1;
 
-                        if(game->turn % i) {
+                        if(!(game->turn % i)) {
                                 if(perc(40+pphy))
                                         increase_hp(player, 1);
                         }
