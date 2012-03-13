@@ -62,6 +62,7 @@ ds_config_t dsconfig;
 long        actionnum;
 FILE        *messagefile;
 bool        mapchanged;
+bool        animate_only;
 int         tempxsize, tempysize;
 bool        loadgame;
 void        *actiondata;
@@ -830,33 +831,37 @@ void do_turn()
        // bool fullturn;
         int i, ret;
 
-        player->ticks += 1000;
+        if(animate_only) {
+                // Add cool animations here?!
+                dsprintf("animating.....");
+        } else {
+                player->ticks += 1000;
 
+                if(game->currentlevel)
+                        queue(ACTION_MAKE_DISTANCEMAP);
 
-        if(game->currentlevel)
-                queue(ACTION_MAKE_DISTANCEMAP);
+                queue(ACTION_MOVE_MONSTERS);
 
-        queue(ACTION_MOVE_MONSTERS);
-        
-        if(game->turn % 5)                      // TODO: Better condition... based on physique etc.
-                queue(ACTION_HEAL_PLAYER);
+                if(game->turn % 5)                      // TODO: Better condition... based on physique etc.
+                        queue(ACTION_HEAL_PLAYER);
 
-        i = aq->num;
-
-        while(i) {
                 i = aq->num;
 
-                ret = do_next_thing_in_queue();
-                        
-                if(ret) {
-                        game->turn++;
-                        inc_second(&game->t, d(1,3));    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
-                        look();
-                }
+                while(i) {
+                        i = aq->num;
 
-                draw_world(world->curlevel);
-                draw_wstat();
-                update_screen();
+                        ret = do_next_thing_in_queue();
+
+                        if(ret) {
+                                game->turn++;
+                                inc_second(&game->t, d(1, 10));    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
+                                look();
+                        }
+
+                        draw_world(world->curlevel);
+                        draw_wstat();
+                        update_screen();
+                }
         }
 }
 
@@ -929,7 +934,8 @@ int main(int argc, char *argv[])
         do {
                 c = get_command();
 
-                mapchanged = false;
+                mapchanged   = false;
+                animate_only = false;
                 player->oldx = plx;
                 player->oldy = ply;
 
@@ -1078,7 +1084,8 @@ int main(int argc, char *argv[])
                                 update_screen();
 
                                 break;
-
+                        case CMD_MOVE_ON:
+                                animate_only = true;
                         default:
                                 queue(ACTION_NOTHING);
                                 game->turn--;

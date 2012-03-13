@@ -93,6 +93,9 @@ int get_command()
         if(key == 27)
                 return CMD_QUIT;       // easy exit even if C&C breaks down!
 
+        if(key == ERR)
+                return CMD_MOVE_ON;
+
         for(i=0; i<numcommands; i++) {
                 if(curcommands[i].key == key)
                         return curcommands[i].cmd;

@@ -85,6 +85,8 @@ void init_display()
         scrollok(wall, FALSE);
         nonl();
         nodelay(wall, TRUE);
+        //nodelay(wall, FALSE);
+        //halfdelay(5);            // use if we want to have animations of light/fire and stuff (but remember to disable when specifically asking for input!)
         curs_set(0);
         meta(wall, TRUE);
         intrflush(wmap, FALSE);
