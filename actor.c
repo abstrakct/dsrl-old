@@ -304,9 +304,9 @@ void player_die(actor_t *killer)
                 printf("\t\tWas killed by %s, using %s,\n", a_an(killer->name), a_an(killer->weapon->fullname));
 
         if(game->context == CONTEXT_INSIDE)
-                printf("\t\tat level %d of the dungeon.\n", game->currentlevel);
+                printf("\t\tat level %d of the area.\n", game->currentlevel);
         if(game->context == CONTEXT_OUTSIDE)
-                printf("\t\twhile outside the dungeon.\n");
+                printf("\t\twhile outside the area.\n");
 
         printf("\t\tYou killed a total of %d monsters.\n", player->kills);
         printf("\t\tYou got a total of %d experience points.\n\t\tYou got a final score of %d points.\n\n\n\n\n\n", player->xp, calculate_final_score());

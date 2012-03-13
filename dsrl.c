@@ -107,7 +107,7 @@ void init_variables()
 
         world = (world_t *) dsmalloc(sizeof(world_t));
 
-        world->area = dscalloc(26, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = dungeons
+        world->area = dscalloc(26, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = areas
         world->out = world->area;                      // i.e. it points to world->area[0]
         world->out->xsize = XSIZE;
         world->out->ysize = YSIZE;
@@ -116,7 +116,7 @@ void init_variables()
         game->dead = 0;
         game->seed = time(0);
         srand(game->seed);
-        game->createddungeons = 0;
+        game->createdareas = 0;
         generate_savefilename(game->savefile);
         loadgame = false;
 
@@ -531,7 +531,7 @@ bool do_action(int action)
                         fullturn = false;
                         break;
                 case ACTION_GO_DOWN_STAIRS:
-                        if(game->currentlevel < game->createddungeons) {
+                        if(game->currentlevel < game->createdareas) {
                                 tmpy = world->curlevel->c[ply][plx].desty;
                                 tmpx = world->curlevel->c[ply][plx].destx;
                                 if(game->currentlevel == 0) {
@@ -897,6 +897,7 @@ int main(int argc, char *argv[])
 
                 world->curlevel = &world->area[COLLINWOOD_MAIN_FLOOR];
                 world->cmap = world->curlevel->c;
+                game->currentlevel = 1;
                 game->context = CONTEXT_INSIDE;
 
                 // then move down a level...

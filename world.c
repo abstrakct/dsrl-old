@@ -34,14 +34,14 @@ char mapchars[50] = {
         'T',  //forest
         '#',  //city/house
         'o',  //village
-        '>',  //dungeon
+        '>',  //area
         '.',  //city    nohouse
         '.',  //village nohouse
         '.',  //foreest nohouse
         '~',  //lake
         '.',  //lake nohouse
-        '.',  //dungeonfloor
-        '#'   //dungeonwall
+        '.',  //areafloor
+        '#'   //areawall
 };
 
 /*********************************************
@@ -102,9 +102,9 @@ void clear_area(level_t *l, int y1, int x1, int y2, int x2)
 }
 
 /*
- * this function cleans the dungeon for stuff made by the dungeon generator which shouldn't be there.
+ * this function cleans the area for stuff made by the area generator which shouldn't be there.
  */
-void cleanup_dungeon(level_t *l)
+void cleanup_area(level_t *l)
 {
         int y, x;
 
@@ -154,7 +154,7 @@ void insert_roomdef_at(level_t *l, int y, int x)
         }
 }
 
-void generate_dungeon_type_1(int d)
+void generate_area_type_1(int d)
 {
         struct room **r;        
         int numrooms, maxroomsizex, maxroomsizey, nrx, nry, i, j;
@@ -293,16 +293,16 @@ void generate_dungeon_type_1(int d)
         }
 
         // And finally, do some cleaning:
-        cleanup_dungeon(&world->area[d]);
+        cleanup_area(&world->area[d]);
 }
 
 /*********************************************
-* Description - Generate a dungeon, labyrinthine (or perhaps more like a cavern?)
+* Description - Generate a area, labyrinthine (or perhaps more like a cavern?)
 * maxsize = well, max size
 * Author - RK
 * Date - Dec 12 2011
 * *******************************************/
-void generate_dungeon_type_2(int d)
+void generate_area_type_2(int d)
 {
         int tx, ty, xsize, ysize; 
         int fx, fy;
@@ -395,7 +395,7 @@ void generate_dungeon_type_2(int d)
         }
 }
 
-void generate_dungeon_type_3(int d)
+void generate_area_type_3(int d)
 {
         int i, j, x, y, q, r, num;
         level_t *l;
@@ -474,7 +474,7 @@ void pathfinder(level_t *l, int y1, int x1, int y2, int x2)
 }
 
 /*********************************************
-* Description - Flood fill to test dungeon gen
+* Description - Flood fill to test area gen
 * Author - RK
 * Date - Dec 14 2011
 * *******************************************/
@@ -534,7 +534,7 @@ void adddoor(level_t *l, int y, int x, bool secret)
 }
 
 /*********************************************
-* Description - Paint a room in a dungeon
+* Description - Paint a room in a area
 * Author - RK
 * Date - Dec 14 2011
 * *******************************************/
@@ -708,7 +708,7 @@ void generate_stairs_outside()
          * - Choose 3 destinations in area[1]
          * - Make about 30 downstairs on outside level, each leading to one of 3 destinations
          * - Make the 3 upstairs in area[1]
-         * - Then, use another function for generating stairs in each dungeon.
+         * - Then, use another function for generating stairs in each area.
          */
 
         struct dest {
@@ -791,10 +791,15 @@ void generate_collinwood()
         fill_level_with_walls(&world->area[1]);
         //fill_level_with_nothing(&world->area[1]);
         insert_roomdef_at(&world->area[1], 1, 1);
-        game->createddungeons++;
+
+        spawn_monsters(ri(2,4), 3, &world->area[1]);
+        spawn_golds(ri(5, 15), 30, &world->area[1]);
+        spawn_objects(10, &world->area[1]);
+
+        game->createdareas++;
 }
 
-void meta_generate_dungeon(int d, int type)
+void meta_generate_area(int d, int type)
 {
         if(type && type <= 3) {
                 int num_monsters, mino, maxo;
@@ -814,11 +819,11 @@ void meta_generate_dungeon(int d, int type)
                 fill_level_with_walls(&world->area[d]);
 
                 if(type == 1)
-                        generate_dungeon_type_1(d);
+                        generate_area_type_1(d);
                 if(type == 2)
-                        generate_dungeon_type_2(d);   // "labyrinthine"
+                        generate_area_type_2(d);   // "labyrinthine"
                 if(type == 3)
-                        generate_dungeon_type_3(d);
+                        generate_area_type_3(d);
 
                 if(type == 3) {
                         num_monsters = ((world->area[d].xsize + world->area[d].ysize) / 100) * d;
@@ -834,9 +839,9 @@ void meta_generate_dungeon(int d, int type)
                 spawn_golds((int) ri(5, 15), 45, &world->area[d]);
                 spawn_objects(ri(mino, maxo), &world->area[d]);
 
-                game->createddungeons++;
+                game->createdareas++;
         } else {
-                die("trying to generate dungeon of unknown type!");
+                die("trying to generate area of unknown type!");
         }
 }
 
@@ -846,7 +851,7 @@ void generate_stairs()
 
         generate_stairs_outside();
 
-        for(i = 1; i < game->createddungeons; i++) {
+        for(i = 1; i < game->createdareas; i++) {
                 create_stairs(3, i, i+1);
         }
 }
@@ -931,7 +936,7 @@ void generate_world()
 //        spawn_golds(ri(75,125), 100, world->out);
 //        spawn_objects(ri(world->out->xsize/4, world->out->ysize/4), world->out);
 //
-//        meta_generate_dungeon(1, 1);
+//        meta_generate_area(1, 1);
         //clear_area(&world->area[1], 6, 6, r.y+6, r.x+6);
         //insert_roomdef_at(&world->area[1], 6, 6);
 
@@ -940,11 +945,11 @@ void generate_world()
 
                 p = ri(1,100);
                 if(p <= 66)
-                        meta_generate_dungeon(i, 1);
+                        meta_generate_area(i, 1);
                 if(p > 66 && p < 82)
-                        meta_generate_dungeon(i, 2);
+                        meta_generate_area(i, 2);
                 if(p >= 82)
-                        meta_generate_dungeon(i, 3);
+                        meta_generate_area(i, 3);
         }
 */
 //        generate_stairs();

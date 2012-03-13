@@ -199,7 +199,7 @@ void FOV(actor_t *a, level_t *l)
         int i;
         //signed int tmpx,tmpy;
 
-        // if dark dungeon
+        // if dark area
         clear_map_to_invisible(l);
 
         for(i = 0; i < 360; i++) {
@@ -267,7 +267,7 @@ void draw_world(level_t *level)
         werase(wmap);
         FOV(player, level);
         if(game->context == CONTEXT_INSIDE)
-                FOVlight(player, level);     // only necessary in dungeon
+                FOVlight(player, level);     // only necessary in area
 
         /*
          * in this function, (j,i) are the coordinates on the map,
@@ -373,7 +373,7 @@ void draw_wstat()
         wattroff(wleft, color);
         mvwprintw(wleft, 7, 1, "Player level: %d", player->level);
         mvwprintw(wleft, 8, 1, "AC: %d", player->ac);
-        mvwprintw(wleft, 9, 1, "Dungeon level: %d (out of %d)", game->currentlevel, game->createddungeons);
+        mvwprintw(wleft, 9, 1, "Dungeon level: %d (out of %d)", game->currentlevel, game->createdareas);
         mvwprintw(wleft, 10, 1, "STR:   %d", player->attr.str);
         mvwprintw(wleft, 11, 1, "DEX:   %d", player->attr.dex);
         mvwprintw(wleft, 12, 1, "PHY:   %d", player->attr.phy);
@@ -600,7 +600,7 @@ void FOV(actor_t *a, level_t *l)
         int i;
         //signed int tmpx,tmpy;
 
-        // if dark dungeon
+        // if dark area
         clear_map_to_invisible(l);
 
         for(i = 0; i < 360; i++) {

@@ -40,7 +40,7 @@ typedef struct {                              // game_t
         unsigned int seed;                    // random seed
         short        monsterdefs;             // number of monster definitions
         short        objdefs;                 // number of object definitions
-        short        createddungeons;         // number of dungeons which have been created
+        short        createdareas;         // number of areas which have been created
         int          num_objects;             // number of spawned objects
         int          num_monsters;            // number of spawned monsters
         bool         wizardmode;              // yay!
