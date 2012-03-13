@@ -88,8 +88,8 @@ struct roomdef {
 };
 
 typedef struct {
-        level_t  *out;               // shall point to dng[0]
-        level_t  *dng;
+        level_t  *out;               // shall point to area[0]
+        level_t  *area;
         level_t  *curlevel;          // needed?
         cell_t   **cmap;
         short    villages, cvillage;     // num of villages, current village

@@ -107,8 +107,8 @@ void init_variables()
 
         world = (world_t *) dsmalloc(sizeof(world_t));
 
-        world->dng = dscalloc(26, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = dungeons
-        world->out = world->dng;                      // i.e. it points to world->dng[0]
+        world->area = dscalloc(26, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = dungeons
+        world->out = world->area;                      // i.e. it points to world->area[0]
         world->out->xsize = XSIZE;
         world->out->ysize = YSIZE;
 
@@ -535,14 +535,14 @@ bool do_action(int action)
                                 tmpy = world->curlevel->c[ply][plx].desty;
                                 tmpx = world->curlevel->c[ply][plx].destx;
                                 if(game->currentlevel == 0) {
-                                        world->dng[1].c[tmpy][tmpx].desty = ply;
-                                        world->dng[1].c[tmpy][tmpx].destx = plx;
+                                        world->area[1].c[tmpy][tmpx].desty = ply;
+                                        world->area[1].c[tmpy][tmpx].destx = plx;
                                         dsprintf("setting return destination to %d,%d", ply, plx);
                                 }
 
                                 game->currentlevel++;
-                                world->cmap = world->dng[game->currentlevel].c;
-                                world->curlevel = &(world->dng[game->currentlevel]);
+                                world->cmap = world->area[game->currentlevel].c;
+                                world->curlevel = &(world->area[game->currentlevel]);
                                 if(game->currentlevel > 0)
                                         game->context = CONTEXT_INSIDE;
 
@@ -563,8 +563,8 @@ bool do_action(int action)
 
                         if(game->currentlevel > 0)
                                 game->currentlevel--;
-                        world->cmap = world->dng[game->currentlevel].c;
-                        world->curlevel = &(world->dng[game->currentlevel]);
+                        world->cmap = world->area[game->currentlevel].c;
+                        world->curlevel = &(world->area[game->currentlevel]);
 
                         if(game->currentlevel == 0) {
                                 game->context = CONTEXT_OUTSIDE;
@@ -881,8 +881,8 @@ int main(int argc, char *argv[])
                 init_display();
                 
                 // these next should be loaded by load_game?!
-                world->cmap = world->dng[game->currentlevel].c;
-                world->curlevel = &world->dng[game->currentlevel];
+                world->cmap = world->area[game->currentlevel].c;
+                world->curlevel = &world->area[game->currentlevel];
         } else {
                 sprintf(messagefilename, "%s/messages.%d.dssave", SAVE_DIRECTORY, game->seed);
                 messagefile = fopen(messagefilename, "a");
@@ -895,7 +895,7 @@ int main(int argc, char *argv[])
                 player->inventory = init_inventory();
 
 
-                world->curlevel = &world->dng[COLLINWOOD_MAIN_FLOOR];
+                world->curlevel = &world->area[COLLINWOOD_MAIN_FLOOR];
                 world->cmap = world->curlevel->c;
                 game->context = CONTEXT_INSIDE;
 

@@ -267,10 +267,10 @@ bool save_game(char *filename)
         }
 
         /* then, let's save world and levels */
-        save_level(world->dng, f);
+        save_level(world->area, f);
 
         for(i=1; i<=game->createddungeons; i++)
-                save_level(&world->dng[i], f);
+                save_level(&world->area[i], f);
 
         fclose(f);
 
@@ -664,12 +664,12 @@ bool load_game(char *filename, int ingame)
         }
 
         /* world */
-        if(!load_level(world->dng, f)) {
+        if(!load_level(world->area, f)) {
                 fprintf(stderr, "DEBUG: %s:%d - loading failed in load_level\n", __FILE__, __LINE__);
                 return false;
         }
         for(i=1; i<=game->createddungeons; i++) {
-                if(!load_level(&world->dng[i], f)) {
+                if(!load_level(&world->area[i], f)) {
                         fprintf(stderr, "DEBUG: %s:%d - loading failed in load_level (level %d)\n", __FILE__, __LINE__, i);
                         return false;
                 }

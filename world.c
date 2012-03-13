@@ -163,7 +163,7 @@ void generate_dungeon_type_1(int d)
         int minroomsizex, minroomsizey;
         level_t *l;
                 
-        l = &world->dng[d];
+        l = &world->area[d];
 
 
         minroomsizey = 3;
@@ -275,25 +275,25 @@ void generate_dungeon_type_1(int d)
 
         // the edges
         for(ty=0;ty<l->ysize;ty++) {
-                addwall(&world->dng[d], ty, 1);
-                addwall(&world->dng[d], ty, l->xsize-1);
-                addwall(&world->dng[d], ty, l->xsize-2);
-                addwall(&world->dng[d], ty, l->xsize-3);
-                addwall(&world->dng[d], ty, l->xsize-4);
-                addwall(&world->dng[d], ty, l->xsize-5);
+                addwall(&world->area[d], ty, 1);
+                addwall(&world->area[d], ty, l->xsize-1);
+                addwall(&world->area[d], ty, l->xsize-2);
+                addwall(&world->area[d], ty, l->xsize-3);
+                addwall(&world->area[d], ty, l->xsize-4);
+                addwall(&world->area[d], ty, l->xsize-5);
         }
 
         for(tx=0;tx<l->xsize-4;tx++) {
-                addwall(&world->dng[d], 1, tx);
-                addwall(&world->dng[d], l->ysize-1, tx);
-                addwall(&world->dng[d], l->ysize-2, tx);
-                addwall(&world->dng[d], l->ysize-3, tx);
-                addwall(&world->dng[d], l->ysize-4, tx);
-                addwall(&world->dng[d], l->ysize-5, tx);
+                addwall(&world->area[d], 1, tx);
+                addwall(&world->area[d], l->ysize-1, tx);
+                addwall(&world->area[d], l->ysize-2, tx);
+                addwall(&world->area[d], l->ysize-3, tx);
+                addwall(&world->area[d], l->ysize-4, tx);
+                addwall(&world->area[d], l->ysize-5, tx);
         }
 
         // And finally, do some cleaning:
-        cleanup_dungeon(&world->dng[d]);
+        cleanup_dungeon(&world->area[d]);
 }
 
 /*********************************************
@@ -313,11 +313,11 @@ void generate_dungeon_type_2(int d)
         level_t *l;
         //int color;
 
-        l = &world->dng[d];
+        l = &world->area[d];
         tx = 0; //ri(0, 10);  // starting X
         ty = 0; //ri(0, 10);  // starting y
-        xsize = world->dng[d].xsize;  // total size X
-        ysize = world->dng[d].ysize;  // total size Y - rather uneccessary these two, eh?
+        xsize = world->area[d].xsize;  // total size X
+        ysize = world->area[d].ysize;  // total size Y - rather uneccessary these two, eh?
 
         //fprintf(stderr, "DEBUG: %s:%d - tx,ty = %d,%d xsize,ysize = %d,%d\n", __FILE__, __LINE__, tx, ty, xsize, ysize);
         // let's not go over the edge
@@ -342,8 +342,8 @@ void generate_dungeon_type_2(int d)
 
         for(fy = ty; fy < ysize; fy++) {
                 for(fx = tx; fx < xsize; fx++) {
-                        addwall(&world->dng[d], fy, fx);
-                        world->dng[d].c[fy][fx].visible = 0;
+                        addwall(&world->area[d], fy, fx);
+                        world->area[d].c[fy][fx].visible = 0;
                 }
         }
 
@@ -370,28 +370,28 @@ void generate_dungeon_type_2(int d)
                         chance = 25;
 
                         if(a >= chance && fy != ty && fy != (ty+ysize) && fx != tx && fx != (tx+xsize)) {
-                                world->dng[d].c[fy][fx].type = DNG_FLOOR;
-                                world->dng[d].c[fy][fx].color = COLOR_NORMAL;
+                                world->area[d].c[fy][fx].type = DNG_FLOOR;
+                                world->area[d].c[fy][fx].color = COLOR_NORMAL;
                         }
                 }
         }
 
         for(ty=0;ty<l->ysize;ty++) {
-                addwall(&world->dng[d], ty, 1);
-                addwall(&world->dng[d], ty, l->xsize-1);
-                addwall(&world->dng[d], ty, l->xsize-2);
-                addwall(&world->dng[d], ty, l->xsize-3);
-                addwall(&world->dng[d], ty, l->xsize-4);
-                addwall(&world->dng[d], ty, l->xsize-5);
+                addwall(&world->area[d], ty, 1);
+                addwall(&world->area[d], ty, l->xsize-1);
+                addwall(&world->area[d], ty, l->xsize-2);
+                addwall(&world->area[d], ty, l->xsize-3);
+                addwall(&world->area[d], ty, l->xsize-4);
+                addwall(&world->area[d], ty, l->xsize-5);
         }
 
         for(tx=0;tx<l->xsize;tx++) {
-                addwall(&world->dng[d], 1, tx);
-                addwall(&world->dng[d], l->ysize-1, tx);
-                addwall(&world->dng[d], l->ysize-2, tx);
-                addwall(&world->dng[d], l->ysize-3, tx);
-                addwall(&world->dng[d], l->ysize-4, tx);
-                addwall(&world->dng[d], l->ysize-5, tx);
+                addwall(&world->area[d], 1, tx);
+                addwall(&world->area[d], l->ysize-1, tx);
+                addwall(&world->area[d], l->ysize-2, tx);
+                addwall(&world->area[d], l->ysize-3, tx);
+                addwall(&world->area[d], l->ysize-4, tx);
+                addwall(&world->area[d], l->ysize-5, tx);
         }
 }
 
@@ -400,7 +400,7 @@ void generate_dungeon_type_3(int d)
         int i, j, x, y, q, r, num;
         level_t *l;
 
-        l = &world->dng[d];
+        l = &world->area[d];
         q = ri(80, l->ysize);
         r = ri(100, l->xsize);
 
@@ -705,9 +705,9 @@ bool monster_passable(level_t *l, int y, int x)
 void generate_stairs_outside()
 {
         /* Here's what we're gonna do:
-         * - Choose 3 destinations in dng[1]
+         * - Choose 3 destinations in area[1]
          * - Make about 30 downstairs on outside level, each leading to one of 3 destinations
-         * - Make the 3 upstairs in dng[1]
+         * - Make the 3 upstairs in area[1]
          * - Then, use another function for generating stairs in each dungeon.
          */
 
@@ -719,14 +719,14 @@ void generate_stairs_outside()
 
         
         for(i = 0; i < 3; i++) {
-                d[i].y = ri(0, world->dng[1].ysize-5);
-                d[i].x = ri(0, world->dng[1].xsize-5);
-                while(!passable(&world->dng[1], d[i].y, d[i].x)) {
-                        d[i].y = ri(0, world->dng[1].ysize-5);
-                        d[i].x = ri(0, world->dng[1].xsize-5);
+                d[i].y = ri(0, world->area[1].ysize-5);
+                d[i].x = ri(0, world->area[1].xsize-5);
+                while(!passable(&world->area[1], d[i].y, d[i].x)) {
+                        d[i].y = ri(0, world->area[1].ysize-5);
+                        d[i].x = ri(0, world->area[1].xsize-5);
                 }
 
-                setbit(world->dng[1].c[d[i].y][d[i].x].flags, CF_HAS_STAIRS_UP);
+                setbit(world->area[1].c[d[i].y][d[i].x].flags, CF_HAS_STAIRS_UP);
         }
 
         s = ri(35, 70);
@@ -739,11 +739,11 @@ void generate_stairs_outside()
                 }
                 j  = ri(0, 2);
 
-                setbit(world->dng[0].c[sy][sx].flags, CF_HAS_STAIRS_DOWN);
-                world->dng[0].c[sy][sx].desty = d[j].y;
-                world->dng[0].c[sy][sx].destx = d[j].x;
-                world->dng[1].c[d[j].y][d[j].x].desty = sy;
-                world->dng[1].c[d[j].y][d[j].x].destx = sx;
+                setbit(world->area[0].c[sy][sx].flags, CF_HAS_STAIRS_DOWN);
+                world->area[0].c[sy][sx].desty = d[j].y;
+                world->area[0].c[sy][sx].destx = d[j].x;
+                world->area[1].c[d[j].y][d[j].x].desty = sy;
+                world->area[1].c[d[j].y][d[j].x].destx = sx;
         }
 
 }
@@ -754,8 +754,8 @@ void create_stairs(int num, int s, int d)
         int x1, y1, x2, y2;
         int i;
 
-        a = &world->dng[s];
-        b = &world->dng[d];
+        a = &world->area[s];
+        b = &world->area[d];
 
         for(i = 0; i < num; i++) {
                 y1 = ri(5, a->ysize-5);
@@ -784,13 +784,13 @@ void create_stairs(int num, int s, int d)
 
 void generate_collinwood()
 {
-        world->dng[1].ysize = r.y+5;
-        world->dng[1].xsize = r.x+5;
-        world->dng[1].level = 1;
-        init_level(&world->dng[1]);
-        fill_level_with_walls(&world->dng[1]);
-        //fill_level_with_nothing(&world->dng[1]);
-        insert_roomdef_at(&world->dng[1], 1, 1);
+        world->area[1].ysize = r.y+5;
+        world->area[1].xsize = r.x+5;
+        world->area[1].level = 1;
+        init_level(&world->area[1]);
+        fill_level_with_walls(&world->area[1]);
+        //fill_level_with_nothing(&world->area[1]);
+        insert_roomdef_at(&world->area[1], 1, 1);
         game->createddungeons++;
 }
 
@@ -800,18 +800,18 @@ void meta_generate_dungeon(int d, int type)
                 int num_monsters, mino, maxo;
 
                 if(type == 3) {
-                        world->dng[d].ysize = ri(100, 200);
-                        world->dng[d].xsize = ri(200, 300);
+                        world->area[d].ysize = ri(100, 200);
+                        world->area[d].xsize = ri(200, 300);
                 } else {
-                        world->dng[d].xsize = (ri(70, 120));  // let's start within reasonable sizes!
-                        world->dng[d].ysize = (ri(50, 100));
+                        world->area[d].xsize = (ri(70, 120));  // let's start within reasonable sizes!
+                        world->area[d].ysize = (ri(50, 100));
                 }
 
-                world->dng[d].level = d;
-                world->dng[d].type  = type;
+                world->area[d].level = d;
+                world->area[d].type  = type;
                 
-                init_level(&world->dng[d]);
-                fill_level_with_walls(&world->dng[d]);
+                init_level(&world->area[d]);
+                fill_level_with_walls(&world->area[d]);
 
                 if(type == 1)
                         generate_dungeon_type_1(d);
@@ -821,18 +821,18 @@ void meta_generate_dungeon(int d, int type)
                         generate_dungeon_type_3(d);
 
                 if(type == 3) {
-                        num_monsters = ((world->dng[d].xsize + world->dng[d].ysize) / 100) * d;
-                        mino = (world->dng[d].ysize + world->dng[d].xsize) / 80;
-                        maxo = (world->dng[d].ysize + world->dng[d].xsize) / 60;
+                        num_monsters = ((world->area[d].xsize + world->area[d].ysize) / 100) * d;
+                        mino = (world->area[d].ysize + world->area[d].xsize) / 80;
+                        maxo = (world->area[d].ysize + world->area[d].xsize) / 60;
                 } else {
-                        num_monsters = (world->dng[d].xsize + world->dng[d].ysize) / 20;
-                        mino = (world->dng[d].ysize + world->dng[d].xsize) / 20;
-                        maxo = (world->dng[d].ysize + world->dng[d].xsize) / 10;
+                        num_monsters = (world->area[d].xsize + world->area[d].ysize) / 20;
+                        mino = (world->area[d].ysize + world->area[d].xsize) / 20;
+                        maxo = (world->area[d].ysize + world->area[d].xsize) / 10;
                 }
 
-                spawn_monsters(num_monsters, d+2, &world->dng[d]);
-                spawn_golds((int) ri(5, 15), 45, &world->dng[d]);
-                spawn_objects(ri(mino, maxo), &world->dng[d]);
+                spawn_monsters(num_monsters, d+2, &world->area[d]);
+                spawn_golds((int) ri(5, 15), 45, &world->area[d]);
+                spawn_objects(ri(mino, maxo), &world->area[d]);
 
                 game->createddungeons++;
         } else {
@@ -932,8 +932,8 @@ void generate_world()
 //        spawn_objects(ri(world->out->xsize/4, world->out->ysize/4), world->out);
 //
 //        meta_generate_dungeon(1, 1);
-        //clear_area(&world->dng[1], 6, 6, r.y+6, r.x+6);
-        //insert_roomdef_at(&world->dng[1], 6, 6);
+        //clear_area(&world->area[1], 6, 6, r.y+6, r.x+6);
+        //insert_roomdef_at(&world->area[1], 6, 6);
 
 /*        for(i = 2; i <= 25; i++) {
                 int p;
