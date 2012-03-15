@@ -55,11 +55,17 @@ int parse_areadef_cfgfile(char *filename, int index)
                         if(!strcmp(value, "outside collinwood"))
                                 areadef[index].exit[x].location = AREA_OUTSIDE;
                         if(!strcmp(value, "upstairs collinwood"))
-                                areadef[index].exit[x].location = AREA_COLLINWOOD_UPSTAIRS;
+                                areadef[index].exit[x].location = AREA_COLLINWOOD_UPSTAIRS_HALL;
                         if(!strcmp(value, "roger study"))
                                 areadef[index].exit[x].location = AREA_COLLINWOOD_STUDY;
                         if(!strcmp(value, "kitchen"))
                                 areadef[index].exit[x].location = AREA_COLLINWOOD_KITCHEN;
+                        if(!strcmp(value, "main floor collinwood"))
+                                areadef[index].exit[x].location = AREA_COLLINWOOD_MAIN_FLOOR;
+                        if(!strcmp(value, "bedrooms"))
+                                areadef[index].exit[x].location = AREA_COLLINWOOD_UPSTAIRS;
+
+
 
                         sprintf(sname, "config.[%d].exit.[%d].type", i, x);
                         config_lookup_string(cf, sname, &value);
@@ -143,6 +149,7 @@ int parse_areadef_file(char *filename, int index)
 int parse_areadef_files()
 {
         return parse_areadef_file("data/area/collinwood.1", AREA_COLLINWOOD_MAIN_FLOOR);
+        return parse_areadef_file("data/area/collinwood.2", AREA_COLLINWOOD_UPSTAIRS_HALL);
 }
 
 int parse_monsters()

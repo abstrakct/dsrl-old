@@ -76,6 +76,7 @@ TING MAN MÅ HA MED:
 LOCATIONS:
 - Collinwood
   - 1. etasje
+  - 2. etasje - gang og soverom
   - Kjeller
   - East Wing
   - West Wing

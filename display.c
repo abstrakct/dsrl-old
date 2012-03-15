@@ -329,15 +329,14 @@ void draw_world(level_t *level)
                                                 int index;
                                                 index = level->c[j][i].exitindex;
                                                 if(level->exit[index].type == ET_EXIT)
-                                                        dsmapaddch(dy, dx, COLOR_WHITE, '<');
+                                                        dsmapaddch(dy, dx, COLOR_WHITE, '^');
                                                 if(level->exit[index].type == ET_STAIRS_UP)
                                                         dsmapaddch(dy, dx, COLOR_WHITE, '<');
                                                 if(level->exit[index].type == ET_STAIRS_DOWN)
                                                         dsmapaddch(dy, dx, COLOR_WHITE, '>');
                                                 if(level->exit[index].type == ET_DOOR)
                                                         dsmapaddch(dy, dx, COLOR_WHITE, '+');
-                                        }
-                                                
+                                        } 
                                 }
 
 

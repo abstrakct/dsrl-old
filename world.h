@@ -16,11 +16,12 @@
 #define CELL_LAKE            100
 #define CELL_MOUNTAIN        101
 
-#define AREA_OUTSIDE                 0
-#define AREA_COLLINWOOD_MAIN_FLOOR   1
-#define AREA_COLLINWOOD_UPSTAIRS     2
-#define AREA_COLLINWOOD_STUDY        3
-#define AREA_COLLINWOOD_KITCHEN      4
+#define AREA_OUTSIDE                      0
+#define AREA_COLLINWOOD_MAIN_FLOOR        1
+#define AREA_COLLINWOOD_UPSTAIRS_HALL     2
+#define AREA_COLLINWOOD_UPSTAIRS          3
+#define AREA_COLLINWOOD_STUDY             4
+#define AREA_COLLINWOOD_KITCHEN           5
 
 // Exit types
 #define ET_EXIT         1
@@ -59,14 +60,14 @@ typedef struct {                 // cell_t
 } cell_t;
 
 struct levelstruct {
-        short      xsize, ysize;
-        short      level, type;
-        int        zero;           // for defining the "zero" level of a heightmap (i.e. the mean value)
-        int        lakelimit;
-        cell_t   **c;
-        monster_t *monsters;      // point to head of linked lists of monsters on this level
-        obj_t     *objects;
-        exit_t   exit[10];
+        short       xsize, ysize;
+        short       level, type;
+        int         zero;           // for defining the "zero" level of a heightmap (i.e. the mean value)
+        int         lakelimit;
+        cell_t    **c;
+        monster_t  *monsters;      // point to head of linked lists of monsters on this level
+        obj_t      *objects;
+        exit_t      exit[10];
 };
 
 struct room {
@@ -90,6 +91,7 @@ typedef struct {
 } areadef_t;
 
 extern areadef_t areadef[50];
+extern char *areanames[50];
 
 // CELLFLAGS
 

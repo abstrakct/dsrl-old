@@ -782,6 +782,23 @@ void look()
                         dsprintf("There is a staircase leading up here.");
         }
 
+        if(cf(ply, plx) & CF_HAS_EXIT) {
+                int index;
+                index = world->curlevel->c[ply][plx].exitindex;
+                if(world->curlevel->exit[index].type == ET_EXIT) {
+                        dsprintf("There is an exit leading to %s here.", areanames[world->curlevel->exit[index].location]);
+                }
+                if(world->curlevel->exit[index].type == ET_STAIRS_UP) {
+                        dsprintf("There is a staircase leading up to %s here.", areanames[world->curlevel->exit[index].location]);
+                }
+                if(world->curlevel->exit[index].type == ET_STAIRS_DOWN) {
+                        dsprintf("There is a staircase leading down to %s here.", areanames[world->curlevel->exit[index].location]);
+                }
+                if(world->curlevel->exit[index].type == ET_DOOR) {
+                        dsprintf("There is a door leading to %s here.", areanames[world->curlevel->exit[index].location]);
+                }
+        }
+
         if(ci(ply, plx)) {
                 if(ci(ply, plx) && ci(ply, plx)->gold) {
                         if(dsconfig.ap[OT_GOLD])

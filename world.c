@@ -47,6 +47,15 @@ char mapchars[50] = {
         '#'   //areawall
 };
 
+char *areanames[50] = {
+        "the outside",
+        "Collinwood",
+        "the second floor",
+        "the bedrooms",
+        "the study",
+        "the kitchen"
+};
+
 /*********************************************
 * Description - Initialize a level_t struct.
 * This function will allocate memory for xsize*ysize*sizeof(cell_t)
