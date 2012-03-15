@@ -130,7 +130,7 @@ void cleanup_area(level_t *l)
 
 void insert_areadef_at(level_t *l, int y, int x, int index)
 {
-        int i, j;
+        int i, j, xit;
 
         for(i = 0; i < areadef[index].y; i++) {
                 for(j = 0; j < areadef[index].x; j++) {
@@ -145,6 +145,12 @@ void insert_areadef_at(level_t *l, int y, int x, int index)
                                         if(hasbit(areadef[index].c[i][j].flags, CF_IS_STARTING_POINT)) {
                                                 player->y = y+i;
                                                 player->x = y+j;
+                                        }
+                                        if(hasbit(areadef[index].c[i][j].flags, CF_HAS_EXIT)) {
+                                                xit = areadef[index].c[i][j].exitindex;
+                                                setbit(l->c[y+i][x+j].flags, CF_HAS_EXIT);
+                                                l->c[y+i][x+j].exitindex = xit; //areadef[index].exit[xit].type;
+                                                l->exit[xit] = areadef[index].exit[xit];
                                         }
                                         break;
                                 case CELL_NOTHING:

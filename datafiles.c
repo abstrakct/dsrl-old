@@ -25,11 +25,75 @@ config_t *cf;
 int objid;             // to keep track of all parsed objects, to give each a unique ID
 areadef_t r;
 
+int parse_areadef_cfgfile(char *filename, int index)
+{
+        config_setting_t *cfg;
+        int i, j;
+        char sname[200];
+        const char *value;
+
+        cf = (config_t *) dsmalloc(sizeof(config_t));
+        config_init(cf);
+
+        if (!config_read_file(cf, filename)) {
+                fprintf(stderr, "%s:%d - %s\n",
+                                config_error_file(cf),
+                                config_error_line(cf),
+                                config_error_text(cf));
+                config_destroy(cf);
+                return(1);
+        }
+
+        cfg = config_lookup(cf, "config");
+        j = config_setting_length(cfg);
+
+        for(i = 0; i < j; i++) {
+                int x;
+                for(x = 0; x < 10; x++) {
+                        sprintf(sname, "config.[%d].exit.[%d].location", i, x);
+                        config_lookup_string(cf, sname, &value);
+                        if(!strcmp(value, "outside collinwood"))
+                                areadef[index].exit[x].location = AREA_OUTSIDE;
+                        if(!strcmp(value, "upstairs collinwood"))
+                                areadef[index].exit[x].location = AREA_COLLINWOOD_UPSTAIRS;
+                        if(!strcmp(value, "roger study"))
+                                areadef[index].exit[x].location = AREA_COLLINWOOD_STUDY;
+                        if(!strcmp(value, "kitchen"))
+                                areadef[index].exit[x].location = AREA_COLLINWOOD_KITCHEN;
+
+                        sprintf(sname, "config.[%d].exit.[%d].type", i, x);
+                        config_lookup_string(cf, sname, &value);
+                        if(!strcmp(value, "exit"))
+                                areadef[index].exit[x].type = ET_EXIT;
+                        if(!strcmp(value, "stairs up"))
+                                areadef[index].exit[x].type = ET_STAIRS_UP;
+                        if(!strcmp(value, "stairs down"))
+                                areadef[index].exit[x].type = ET_STAIRS_DOWN;
+                        if(!strcmp(value, "door"))
+                                areadef[index].exit[x].type = ET_DOOR;
+                                
+
+                        sprintf(sname, "config.[i].exit.[x].char");
+                        config_lookup_string(cf, sname, &value);
+                        areadef[index].exit[x].c = value[0];
+                }
+        }
+
+        config_destroy(cf);
+        return 0;
+}
+
 int parse_areadef_file(char *filename, int index)
 {
         FILE *f;
-        int y, x, i, j;
+        int y, x, i, j, n;
         char c;
+        char cfgfile[100];
+
+        sprintf(cfgfile, "%s.cfg", filename);
+
+        if(parse_areadef_cfgfile(cfgfile, index))
+                printf("couldn't read %s - will try to continue anyway! cross your fingers!", cfgfile);
 
         f = fopen(filename, "r");
         if(!f)
@@ -51,8 +115,21 @@ int parse_areadef_file(char *filename, int index)
                                           setbit(areadef[index].c[i][j].flags, CF_HAS_DOOR_CLOSED); break;
                                 case '@': areadef[index].c[i][j].type = CELL_FLOOR; 
                                           setbit(areadef[index].c[i][j].flags, CF_IS_STARTING_POINT); break;
-                                case 't': break;
-                                case 'm': break;
+                                case '0':
+                                case '1':
+                                case '2':
+                                case '3':
+                                case '4':
+                                case '5':
+                                case '6':
+                                case '7':
+                                case '8':
+                                case '9':
+                                          n = c - '0';
+                                          areadef[index].c[i][j].type = CELL_FLOOR;
+                                          setbit(areadef[index].c[i][j].flags, CF_HAS_EXIT);
+                                          areadef[index].c[i][j].exitindex = n;
+                                          break;
                                 default: areadef[index].c[i][j].type = CELL_FLOOR; break;
                         }
                 }

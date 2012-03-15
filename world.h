@@ -16,8 +16,17 @@
 #define CELL_LAKE            100
 #define CELL_MOUNTAIN        101
 
-
+#define AREA_OUTSIDE                 0
 #define AREA_COLLINWOOD_MAIN_FLOOR   1
+#define AREA_COLLINWOOD_UPSTAIRS     2
+#define AREA_COLLINWOOD_STUDY        3
+#define AREA_COLLINWOOD_KITCHEN      4
+
+// Exit types
+#define ET_EXIT         1
+#define ET_STAIRS_UP    2
+#define ET_STAIRS_DOWN  3
+#define ET_DOOR         4
 
 #define YSIZE 1024
 #define XSIZE 1024
@@ -31,17 +40,10 @@
 #define cv(a,b) world->curlevel->c[a][b].visible
 
 typedef struct {
-        char  name[50];
-        short x1, y1, x2, y2;     // start/end coordinates
-        short alignment;          // not sure what this is for.... good/evil alignment??
-        short houses;
-} city_t;
-
-typedef struct {
-        char  name[50];
-        short x1, y1, x2, y2;
-        short flags;              // not sure yet what this is for...
-} forest_t;
+        int location;
+        int type;
+        char c;
+} exit_t;
 
 typedef struct {                 // cell_t
         char       type;
@@ -51,6 +53,7 @@ typedef struct {                 // cell_t
         short      litcolor;
         bool       visible;
         signed int height;
+        short      exitindex;
         monster_t *monster;
         inv_t     *inventory;
 } cell_t;
@@ -60,9 +63,10 @@ struct levelstruct {
         short      level, type;
         int        zero;           // for defining the "zero" level of a heightmap (i.e. the mean value)
         int        lakelimit;
-        cell_t     **c;
-        monster_t  *monsters;      // point to head of linked lists of monsters on this level
-        obj_t      *objects;
+        cell_t   **c;
+        monster_t *monsters;      // point to head of linked lists of monsters on this level
+        obj_t     *objects;
+        exit_t   exit[10];
 };
 
 struct room {
@@ -72,24 +76,17 @@ struct room {
 typedef struct levelstruct level_t;
 typedef cell_t** map_ptr;
 
-struct areadefWTF {
-        int ysize, xsize;
-        map_ptr map;
-};
-
 typedef struct {
         level_t  *out;               // shall point to area[0]
         level_t  *area;
         level_t  *curlevel;          // needed?
         cell_t   **cmap;
-        short    villages, cvillage;     // num of villages, current village
-        short    cities, ccity;
-        short    forests, cforest;
 } world_t;
 
 typedef struct {
         int    y, x;
         cell_t **c;
+        exit_t exit[10];
 } areadef_t;
 
 extern areadef_t areadef[50];
@@ -104,6 +101,7 @@ extern areadef_t areadef[50];
 #define CF_HAS_DOOR_CLOSED   (1<<5)
 #define CF_HAS_DOOR_SECRET   (1<<6)
 #define CF_IS_STARTING_POINT (1<<7)
+#define CF_HAS_EXIT          (1<<8)
 
 
 void generate_world();

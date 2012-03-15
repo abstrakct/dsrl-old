@@ -236,6 +236,20 @@ void fixview()
                 ppy = 0;
 }
 
+void open_door(int y, int x)
+{
+        clearbit(cf(y, x), CF_HAS_DOOR_CLOSED);
+        setbit(cf(y, x), CF_HAS_DOOR_OPEN);
+        if(hasbit(cf(y+1,x), CF_HAS_DOOR_CLOSED))
+                open_door(y+1,x);
+        if(hasbit(cf(y-1,x), CF_HAS_DOOR_CLOSED))
+                open_door(y-1,x);
+        if(hasbit(cf(y,x+1), CF_HAS_DOOR_CLOSED))
+                open_door(y,x+1);
+        if(hasbit(cf(y,x-1), CF_HAS_DOOR_CLOSED))
+                open_door(y,x-1);
+}
+
 /*********************************************
 * Description - Do an action specified by parameter action
 * Author - RK
@@ -642,8 +656,7 @@ bool do_action(int action)
         }
 
         if(cf(ply, plx) & CF_HAS_DOOR_CLOSED) {
-                clearbit(cf(ply, plx), CF_HAS_DOOR_CLOSED);       // move to its own funtcion?!"¤&¤%"%
-                setbit(cf(ply, plx), CF_HAS_DOOR_OPEN);
+                open_door(ply, plx);
                 you("open the door!");
                 ply = oldy; plx = oldx;
         }
