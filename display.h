@@ -6,6 +6,7 @@
 #ifndef _DISPALY_H
 #define _DISPALY_H
 
+#include <libtcod/libtcod.h>
 
 // Prototypes
 void init_display();
@@ -13,7 +14,7 @@ void shutdown_display();
 void draw_world(level_t *level);
 void draw_wstat();
 
-void dsmapaddch(int y, int x, int color, char c);
+void dsmapaddch(int y, int x, TCOD_color_t color, char c);
 void update_screen();
 void update_player();
 void initial_update_screen();
@@ -114,5 +115,11 @@ bool blocks_light(int y, int x);
 #define COLOR_LIGHT   62
 
 #define COLOR_INVISIBLE 63
+
+#ifdef DS_USE_LIBTCOD
+
+// #define COLOR
+
+#endif
 
 #endif

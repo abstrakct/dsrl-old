@@ -1,6 +1,8 @@
 #ifndef _DS_SAVELOAD_H
 #define _DS_SAVELOAD_H
 
+#include <libtcod/libtcod.h>
+
 #define SAVE_DIRECTORY ".saves"
 #define DS_SAVEFILE_MAGIC  0xDEAD71FE
 
@@ -31,7 +33,7 @@ struct monsterdef_save_struct {
 /* This one must match obj_t when it comes to variable types etc.! */
 struct objdef_save_struct {
        int          id;
-       int          color;
+       TCOD_color_t color;
        short        type;
        long         flags;
        signed short attackmod;

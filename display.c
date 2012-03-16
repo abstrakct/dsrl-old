@@ -651,12 +651,80 @@ void shutdown_display()
 
 void draw_world(level_t *level)
 {
-        printf("Imagine a beautiful landscape... Trees, mountains, birds...\n");
+        int i,j, slot;
+        int dx, dy;  // coordinates on screen!
+        TCOD_color_t color;
+
+        FOV(player, level);
+        if(game->context == CONTEXT_INSIDE)
+                FOVlight(player, level);     // only necessary inside
+
+        /*
+         * in this function, (j,i) are the coordinates on the map,
+         * dx,dy = coordinates on screen.
+         * so, player->py/px describes the upper left corner of the map
+         */
+        for(i = ppx, dx = 0; i <= (ppx + game->mapw); i++, dx++) {
+                for(j = ppy, dy = 0; j <= (ppy + game->maph); j++, dy++) {
+                        if(j < level->ysize && i < level->xsize) {
+                                if(hasbit(level->c[j][i].flags, CF_VISITED)) {
+                                        color = cc(j,i);
+
+                                        if(hasbit(level->c[j][i].flags, CF_LIT)) {
+                                                color = level->c[j][i].litcolor;
+                                        }
+
+                                        dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
+
+                                        if(level->c[j][i].inventory) {
+                                                if(level->c[j][i].inventory->gold > 0) {
+                                                        dsmapaddch(dy, dx, TCOD_yellow, objchars[OT_GOLD]);
+                                                } else {                                                         // TODO ADD OBJECT COLORS!!!
+                                                        slot = get_first_used_slot(level->c[j][i].inventory);
+                                                        if(level->c[j][i].inventory->num_used > 0 && slot >= 0 && level->c[j][i].inventory->object[slot]) {
+                                                                color = level->c[j][i].inventory->object[slot]->color;
+                                                                dsmapaddch(dy, dx, color, objchars[level->c[j][i].inventory->object[slot]->type]);
+                                                        }
+                                                }
+                                        }
+
+                                        if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_CLOSED))
+                                                dsmapaddch(dy, dx, color, '+');
+                                        else if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_OPEN))
+                                                dsmapaddch(dy, dx, color, '\'');
+                                        else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_DOWN))
+                                                dsmapaddch(dy, dx, TCOD_white, '>');
+                                        else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_UP))
+                                                dsmapaddch(dy, dx, TCOD_white, '<');
+                                        else if(hasbit(level->c[j][i].flags, CF_HAS_EXIT)) {
+                                                int index;
+                                                index = level->c[j][i].exitindex;
+                                                if(level->exit[index].type == ET_EXIT)
+                                                        dsmapaddch(dy, dx, TCOD_white, '^');
+                                                if(level->exit[index].type == ET_STAIRS_UP)
+                                                        dsmapaddch(dy, dx, TCOD_white, '|');
+                                                if(level->exit[index].type == ET_STAIRS_DOWN)
+                                                        dsmapaddch(dy, dx, TCOD_white, '>');
+                                                if(level->exit[index].type == ET_DOOR)
+                                                        dsmapaddch(dy, dx, TCOD_white, '+');
+                                        } 
+                                }
+
+
+                                if(level->c[j][i].visible && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
+                                        dsmapaddch(dy, dx, TCOD_red, (char) level->c[j][i].monster->c);
+
+                        if(j == ply && i == plx)
+                                dsmapaddch(dy, dx, TCOD_blue, '@');
+                        }
+                }
+        }
+
 }
 
-void dsmapaddch(int y, int x, int color, char c)
+void dsmapaddch(int y, int x, TCOD_color_t color, char c)
 {
-        printf("%c", c);
+        TCOD_console_put_char_ex(NULL, x, y, c, color, TCOD_black);
 }
 
 void initial_update_screen()

@@ -9,13 +9,9 @@
 #ifndef _OBJECTS_H
 #define _OBJECTS_H
 
+#include <libtcod/libtcod.h>
+
 #define MAX_EFFECTS  10
-/*
-typedef struct object_effect {
-        struct object_effect *next;
-        void   (*effect)(void *data);
-} oe_t;
-*/
 
 struct object {
         //struct object *prev;
@@ -23,7 +19,7 @@ struct object {
         struct object *next;
         int           id;                   // objdef-id
         int           oid;                  // unique id
-        short         color;                // color!
+        TCOD_color_t  color;                // color!
         short         type;                 // see OT_defines below
         long          flags;                // 4 bytes = 32 bits/flags, see OF_defines below - CONSIDER CHANGE TO LONG LONG
         signed short  attackmod;            // +/- on attack; for armor: acmodifier

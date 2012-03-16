@@ -7,6 +7,7 @@
 #define _WORLD_H
 
 #include <stdbool.h>
+#include <libtcod/libtcod.h>
 
 #define CELL_NOTHING         0
 #define CELL_WALL            1
@@ -50,8 +51,14 @@ typedef struct {                 // cell_t
         char       type;
         int        flags;
         short      desty, destx;       // for stairs and portals; destination y,x
+#ifdef DS_USE_NCURSES
         short      color;
         short      litcolor;
+#endif
+#ifdef DS_USE_LIBTCOD
+        TCOD_color_t color;
+        TCOD_color_t litcolor;
+#endif
         bool       visible;
         signed int height;
         short      exitindex;

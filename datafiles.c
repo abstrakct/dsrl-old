@@ -333,7 +333,7 @@ int parse_armor()
                 o->ac = x;
 
                 o->id = objid; objid++;
-                o->color = COLOR_WHITE;
+                o->color = TCOD_white;
 
                 o->head = objdefs->head;
                 objdefs->next = o;
@@ -412,7 +412,7 @@ int parse_weapons()
                 o->attackmod = o->damagemod = x;
 
                 o->id = objid; objid++;
-                o->color = COLOR_WHITE;
+                o->color = TCOD_white;
 
                 o->head = objdefs->head;
                 objdefs->next = o;
@@ -478,7 +478,7 @@ int parse_amulet()
 
                 o->type = OT_AMULET;
                 o->id = objid; objid++;
-                o->color = COLOR_WHITE;
+                o->color = TCOD_white;
 
                 o->material = mats_amulets[material];
                 material++;
@@ -561,7 +561,7 @@ int parse_bracelet()
 
                 o->type = OT_BRACELET;
                 o->id = objid; objid++;
-                o->color = COLOR_WHITE;
+                o->color = TCOD_white;
                 clearbit(o->flags, OF_IDENTIFIED);
 
                 o->material = mats_bracelets[material];
