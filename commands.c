@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-#ifdef GT_USE_NCURSES
+#ifdef DS_USE_NCURSES
 #include <curses.h>
 #endif
 

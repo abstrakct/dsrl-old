@@ -1,8 +1,8 @@
-#ifndef _GT_SAVELOAD_H
-#define _GT_SAVELOAD_H
+#ifndef _DS_SAVELOAD_H
+#define _DS_SAVELOAD_H
 
 #define SAVE_DIRECTORY ".saves"
-#define GT_SAVEFILE_MAGIC  0xDEAD71FE
+#define DS_SAVEFILE_MAGIC  0xDEAD71FE
 
 struct savefile_header {
         int magic;

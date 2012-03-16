@@ -3,10 +3,10 @@
  *
  * Copyright 2011 Rolf Klausen
  */
-#ifndef _GT_UTILS_H
-#define _GT_UTILS_H
+#ifndef _DS_UTILS_H
+#define _DS_UTILS_H
 
-#ifdef GT_USE_NCURSES
+#ifdef DS_USE_NCURSES
 #include <curses.h>
 #endif
 
@@ -45,7 +45,7 @@ void youc(int color, char *fmt, ...);
 void yousee(char *fmt, ...);
 void dsprintf(char *fmt, ...);
 void dsprintfc(int color, char *fmt, ...);
-#ifdef GT_USE_NCURSES
+#ifdef DS_USE_NCURSES
 void dsprintfwc(WINDOW *win, int color, char *fmt, ...);
 #endif
 char ask_char(char *question);

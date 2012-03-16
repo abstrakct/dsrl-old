@@ -3,12 +3,12 @@
  *
  * Copyright 2011 Rolf Klausen
  */
-#ifndef _GT_H
-#define _GT_H
+#ifndef _DS_H
+#define _DS_H
 
-#define GT_VERSION_MAJ 0
-#define GT_VERSION_MIN 0
-#define GT_VERSION_REV 1
+#define DS_VERSION_MAJ 0
+#define DS_VERSION_MIN 0
+#define DS_VERSION_REV 1
 
 #define GAME_NAME "Dark Shadows RL"
 

@@ -18,7 +18,7 @@
 #include <libconfig.h>
 #include <getopt.h>
 
-#ifdef GT_USE_NCURSES
+#ifdef DS_USE_NCURSES
 #include <curses.h>
 #endif
 
@@ -74,7 +74,7 @@ actor_t *a_attacker, *a_victim;
 message_t messages[500];
 int currmess, maxmess;
 
-#ifdef GT_USE_NCURSES
+#ifdef DS_USE_NCURSES
 // Ncurses stuff
 WINDOW *wall;
 WINDOW *wstat;

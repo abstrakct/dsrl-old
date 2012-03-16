@@ -5,8 +5,8 @@
  *
  * Copyright 2011 Rolf Klausen
  */
-#ifndef _GT_DEBUG_H
-#define _GT_DEBUG_H
+#ifndef _DS_DEBUG_H
+#define _DS_DEBUG_H
 
 void dump_monsterdefs();
 void dump_monsters(monster_t *list);

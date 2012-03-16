@@ -6,7 +6,7 @@
 #ifndef _COMMANDS_H
 #define _COMMANDS_H
 
-//#ifdef GT_USE_NCURSES
+//#ifdef DS_USE_NCURSES
 typedef struct {
         int key;
         int cmd;

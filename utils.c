@@ -12,7 +12,7 @@
 #include <math.h>
 #include <stdbool.h>
 
-#ifdef GT_USE_NCURSES
+#ifdef DS_USE_NCURSES
 #include <curses.h>
 #endif
 
@@ -39,7 +39,7 @@ int ri(int a, int b)
 
 void get_version_string(char *s)
 {
-        sprintf(s, "%d.%d.%d", GT_VERSION_MAJ, GT_VERSION_MIN, GT_VERSION_REV);
+        sprintf(s, "%d.%d.%d", DS_VERSION_MAJ, DS_VERSION_MIN, DS_VERSION_REV);
 }
 
 void die(char *m, ...)
@@ -272,7 +272,7 @@ void more()
 {
         char c;
 
-        dsprintfc(COLOR_WHITE, "-- more --");
+        dsprintf("-- more --");
         while(1) {
                 c = dsgetch();
                 if(c == 13 || c == 32) {
@@ -282,7 +282,8 @@ void more()
         }
 }
 
-#ifdef GT_USE_NCURSES
+/*
+#ifdef DS_USE_NCURSES
 void dsprintfwc(WINDOW *win, int color, char *fmt, ...)
 {
         va_list argp;
@@ -299,6 +300,25 @@ void dsprintfwc(WINDOW *win, int color, char *fmt, ...)
         //messc(color, s);
 }
 #endif
+
+#ifdef DS_USE_LIBTCOD
+void dsprintfwc(WINDOW *win, int color, char *fmt, ...)
+{
+        va_list argp;
+        char s[1000];
+
+        va_start(argp, fmt);
+        vsprintf(s, fmt, argp);
+        va_end(argp);
+
+        wattron(win, COLOR_PAIR(color));
+        wprintw(win, s);
+        wattroff(win, COLOR_PAIR(color));
+
+        //messc(color, s);
+}
+#endif
+*/
 
 void uppercase(char *s)
 {

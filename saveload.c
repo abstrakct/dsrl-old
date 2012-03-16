@@ -241,10 +241,10 @@ bool save_game(char *filename)
         dsprintf("Saving game to file %s", filename);
         f = fopen(filename, "w");
 
-        header.magic = GT_SAVEFILE_MAGIC;
-        header.version.major = GT_VERSION_MAJ;
-        header.version.minor = GT_VERSION_MIN;
-        header.version.revision = GT_VERSION_REV;
+        header.magic = DS_SAVEFILE_MAGIC;
+        header.version.major = DS_VERSION_MAJ;
+        header.version.minor = DS_VERSION_MIN;
+        header.version.revision = DS_VERSION_REV;
 
         fwrite(&header, sizeof(struct savefile_header), 1, f);
         fwrite(&dsconfig, sizeof(ds_config_t), 1, f);
@@ -608,11 +608,11 @@ bool load_game(char *filename, int ingame)
         }
 
         fread(&header, sizeof(struct savefile_header), 1, f);
-        if(header.magic != GT_SAVEFILE_MAGIC) {
+        if(header.magic != DS_SAVEFILE_MAGIC) {
                 fprintf(stderr, "This doesn't look like a GT savefile to me!");
                 return false;
         }
-        if(header.version.major != GT_VERSION_MAJ || header.version.minor != GT_VERSION_MIN || header.version.revision != GT_VERSION_REV)
+        if(header.version.major != DS_VERSION_MAJ || header.version.minor != DS_VERSION_MIN || header.version.revision != DS_VERSION_REV)
                 fprintf(stderr, "Warning: Save file doesn't match current version number. This may or may not work...!");
 
         fread(&dsconfig, sizeof(ds_config_t), 1, f);

@@ -1,7 +1,7 @@
 CC = gcc 
-CFLAGS = -Wall -g -ggdb3 -I. -DGT_USE_NCURSES
+CFLAGS = -Wall -g -ggdb3 -I. -DDS_USE_LIBTCOD
 #DEFINES = -DGT_USE_DUMMY
-LIBS = -lm -lconfig -lncursesw
+LIBS = -lm -lconfig -ltcod
 LDFLAGS = -Wl $(LIBS)  # ,-rpath=lib 
  
 SOURCES = dsrl.c utils.c monsters.c datafiles.c world.c display.c debug.c saveload.c commands.c actor.c objects.c o_effects.c fractmod.c dstime.c

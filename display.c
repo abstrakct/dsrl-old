@@ -23,7 +23,36 @@
 #include "dstime.h"
 #include "dsrl.h"
 
-#ifdef GT_USE_NCURSES
+extern int maxmess;
+
+bool blocks_light(int y, int x)
+{
+        level_t *l = world->curlevel;
+
+        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED))
+                return true;
+
+        /*
+        if(l->c[y][x].type == AREA_FOREST || l->c[y][x].type == AREA_CITY || l->c[y][x].type == AREA_VILLAGE) {    // trees and houses can be "see through" (e.g. if they are small)
+                if(perc(20))
+                        return false;
+                else
+                        return true;
+        }
+        */
+        switch(l->c[y][x].type) {
+                case CELL_NOTHING:
+                case CELL_WALL:
+                       return true;
+                default:       
+                       return false;
+        }
+
+        // shouldn't be reached...
+        return false;
+}
+
+#ifdef DS_USE_NCURSES
 #include <curses.h>
 
 extern WINDOW *wall;
@@ -31,8 +60,6 @@ extern WINDOW *wstat;
 extern WINDOW *winfo;
 extern WINDOW *wmap;
 extern WINDOW *wleft;
-
-extern int maxmess;
 
 // Stolen from DCSS!
 void setup_color_pairs()
@@ -103,33 +130,6 @@ void init_display()
 void shutdown_display()
 {
         endwin();
-}
-
-bool blocks_light(int y, int x)
-{
-        level_t *l = world->curlevel;
-
-        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED))
-                return true;
-
-        /*
-        if(l->c[y][x].type == AREA_FOREST || l->c[y][x].type == AREA_CITY || l->c[y][x].type == AREA_VILLAGE) {    // trees and houses can be "see through" (e.g. if they are small)
-                if(perc(20))
-                        return false;
-                else
-                        return true;
-        }
-        */
-        switch(l->c[y][x].type) {
-                case CELL_NOTHING:
-                case CELL_WALL:
-                       return true;
-                default:       
-                       return false;
-        }
-
-        // shouldn't be reached...
-        return false;
 }
 
 void clear_map_to_invisible(level_t *l)
@@ -517,36 +517,11 @@ void messc(int color, char *message)
         domess();
 }
 
-#else
+#endif
 
-void setup_color_pairs()
-{
-}
+#ifdef DS_USE_LIBTCOD
 
-bool blocks_light(int y, int x)
-{
-        level_t *l = world->curlevel;
-
-        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED))
-                return true;
-
-        /*if(l->c[y][x].type == AREA_FOREST || l->c[y][x].type == AREA_CITY || l->c[y][x].type == AREA_VILLAGE) {    // trees and houses can be "see through" (e.g. if they are small)
-                if(perc(20))
-                        return false;
-                else
-                        return true;
-        }*/
-
-        switch(l->c[y][x].type) {
-                case CELL_WALL:
-                       return true;
-                default:       
-                       return false;
-        }
-
-        // shouldn't be reached...
-        return false;
-}
+#include <libtcod/libtcod.h>
 
 void clear_map_to_invisible(level_t *l)
 {
@@ -666,12 +641,12 @@ void FOVlight(actor_t *a, level_t *l)
 
 void init_display()
 {
-        printf("Dummy display driver reporting for duty!\n");
+        TCOD_console_init_root(80, 50, GAME_NAME, false, TCOD_RENDERER_SDL);
 }
 
 void shutdown_display()
 {
-        printf("Shutting down dummy display driver!\n");
+        printf("Shutting down!\n");
 }
 
 void draw_world(level_t *level)
@@ -692,6 +667,14 @@ void initial_update_screen()
 void update_screen()
 {
         printf("%s:%d - update_screen\n", __FILE__, __LINE__);
+}
+
+void draw_wstat()
+{
+}
+
+void delete_last_message()
+{
 }
 
 int dsgetch()
