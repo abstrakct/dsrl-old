@@ -19,7 +19,7 @@ void inc_year(dstime *t, int i)
 {
         t->year += i;
         if(t->year > 9999) {
-                dsprintfc(COLOR_RED, "I think you may have played long enough now! How about some fresh air?");
+                dsprintf("I think you may have played long enough now! How about some fresh air?");
         }
 }
 

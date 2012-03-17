@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <libtcod/libtcod.h>
 
 #include "objects.h"
 #include "o_effects.h"
@@ -548,14 +549,14 @@ void puton(int slot, obj_t *o)
 void wear(obj_t *o)
 {
         if(is_bracelet(o)) {
-                char c;
+                TCOD_key_t c;
 
                 c = ask_for_hand();
-                if(!c) {
+                if(!c.c) {
                         dsprintf("Alright then.");
                         return;
                 }
-                if(c == 'l') {
+                if(c.c == 'l') {
                         if(pw_leftbracelet) {
                                 if(!yesno("Do you want to remove your %s", pw_leftbracelet->fullname)) {
                                         dsprintf("OK then.");
@@ -567,7 +568,7 @@ void wear(obj_t *o)
                         } else {
                                 puton(SLOT_LEFTBRACELET, o);
                         }
-                } else if(c == 'r') {
+                } else if(c.c == 'r') {
                         if(pw_rightbracelet) {
                                 if(!yesno("Do you want to remove your %s", pw_rightbracelet->fullname)) {
                                         dsprintf("OK then.");

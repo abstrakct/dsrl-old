@@ -214,9 +214,15 @@ void dsprintfc(int color, char *fmt, ...)
         messc(color, s);
 }
 
+#ifdef DS_USE_NCURSES
 char ask_char(char *question)
 {
         char c;
+#else
+TCOD_key_t ask_char(char *question)
+{
+        TCOD_key_t c;
+#endif
 
         dsprintf(question);
         update_screen();
@@ -224,23 +230,36 @@ char ask_char(char *question)
         return c;
 }
 
+#ifdef DS_USE_NCURSES
 char ask_for_hand()
 {
         char c;
+#else
+TCOD_key_t ask_for_hand()
+{
+        TCOD_key_t c;
+#endif
         
-        c = 0;
-
         while(1) {
                 dsprintf("Which hand - (l)eft or (r)ight?");
                 update_screen();
                 c = dsgetch();
 //fprintf(stderr, "DEBUG: %s:%d - you pressed key with decimal value %d\n", __FILE__, __LINE__, c);
+#ifdef DS_USE_NCURSES
                 if(c == 13 || c == 27)         // ENTER or ESCAPE
                         return 0;
                 else if(c == 'l' || c == 'r')
                         return c;
                 else
                         dsprintf("Only (l)eft or (r)ight, please.");
+#else
+                //if(c.vk == TCODK_ENTER || c.vk == TCODK_ESCAPE)         // ENTER or ESCAPE
+                        //return 0;
+                if(c.c == 'l' || c.c == 'r')
+                        return c;
+                else
+                        dsprintf("Only (l)eft or (r)ight, please.");
+#endif
         }
 
 }
@@ -249,7 +268,11 @@ bool yesno(char *fmt, ...)
 {
         va_list argp;
         char s[1000];
+#ifdef DS_USE_NCURSES
         char c;
+#else
+        TCOD_key_t c;
+#endif
 
         va_start(argp, fmt);
         vsprintf(s, fmt, argp);
@@ -260,22 +283,36 @@ bool yesno(char *fmt, ...)
 
         update_screen();
         c = dsgetch();
+#ifdef DS_USE_NCURSES
         if(c == 'y' || c == 'Y')
                 return true;
         if(c == 'n' || c == 'N')
                 return false;
-
+#else
+        if(c.c == 'y' || c.c == 'Y')
+                return true;
+        if(c.c == 'n' || c.c == 'N')
+                return false;
+#endif
         return false;
 }
 
 void more()
 {
+#ifdef DS_USE_NCURSES
         char c;
+#else
+        TCOD_key_t c;
+#endif
 
         dsprintf("-- more --");
         while(1) {
                 c = dsgetch();
+#ifdef DS_USE_NCURSES
                 if(c == 13 || c == 32) {
+#else
+                if(c.vk == TCODK_SPACE || c.vk == TCODK_ENTER) {
+#endif
                         delete_last_message();
                         return;
                 }

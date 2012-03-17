@@ -238,7 +238,7 @@ void level_up_player()
         player->maxhp += ri(pphy/2, pphy);
         increase_hp(player, d(1, player->level));
 
-        dsprintfc(COLOR_GREEN, "Congratulations! You've reached level %d!", player->level);
+        dsprintf("Congratulations! You've reached level %d!", player->level);
         more();
 
         // TODO: Add other level up effects here!
@@ -288,13 +288,13 @@ int calculate_final_score()
 void player_die(actor_t *killer)
 {
         if(game->wizardmode) {
-                youc(COLOR_RED, "You die! Fortunately, you're in wizard mode! 10 HP for you!");
+                you("die! Fortunately, you're in wizard mode! 10 HP for you!");
                 player->hp += 10;
                 return;
         }
 
         dsprintf(" ");
-        youc(COLOR_WHITE, "die...");
+        you( "die...");
         more();
         shutdown_display();
 

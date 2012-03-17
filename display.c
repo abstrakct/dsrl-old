@@ -642,6 +642,8 @@ void FOVlight(actor_t *a, level_t *l)
 void init_display()
 {
         TCOD_console_init_root(80, 50, GAME_NAME, false, TCOD_RENDERER_SDL);
+        game->mapw = 80;
+        game->maph = 50;
 }
 
 void shutdown_display()
@@ -745,9 +747,14 @@ void delete_last_message()
 {
 }
 
-int dsgetch()
+TCOD_key_t dsgetch()
 {
-        return ri(97,122);
+        TCOD_key_t key;
+
+        TCOD_console_flush();
+        key = TCOD_console_wait_for_keypress(true);
+
+        return key;
 }
 
 void domess()

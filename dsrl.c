@@ -897,8 +897,13 @@ void do_turn()
 
 int main(int argc, char *argv[])
 {
-        int c, x, y, l;
+        int c, x, y;
         char messagefilename[50];
+#ifdef DS_USE_NCURSES
+        int l;
+#else
+        TCOD_key_t l;
+#endif
 
         if(!setlocale(LC_ALL, ""))
                 die("couldn't set locale.");
@@ -984,17 +989,17 @@ int main(int argc, char *argv[])
                         case CMD_SE:    queue(ACTION_PLAYER_MOVE_SE); break;
                         case CMD_WIELDWEAR:
                                        l = ask_char("Which item would you like to wield/wear?");
-                                       actiondata = (void *) get_object_from_letter(l, player->inventory);
+                                       actiondata = (void *) get_object_from_letter(l.c, player->inventory);
                                        queue(ACTION_WIELDWEAR);
                                        break;
                         case CMD_UNWIELDWEAR:
                                        l = ask_char("Which item would you like to remove/unwield?");
-                                       actiondata = (void *) get_object_from_letter(l, player->inventory);
+                                       actiondata = (void *) get_object_from_letter(l.c, player->inventory);
                                        queue(ACTION_UNWIELDWEAR);
                                        break;
                         case CMD_DROP:
                                        l = ask_char("Which item would you like to drop?");
-                                       actiondata = (void *) get_object_from_letter(l, player->inventory);
+                                       actiondata = (void *) get_object_from_letter(l.c, player->inventory);
                                        queue(ACTION_DROP);
                                        break;
                         case CMD_LONGDOWN:

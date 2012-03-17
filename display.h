@@ -18,7 +18,11 @@ void dsmapaddch(int y, int x, TCOD_color_t color, char c);
 void update_screen();
 void update_player();
 void initial_update_screen();
+#ifdef DS_USE_NCURSES
 int  dsgetch();
+#else
+TCOD_key_t dsgetch();
+#endif
 
 void domess();
 void scrollmessages();
