@@ -9,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <libtcod/libtcod.h>
 
 #include "objects.h"
 #include "actor.h"
@@ -159,6 +160,7 @@ int get_command()
         int i;
         TCOD_key_t key;
 
+        TCOD_console_flush();
         key = dsgetch();
         if(key.vk == TCODK_ESCAPE)
                 return CMD_QUIT;       // easy exit even if C&C breaks down!

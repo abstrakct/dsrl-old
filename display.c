@@ -640,7 +640,8 @@ void FOVlight(actor_t *a, level_t *l)
 }
 
 void init_display()
-{
+{ 
+        TCOD_console_set_custom_font("font-5.png", TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
         TCOD_console_init_root(80, 50, GAME_NAME, false, TCOD_RENDERER_SDL);
         game->mapw = 80;
         game->maph = 50;
@@ -736,7 +737,8 @@ void initial_update_screen()
 
 void update_screen()
 {
-        printf("%s:%d - update_screen\n", __FILE__, __LINE__);
+        //printf("%s:%d - update_screen\n", __FILE__, __LINE__);
+        TCOD_console_flush();
 }
 
 void draw_wstat()
@@ -751,7 +753,6 @@ TCOD_key_t dsgetch()
 {
         TCOD_key_t key;
 
-        TCOD_console_flush();
         key = TCOD_console_wait_for_keypress(true);
 
         return key;
