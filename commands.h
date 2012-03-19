@@ -6,13 +6,13 @@
 #ifndef _COMMANDS_H
 #define _COMMANDS_H
 
-//#ifdef DS_USE_NCURSES
+#include <libtcod/libtcod.h>
+
 typedef struct {
-        int key;
+        TCOD_key_t key;
         int cmd;
         char desc[50];
 } cmd_t;
-//#endif
 
 #define CMD_LEFT           1
 #define CMD_RIGHT          2

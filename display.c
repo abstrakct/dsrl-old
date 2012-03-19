@@ -639,12 +639,35 @@ void FOVlight(actor_t *a, level_t *l)
         }
 }
 
+#define COLS 80         // x
+#define ROWS 50         // y
+
 void init_display()
 { 
-        TCOD_console_set_custom_font("font-5.png", TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
-        TCOD_console_init_root(80, 50, GAME_NAME, false, TCOD_RENDERER_SDL);
-        game->mapw = 80;
-        game->maph = 50;
+        /* font selection code is stolen from brogue! */
+	char font[60];
+	int fontsize = -1;
+	
+	int screenwidth, screenheight;
+	int fontwidths[13] = {112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304}; // widths of the font graphics (divide by 16 to get individual character width)
+	int fontheights[13] = {176, 208, 240, 272, 304, 336, 368, 400, 432, 464, 496, 528, 528}; // heights of the font graphics (divide by 16 to get individual character height)
+
+	TCOD_sys_get_current_resolution(&screenwidth, &screenheight);
+
+	// adjust for title bars and whatever -- very approximate, but better than the alternative
+	//screenwidth -= 6;
+	//screenheight -= 48;
+
+	if (fontsize < 1 || fontsize > 13) {
+		for (fontsize = 13; fontsize > 1 && (fontwidths[fontsize - 1] * COLS / 16 >= screenwidth || fontheights[fontsize - 1] * ROWS / 16 >= screenheight); fontsize--);
+	}
+
+	sprintf(font, "fonts/font-%i.png", fontsize);
+        TCOD_console_set_custom_font(font, TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
+
+        TCOD_console_init_root(COLS, ROWS, GAME_NAME, false, TCOD_RENDERER_SDL);
+        game->mapw = COLS;
+        game->maph = ROWS;
 }
 
 void shutdown_display()

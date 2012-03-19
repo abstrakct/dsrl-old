@@ -539,7 +539,7 @@ void addwall(level_t *l, int y, int x)
 {
         l->c[y][x].type     = CELL_WALL;
         l->c[y][x].color    = TCOD_white; //COLOR_RED | A_BOLD;
-        l->c[y][x].litcolor = TCOD_crimson;
+        l->c[y][x].litcolor = perc(50) ? TCOD_crimson : TCOD_red;
 }
 
 void adddoor(level_t *l, int y, int x, bool secret)
