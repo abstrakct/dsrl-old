@@ -416,3 +416,4 @@ void move_player_to_stairs_down(int d)
                 }
         }
 }
+// vim: fdm=syntax guifont=Terminus\ 8

@@ -979,3 +979,4 @@ void generate_world()
 //fprintf(stderr, "DEBUG: %s:%d - Generated a total of %d objects.\n", __FILE__, __LINE__, game->num_objects);
 //fprintf(stderr, "DEBUG: %s:%d - Generated a total of %d monsters.\n", __FILE__, __LINE__, game->num_monsters);
 }
+// vim: fdm=syntax guifont=Terminus\ 8

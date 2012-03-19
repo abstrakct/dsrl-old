@@ -198,3 +198,4 @@ void init_commands()
         curcommands = outsidecommands;
         numcommands = (sizeof(outsidecommands) / sizeof(cmd_t));
 }
+// vim: fdm=syntax guifont=Terminus\ 8

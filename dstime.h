@@ -19,3 +19,4 @@ extern char *monthstring[];
 void inc_second(dstime *t, int i);
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8

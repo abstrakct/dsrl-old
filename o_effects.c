@@ -214,3 +214,4 @@ void apply_effects(obj_t *o)
                 if(o->effect[i])
                         apply_effect(o->effect[i], o);
 }
+// vim: fdm=syntax guifont=Terminus\ 8

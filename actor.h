@@ -123,3 +123,4 @@ void move_player_to_stairs_up(int d);
 int ability_modifier(int ab);
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8

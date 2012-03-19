@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <stdbool.h>
+#include <libtcod/libtcod.h>
 
 #include "objects.h"
 #include "actor.h"
@@ -52,311 +53,63 @@ bool blocks_light(int y, int x)
         return false;
 }
 
-#ifdef DS_USE_NCURSES
-#include <curses.h>
-
-extern WINDOW *wall;
-extern WINDOW *wstat;
-extern WINDOW *winfo;
-extern WINDOW *wmap;
-extern WINDOW *wleft;
-
-// Stolen from DCSS!
-void setup_color_pairs()
+void domess()
 {
-        short i, j;
+        int i;
 
-        
-        for (i = 0; i < 8; i++)
-                for (j = 0; j < 8; j++) {
-                        if ((i > 0) || (j > 0))
-                                init_pair(i * 8 + j, j, i);
-                }
-
-        init_pair(63, COLOR_BLACK, COLOR_BLACK);
-}
-
-void init_display()
-{
-        initscr();
-        if(!has_colors()) {
-                endwin();
-                die("Your terminal has no colors!");
+        currmess++;
+        for(i = maxmess-1; i >= 0; i--) {
+                //mvwprintw(winfo, i+1, 1, messages[i].text);
+                // Change this when TCOD UI is up and running well!!
+                printf("%s\n", messages[i].text);
         }
-        
-        start_color();
-        setup_color_pairs();
 
-        game->width = COLS;
-        game->height = LINES;
-        game->mapw = ((COLS/4)*3) - (COLS/4);
-        game->maph = ((LINES/3)*2)-1;
-
-        wall  = newwin(0, 0, 0, 0);
-        wleft = subwin(wall, game->maph, (COLS/4), 0, 0);
-        wmap  = subwin(wall, game->maph, game->mapw, 0, (COLS/4));               //øverst venstre                                                                                                                                                                                                                                          
-        wstat = subwin(wall, (LINES/3)*2-1, (COLS/4), 0, COLS-((COLS/4)));  //øverst høyre                                                                                                                                                                                                                                    
-        winfo = subwin(wall, LINES/3, COLS, LINES-(LINES/3)-1, 0);          //nederst                                                                                                                                                                                                                                                 
-        maxmess = (LINES/3)-2;
-
-        box(wmap,  ACS_VLINE, ACS_HLINE);
-        box(wstat, ACS_VLINE, ACS_HLINE);                                                                                                                                                                                                                                                                         
-        box(winfo, ACS_VLINE, ACS_HLINE);
-        box(wleft, ACS_VLINE, ACS_HLINE);
-
-
-        cbreak();
-        // raw(); bruk denne istedet hvis vi skal takle interrupt handling.
-        noecho();
-        keypad(wmap, TRUE);
-        scrollok(wall, FALSE);
-        nonl();
-        nodelay(wall, TRUE);
-        //nodelay(wall, FALSE);
-        //halfdelay(5);            // use if we want to have animations of light/fire and stuff (but remember to disable when specifically asking for input!)
-        curs_set(0);
-        meta(wall, TRUE);
-        intrflush(wmap, FALSE);
-
-        dsprintf("*** Welcome to %s v%s ***", GAME_NAME, game->version);
-        dsprintf(" "/*Press q to exit.*/);
-
-        touchwin(wmap);
-        touchwin(wstat);
-        touchwin(winfo);
-        touchwin(wleft);
+        fprintf(messagefile, "%d\t%s\n", messages[currmess-1].color, messages[currmess-1].text);
 }
 
-void shutdown_display()
+void scrollmessages()
 {
-        endwin();
-}
+        int i;
 
-void clear_map_to_invisible(level_t *l)
-{
-        int x, y;
-
-        for(y = ppy; y < (ppy+game->maph); y++) {
-                for(x = ppx; x < (ppx+game->mapw); x++) {
-                        if(x >= 0 && y >= 0 && x < l->xsize && y < l->ysize)
-                                l->c[y][x].visible = 0;
+        if (currmess >= maxmess) {
+                currmess = maxmess - 1;
+                for(i = 0; i <= currmess; i++) {
+                        messages[i].color = messages[i+1].color;
+                        strcpy(messages[i].text, messages[i+1].text);
                 }
         }
 }
 
-void clear_map_to_unlit(level_t *l)
+void mess(char *message)
 {
-        int x, y;
+        //if(!strcmp(message, messages[currmess-1].text))
+                //return;
 
-        for(y = 0; y < l->ysize; y++) {
-                for(x = 0; x < l->xsize; x++) {
-                        clearbit(l->c[y][x].flags, CF_LIT);
-                }
-        }
+        scrollmessages();
+        messages[currmess].color = COLOR_NORMAL;
+        strcpy(messages[currmess].text, message);
+        domess();
+}
+
+void delete_last_message()
+{
+        messages[currmess-1].color = COLOR_NORMAL;
+        messages[currmess-1].text[0] = '\0';
+        domess();
+}
+
+void messc(int color, char *message)
+{
+        //if(!strcmp(message, messages[currmess-1].text))
+                //return;
+
+        scrollmessages();
+        messages[currmess].color = color;
+        strcpy(messages[currmess].text, message);
+        domess();
 }
 
 /*
- * The next two functions are about FOV.
- * Stolen/adapted from http://roguebasin.roguelikedevelopment.org/index.php/Eligloscode
- */
-
-void dofov(actor_t *actor, level_t *l, float x, float y)
-{
-        int i;
-        float ox, oy;
-
-        ox = (float) actor->x + 0.5f;
-        oy = (float) actor->y + 0.5f;
-
-        for(i = 0; i < actor->viewradius; i++) {
-                if((int)oy >= 0 && (int)ox >= 0 && (int)oy < l->ysize && (int)ox < l->xsize) {
-                        l->c[(int)oy][(int)ox].visible = 1;
-                        setbit(l->c[(int)oy][(int)ox].flags, CF_VISITED);
-                        if(blocks_light((int) oy, (int) ox)) {
-                                return;
-                        }/* else {  //SCARY MODE! 
-                                if(perc((100-actor->viewradius)/3))
-                                        return;
-                        }*/
-
-
-                        ox += x;
-                        oy += y;
-                }
-        }
-}
-
-void FOV(actor_t *a, level_t *l)
-{
-        float x, y;
-        int i;
-        //signed int tmpx,tmpy;
-
-        // if dark area
-        clear_map_to_invisible(l);
-
-        for(i = 0; i < 360; i++) {
-                x = cos((float) i * 0.01745f);
-                y = sin((float) i * 0.01745f);
-                dofov(a, l, x, y);
-        }
-}
-
-void dofovlight(actor_t *actor, level_t *l, float x, float y)
-{
-        int i;
-        float ox, oy;
-        int rx, ry;
-
-        ox = (float) actor->x + 0.5f;
-        oy = (float) actor->y + 0.5f;
-
-        // TODO IMPORTANT:
-        // better conversion from float to int!
-        // could solve FOV problems?!!
-
-        //dsprintf("\tentering dofovlight");
-        
-        rx = (int)ox; //round(ox);
-        ry = (int)oy; //round(oy);
-        for(i = 0; i < 16/*(actor->viewradius/2)*/; i++) {       // TODO: add a lightradius in actor_t, calculate it based on stuff
-                if(ry >= 0 && rx >= 0 && ry < l->ysize && rx < l->xsize) {
-                        //dsprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
-                        if(hasbit(l->c[ry][rx].flags, CF_LIT))
-                                return;
-
-                        if(l->c[ry][rx].type == CELL_WALL) {
-                                setbit(l->c[ry][rx].flags, CF_LIT);
-                        }
-
-                        if(blocks_light(ry, rx)) {
-                                //dsprintf("cell %d,%d blocks light", (int)oy, (int)ox);
-                                return;
-                        }
-
-                        ox += x;
-                        oy += y;
-                        rx = (int)ox; //round(ox);
-                        ry = (int)oy; //round(oy);
-                }
-        }
-}
-
-void FOVlight(actor_t *a, level_t *l)
-{
-        float x, y;
-        int i;
-
-        //dsprintf("entering FOVlight..");
-        clear_map_to_unlit(l);
-        for(i = 0; i < 360; i++) {
-                x = cos((float) i * 0.01745f);
-                y = sin((float) i * 0.01745f);
-                //fprintf(stderr, "DEBUG: %s:%d - now going to dofovlight i = %d y = %.4f x = %.4f\n", __FILE__, __LINE__, i, y, x);
-                dofovlight(a, l, x, y);
-        }
-}
-
-// The actual drawing on screen
-
-void draw_world(level_t *level)
-{
-        int i,j, slot;
-        int dx, dy;  // coordinates on screen!
-        int color;
-
-        werase(wmap);
-        FOV(player, level);
-        if(game->context == CONTEXT_INSIDE)
-                FOVlight(player, level);     // only necessary inside
-
-        /*
-         * in this function, (j,i) are the coordinates on the map,
-         * dx,dy = coordinates on screen.
-         * so, player->py/px describes the upper left corner of the map
-         */
-        for(i = ppx, dx = 0; i <= (ppx + game->mapw); i++, dx++) {
-                for(j = ppy, dy = 0; j <= (ppy + game->maph); j++, dy++) {
-                        if(j < level->ysize && i < level->xsize) {
-                                if(hasbit(level->c[j][i].flags, CF_VISITED)) {
-                                        color = cc(j,i);
-                                        if(game->context == CONTEXT_INSIDE)
-                                                wattron(wmap, A_BOLD);
-
-                                        if(hasbit(level->c[j][i].flags, CF_LIT)) {
-                                                wattroff(wmap, A_BOLD);
-                                                color = level->c[j][i].litcolor;
-                                        }
-
-                                        dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
-
-                                        /*
-                                        if(level->c[j][i].height < 0) {
-                                                color = COLOR_RED;
-                                                c = 48+(0 - level->c[j][i].height);
-                                        } else {
-                                                color = COLOR_BLUE;
-                                                c = 48+level->c[j][i].height;
-                                        }
-
-                                        dsmapaddch(dy, dx, color, c);
-                                        */
-
-                                        if(level->c[j][i].inventory) {
-                                                wattroff(wmap, A_BOLD);
-                                                if(level->c[j][i].inventory->gold > 0) {
-                                                        wattron(wmap, A_BOLD);
-                                                        dsmapaddch(dy, dx, COLOR_YELLOW, objchars[OT_GOLD]);
-                                                        wattroff(wmap, A_BOLD);
-                                                } else {                                                         // TODO ADD OBJECT COLORS!!!
-                                                        slot = get_first_used_slot(level->c[j][i].inventory);
-                                                        if(level->c[j][i].inventory->num_used > 0 && slot >= 0 && level->c[j][i].inventory->object[slot]) {
-                                                                color = level->c[j][i].inventory->object[slot]->color;
-                                                                dsmapaddch(dy, dx, color, objchars[level->c[j][i].inventory->object[slot]->type]);
-                                                        }
-                                                }
-                                        }
-
-                                        if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_CLOSED))
-                                                dsmapaddch(dy, dx, color, '+');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_OPEN))
-                                                dsmapaddch(dy, dx, color, '\'');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_DOWN))
-                                                dsmapaddch(dy, dx, COLOR_WHITE, '>');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_UP))
-                                                dsmapaddch(dy, dx, COLOR_WHITE, '<');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_EXIT)) {
-                                                int index;
-                                                index = level->c[j][i].exitindex;
-                                                if(level->exit[index].type == ET_EXIT)
-                                                        dsmapaddch(dy, dx, COLOR_WHITE, '^');
-                                                if(level->exit[index].type == ET_STAIRS_UP)
-                                                        dsmapaddch(dy, dx, COLOR_WHITE, '|');
-                                                if(level->exit[index].type == ET_STAIRS_DOWN)
-                                                        dsmapaddch(dy, dx, COLOR_WHITE, '>');
-                                                if(level->exit[index].type == ET_DOOR)
-                                                        dsmapaddch(dy, dx, COLOR_WHITE, '+');
-                                        } 
-                                }
-
-
-                                if(level->c[j][i].visible && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
-                                        dsmapaddch(dy, dx, COLOR_RED, (char) level->c[j][i].monster->c);
-
-                                /*if(level->c[j][i].type == CELL_WALL) {
-                                        dsmapaddch(dy, dx, COLOR_PLAIN, mapchars[CELL_WALL]);
-                                }*/
-                        if(j == ply && i == plx)
-                                dsmapaddch(dy, dx, COLOR_PLAYER, '@');
-                        }
-                }
-        }
-
-        wattron(wmap, COLOR_PAIR(COLOR_NORMAL));
-        box(wmap, ACS_VLINE, ACS_HLINE);
-        //wcolor_set(wmap, 0, 0);
-}
-
 void draw_wstat()
 {
         obj_t *o;
@@ -417,111 +170,7 @@ void draw_wstat()
                 }
         }
 }
-
-void update_player()
-{
-        dsmapaddch(player->oldy, player->oldx, cc(player->oldy, player->oldx), mapchars[(int) ct(player->oldy, player->oldx)]);
-        dsmapaddch(ply, plx, COLOR_PLAYER, '@');
-}
-
-void dsmapaddch(int y, int x, int color, char c)
-{
-        wattron(wmap, COLOR_PAIR(color));
-        mvwaddch(wmap, y, x, c);
-        wattroff(wmap, COLOR_PAIR(color));
-}
-
-void update_screen()
-{
-        wnoutrefresh(wstat);
-        wnoutrefresh(wleft);
-        doupdate();
-}
-
-void initial_update_screen()
-{
-        wnoutrefresh(wmap);
-        wnoutrefresh(winfo);
-        wnoutrefresh(wstat);
-        wnoutrefresh(wleft);
-        doupdate();
-}
-
-// Input and messages
-
-int dsgetch()
-{
-        int c;
-        c = wgetch(wmap);
-        return c;
-}
-
-void domess()
-{
-        int i;
-
-        // There might be a better way to clean the window, but this works.
-        werase(winfo);
-        box(winfo, ACS_VLINE, ACS_HLINE);          
-
-        currmess++;
-        for(i = maxmess-1; i >= 0; i--) {
-                wattron(winfo, COLOR_PAIR(messages[i].color));
-                mvwprintw(winfo, i+1, 1, messages[i].text);
-                wattroff(winfo, COLOR_PAIR(messages[i].color));
-        }
-
-        fprintf(messagefile, "%d\t%s\n", messages[currmess-1].color, messages[currmess-1].text);
-        wnoutrefresh(winfo);
-}
-
-void scrollmessages()
-{
-        int i;
-
-        if (currmess >= maxmess) {
-                currmess = maxmess - 1;
-                for(i = 0; i <= currmess; i++) {
-                        messages[i].color = messages[i+1].color;
-                        strcpy(messages[i].text, messages[i+1].text);
-                }
-        }
-}
-
-void mess(char *message)
-{
-        //if(!strcmp(message, messages[currmess-1].text))
-                //return;
-
-        scrollmessages();
-        messages[currmess].color = COLOR_NORMAL;
-        strcpy(messages[currmess].text, message);
-        domess();
-}
-
-void delete_last_message()
-{
-        messages[currmess-1].color = COLOR_NORMAL;
-        messages[currmess-1].text[0] = '\0';
-        domess();
-}
-
-void messc(int color, char *message)
-{
-        //if(!strcmp(message, messages[currmess-1].text))
-                //return;
-
-        scrollmessages();
-        messages[currmess].color = color;
-        strcpy(messages[currmess].text, message);
-        domess();
-}
-
-#endif
-
-#ifdef DS_USE_LIBTCOD
-
-#include <libtcod/libtcod.h>
+*/
 
 void clear_map_to_invisible(level_t *l)
 {
@@ -768,10 +417,6 @@ void draw_wstat()
 {
 }
 
-void delete_last_message()
-{
-}
-
 TCOD_key_t dsgetch()
 {
         TCOD_key_t key;
@@ -781,24 +426,4 @@ TCOD_key_t dsgetch()
         return key;
 }
 
-void domess()
-{
-        printf("%s:%d - domess\n", __FILE__, __LINE__);
-}
-
-void scrollmessages()
-{
-        printf("%s:%d - scrollmessages\n", __FILE__, __LINE__);
-}
-
-void mess(char *message)
-{
-        printf("%s:%d - %s\n", __FILE__, __LINE__, message);
-}
-
-void messc(int color, char *message)
-{
-        printf("%s:%d - %s\n", __FILE__, __LINE__, message);
-}
-
-#endif
+// vim: fdm=syntax guifont=Terminus\ 8

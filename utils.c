@@ -397,3 +397,4 @@ char *a_an(char *s)
         sprintf(test, "%s %s", ret, s);
         return test;
 }
+// vim: fdm=syntax guifont=Terminus\ 8

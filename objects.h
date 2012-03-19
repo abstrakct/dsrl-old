@@ -226,3 +226,4 @@ typedef struct obj_list obj_l;
 
 #define END_OBJECTS };
 */
+// vim: fdm=syntax guifont=Terminus\ 8

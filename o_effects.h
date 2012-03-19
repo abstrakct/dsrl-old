@@ -32,3 +32,4 @@ void oe_protection_life(void *data);
 void oe_protection_fire(void *data);
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8

@@ -138,3 +138,4 @@ void queue(int action);
 void shutdown_ds();
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8

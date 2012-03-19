@@ -15,3 +15,4 @@ extern areadef_t r;
 int parse_data_files(int option);
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8

@@ -14,3 +14,4 @@ void dump_objects(inv_t *i);
 void dump_action_queue();
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8

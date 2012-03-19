@@ -67,3 +67,4 @@ void inc_second(dstime *t, int i)
                 t->second -= 60;
         }
 }
+// vim: fdm=syntax guifont=Terminus\ 8

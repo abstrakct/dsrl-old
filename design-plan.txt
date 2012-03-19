@@ -16,6 +16,7 @@ Man kan spille som en rekke typer karakter:
   
   Evt:
   * Doctor (can sedate people!)
+  * Servant (stort sett usynlig!)
   * Governess
   * Ghost
   * Gypsy

@@ -41,3 +41,4 @@ void makedistancemap(int desty, int destx);
 void makedistancemap(int desty, int destx);
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8

@@ -539,3 +539,4 @@ void spawn_monsters(int num, int max_level, void *p)
         }
         //fprintf(stderr, "DEBUG: %s:%d - spawn_monsters spawned %d monsters (should spawn %d)\n", __FILE__, __LINE__, i, num);
 }
+// vim: fdm=syntax guifont=Terminus\ 8

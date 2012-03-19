@@ -127,3 +127,4 @@ bool blocks_light(int y, int x);
 #endif
 
 #endif
+// vim: fdm=syntax guifont=Terminus\ 8
