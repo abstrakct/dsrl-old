@@ -27,26 +27,32 @@ typedef struct {                              // ds_config_t
         bool ap[10];                          // adjust later, match object type
 } ds_config_t;
 
+typedef struct {
+        int w, h;
+        TCOD_console_t c;
+} win_t;
+
 typedef struct {                              // game_t
-        char         version[20];
-        short        width, height;           // width, height of screen
-        short        mapw, maph;              // width, height of map window
-        int          mapcx, mapcy;
-        bool         dead;                    // is the game/player dead?
-        short        context;                 // which context are we in? see CONTEXT_ defines
-        short        currentlevel;            // what's the current level?
-        int          turn;                    // count turns
-        long long    tick;
-        unsigned int seed;                    // random seed
-        short        monsterdefs;             // number of monster definitions
-        short        objdefs;                 // number of object definitions
-        short        createdareas;         // number of areas which have been created
-        int          num_objects;             // number of spawned objects
-        int          num_monsters;            // number of spawned monsters
-        bool         wizardmode;              // yay!
-        char         savefile[255];           // filename of the save file for this game
-        obj_t       *objects[2000];
-        dstime       t;
+        char           version[20];
+        short          width, height;           // width, height of screen
+        short          mapw, maph;              // width, height of map window
+        int            mapcx, mapcy;
+        bool           dead;                    // is the game/player dead?
+        short          context;                 // which context are we in? see CONTEXT_ defines
+        short          currentlevel;            // what's the current level?
+        int            turn;                    // count turns
+        long long      tick;
+        unsigned int   seed;                    // random seed
+        short          monsterdefs;             // number of monster definitions
+        short          objdefs;                 // number of object definitions
+        short          createdareas;         // number of areas which have been created
+        int            num_objects;             // number of spawned objects
+        int            num_monsters;            // number of spawned monsters
+        bool           wizardmode;              // yay!
+        char           savefile[255];           // filename of the save file for this game
+        obj_t         *objects[2000];
+        dstime         t;
+        win_t          map, messages, left, right;
 } game_t;
 
 typedef struct {                              // message_t

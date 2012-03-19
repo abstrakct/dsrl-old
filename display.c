@@ -288,7 +288,7 @@ void FOVlight(actor_t *a, level_t *l)
         }
 }
 
-#define COLS 80         // x
+#define COLS  130         // x
 #define ROWS  45         // y
 
 void init_display()
@@ -315,8 +315,17 @@ void init_display()
         TCOD_console_set_custom_font(font, TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
 
         TCOD_console_init_root(COLS, ROWS, GAME_NAME, false, TCOD_RENDERER_SDL);
-        game->mapw = COLS;
-        game->maph = ROWS;
+
+        game->width = COLS;
+        game->height = ROWS;
+
+        game->left.w = COLS/4;
+        game->left.h = (ROWS/3) * 2;
+        game->left.c = TCOD_console_new(game->left.w, game->left.h);
+
+        game->map.w = COLS/2;
+        game->map.h = (ROWS/3) * 2;
+        game->map.c = TCOD_console_new(game->map.w, game->map.h);
 }
 
 void shutdown_display()
@@ -404,7 +413,8 @@ void dsmapaddch(int y, int x, TCOD_color_t color, char c)
 
 void initial_update_screen()
 {
-        printf("%s:%d - initial_update_screen\n", __FILE__, __LINE__);
+        draw_world(world->curlevel);
+        update_screen();
 }
 
 void update_screen()

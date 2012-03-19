@@ -18,10 +18,6 @@
 #include <libconfig.h>
 #include <getopt.h>
 
-#ifdef DS_USE_NCURSES
-#include <curses.h>
-#endif
-
 #include "objects.h"
 #include "actor.h"
 #include "monsters.h"
@@ -73,15 +69,6 @@ actor_t *a_attacker, *a_victim;
 // Messages
 message_t messages[500];
 int currmess, maxmess;
-
-#ifdef DS_USE_NCURSES
-// Ncurses stuff
-WINDOW *wall;
-WINDOW *wstat;
-WINDOW *winfo;
-WINDOW *wmap;
-WINDOW *wleft;
-#endif
 
 struct option ds_options[] = {
         { "seed",    1,   0, 's' },
@@ -899,11 +886,7 @@ int main(int argc, char *argv[])
 {
         int c, x, y;
         char messagefilename[50];
-#ifdef DS_USE_NCURSES
-        int l;
-#else
         TCOD_key_t l;
-#endif
 
         if(!setlocale(LC_ALL, ""))
                 die("couldn't set locale.");

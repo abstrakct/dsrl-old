@@ -6,11 +6,7 @@
 #ifndef _DS_UTILS_H
 #define _DS_UTILS_H
 
-#ifdef DS_USE_NCURSES
-#include <curses.h>
-#else
 #include <libtcod/libtcod.h>
-#endif
 
 #define clearbit(a, b) ((a) &= ~(b))
 #define   setbit(a, b) ((a) |=  (b))
@@ -47,14 +43,8 @@ void youc(int color, char *fmt, ...);
 void yousee(char *fmt, ...);
 void dsprintf(char *fmt, ...);
 void dsprintfc(int color, char *fmt, ...);
-#ifdef DS_USE_NCURSES
-void dsprintfwc(WINDOW *win, int color, char *fmt, ...);
-char ask_char(char *question);
-char ask_for_hand();
-#else
 TCOD_key_t ask_char(char *question);
 TCOD_key_t ask_for_hand();
-#endif
 
 bool yesno(char *fmt, ...);
 void more();
