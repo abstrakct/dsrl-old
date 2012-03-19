@@ -7,3 +7,4 @@ unused
 core
 terminal.png
 obsolete
+*.vimsession

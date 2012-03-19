@@ -289,7 +289,7 @@ void FOVlight(actor_t *a, level_t *l)
 }
 
 #define COLS 80         // x
-#define ROWS 50         // y
+#define ROWS  45         // y
 
 void init_display()
 { 
@@ -304,8 +304,8 @@ void init_display()
 	TCOD_sys_get_current_resolution(&screenwidth, &screenheight);
 
 	// adjust for title bars and whatever -- very approximate, but better than the alternative
-	//screenwidth -= 6;
-	//screenheight -= 48;
+	screenwidth -= 6;
+	screenheight -= 48;
 
 	if (fontsize < 1 || fontsize > 13) {
 		for (fontsize = 13; fontsize > 1 && (fontwidths[fontsize - 1] * COLS / 16 >= screenwidth || fontheights[fontsize - 1] * ROWS / 16 >= screenheight); fontsize--);
