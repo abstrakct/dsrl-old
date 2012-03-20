@@ -67,7 +67,7 @@ void domess()
         TCOD_console_blit(game->messages.c, 0, 0, game->messages.w, game->messages.h, NULL, game->messages.x, game->messages.y, 1.0, 1.0);
         TCOD_console_flush();
 
-        fprintf(messagefile, "%s\n", messages[currmess-1].text);
+        fprintf(messagefile, "%d - %s\n", game->turn, messages[currmess-1].text);
 }
 
 void scrollmessages()
