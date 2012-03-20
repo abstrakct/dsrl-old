@@ -457,7 +457,12 @@ void init_display()
 		for (fontsize = 13; fontsize > 1 && (fontwidths[fontsize - 1] * dsconfig.cols / 16 >= screenwidth || fontheights[fontsize - 1] * dsconfig.rows / 16 >= screenheight); fontsize--);
 	}
 
-	sprintf(font, "fonts/df.png");
+        if(screenwidth <= 1024) {
+        	sprintf(font, "fonts/ds.png");
+        	dsconfig.rows *= 2;
+        } else
+                sprintf(font, "fonts/df.png");
+
 	//sprintf(font, "fonts/font-%i.png", fontsize);
         TCOD_console_set_custom_font(font, /*TCOD_FONT_TYPE_GREYSCALE |*/ TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
 
