@@ -348,14 +348,14 @@ void attack(actor_t *attacker, actor_t *defender)
         if(attack >= defense) {  // it's a hit!
                 if(attacker == player) {
                         if(damage <= 0)
-                                youc(C_BLACK_WHITE, "You hit the %s, but do no damage!", defender->name);
+                                youc(TCOD_white, "You hit the %s, but do no damage!", defender->name);
                         else
-                                youc(C_BLACK_RED, "hit the %s with %s for %d damage!", defender->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
+                                youc(TCOD_red, "hit the %s with %s for %d damage!", defender->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
                 } else {
                         if(damage <= 0)
-                                dsprintfc(C_BLACK_WHITE, "The %s hits you, but does no damage!", attacker->name);
+                                dsprintfc(TCOD_white, "The %s hits you, but does no damage!", attacker->name);
                         else
-                                dsprintfc(C_BLACK_RED, "The %s hits you with %s for %d damage.", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
+                                dsprintfc(TCOD_red, "The %s hits you with %s for %d damage.", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
                 }
 
                 if(damage > 0)
@@ -365,16 +365,16 @@ void attack(actor_t *attacker, actor_t *defender)
                         if(defender == player) {
                                 player_die(attacker);
                         } else {
-                                youc(C_BLACK_RED, "kill the %s!", defender->name);
+                                youc(TCOD_red, "kill the %s!", defender->name);
                                 kill_monster(world->curlevel, defender, attacker);
                                 award_xp(defender);
                         }
                 }
         } else {
                 if(attacker == player)
-                        youc(C_BLACK_WHITE, "miss the %s!", defender->name);
+                        youc(TCOD_white, "miss the %s!", defender->name);
                 else
-                        dsprintfc(C_BLACK_WHITE, "The %s tries to hit you, but fails!", attacker->name);
+                        dsprintfc(TCOD_white, "The %s tries to hit you, but fails!", attacker->name);
         }
 
         if(attacker == player)

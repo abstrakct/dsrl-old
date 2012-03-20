@@ -135,10 +135,10 @@ void init_player()
         // TODO: Character generation!!
         //plx = game->mapw / 2;
         //ply = game->maph / 2;
-        ppx = plx - game->mapw / 2;
-        ppy = ply - game->maph / 2;
-        game->mapcx = game->mapw + 2;
-        game->mapcy = game->maph + 2;
+        ppx = plx - game->map.w / 2;
+        ppy = ply - game->map.h / 2;
+        game->mapcx = game->map.w - 2;
+        game->mapcy = game->map.h - 2;
         player->viewradius = 42;
         player->level = 1;
 
@@ -197,8 +197,8 @@ void parse_commandline(int argc, char **argv)
 
 void fixview()
 {
-        ppx = plx - (game->mapw / 2);
-        ppy = ply - (game->maph / 2);
+        ppx = plx - (game->map.w / 2);
+        ppy = ply - (game->map.h / 2);
 
         if(plx < 0)
                 plx = 0;
@@ -206,8 +206,8 @@ void fixview()
                 ppx--;
         if(plx >= (ppx+(game->mapcx/6*5)))
                 ppx++;
-        if(ppx >= world->curlevel->xsize-game->mapcx)
-                ppx = world->curlevel->xsize-game->mapcx-1;
+        if(ppx >= world->curlevel->xsize - game->mapcx)
+                ppx = world->curlevel->xsize - game->mapcx - 1;
         if(ppx < 0)
                 ppx = 0;
 
@@ -217,7 +217,7 @@ void fixview()
                 ppy--;
         if(ply >= (ppy + (game->mapcy/6*5)))
                 ppy++;
-        if(ppy >= world->curlevel->ysize-game->mapcy)
+        if(ppy >= world->curlevel->ysize - game->mapcy)
                 ppy = world->curlevel->ysize - game->mapcy - 1;
         if(ppy < 0)
                 ppy = 0;
@@ -662,6 +662,9 @@ void queue(int action)
 {
         struct actionqueue *tmp, *prev;
 
+        if(action == ACTION_MOVE_MONSTERS)
+                queue(ACTION_MAKE_DISTANCEMAP);
+
         prev = aq;
         tmp = aq->next;
         
@@ -843,43 +846,45 @@ void look()
         }
 }
 
-void do_turn()
+void do_turn(bool do_nothing)
 {
        // bool fullturn;
         int i, ret;
 
-        if(animate_only) {
+        //if(animate_only) {
                 // Add cool animations here?!
-                dsprintf("animating.....");
-        } else {
-                player->ticks += 1000;
+                //dsprintf("animating.....");
+        //} else {
 
-                if(game->currentlevel)
-                        queue(ACTION_MAKE_DISTANCEMAP);
+        if(!do_nothing)
+                return;
 
-                queue(ACTION_MOVE_MONSTERS);
+        player->ticks += 1000;
 
-                if(game->turn % 5)                      // TODO: Better condition... based on physique etc.
-                        queue(ACTION_HEAL_PLAYER);
+        if(game->currentlevel)
+                queue(ACTION_MAKE_DISTANCEMAP);
 
+        if(game->turn % 5)                      // TODO: Better condition... based on physique etc.
+                queue(ACTION_HEAL_PLAYER);
+
+        i = aq->num;
+
+        while(i) {
                 i = aq->num;
 
-                while(i) {
-                        i = aq->num;
+                ret = do_next_thing_in_queue();
 
-                        ret = do_next_thing_in_queue();
-
-                        if(ret) {
-                                game->turn++;
-                                inc_second(&game->t, d(1, 10));    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
-                                look();
-                        }
-
-                        draw_world(world->curlevel);
-                        draw_wstat();
-                        update_screen();
+                if(ret) {
+                        game->turn++;
+                        inc_second(&game->t, d(1, 10));    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
+                        look();
                 }
+
+                //draw_map(world->curlevel);
+                //draw_wstat();
+                update_screen();
         }
+        //}
 }
 
 int main(int argc, char *argv[])
@@ -887,6 +892,7 @@ int main(int argc, char *argv[])
         int c, x, y;
         char messagefilename[50];
         TCOD_key_t l;
+        bool doturn;
 
         if(!setlocale(LC_ALL, ""))
                 die("couldn't set locale.");
@@ -945,7 +951,7 @@ int main(int argc, char *argv[])
 
         init_commands();
 
-        draw_world(world->curlevel);
+        draw_map(world->curlevel);
         draw_wstat();
         initial_update_screen();
 
@@ -954,22 +960,24 @@ int main(int argc, char *argv[])
 
                 mapchanged   = false;
                 animate_only = false;
+                doturn = true;
                 player->oldx = plx;
                 player->oldy = ply;
 
                 switch(c) {
                         case CMD_QUIT:
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 game->dead = 1;
                                 break;
-                        case CMD_DOWN:  queue(ACTION_PLAYER_MOVE_DOWN); break;
-                        case CMD_UP:    queue(ACTION_PLAYER_MOVE_UP); break;
-                        case CMD_LEFT:  queue(ACTION_PLAYER_MOVE_LEFT); break;
-                        case CMD_RIGHT: queue(ACTION_PLAYER_MOVE_RIGHT); break;
-                        case CMD_NW:    queue(ACTION_PLAYER_MOVE_NW); break;
-                        case CMD_NE:    queue(ACTION_PLAYER_MOVE_NE); break;
-                        case CMD_SW:    queue(ACTION_PLAYER_MOVE_SW); break;
-                        case CMD_SE:    queue(ACTION_PLAYER_MOVE_SE); break;
+                        case CMD_DOWN:  queue(ACTION_PLAYER_MOVE_DOWN);  queue(ACTION_MOVE_MONSTERS); break;
+                        case CMD_UP:    queue(ACTION_PLAYER_MOVE_UP);    queue(ACTION_MOVE_MONSTERS); break;
+                        case CMD_LEFT:  queue(ACTION_PLAYER_MOVE_LEFT);  queue(ACTION_MOVE_MONSTERS); break;
+                        case CMD_RIGHT: queue(ACTION_PLAYER_MOVE_RIGHT); queue(ACTION_MOVE_MONSTERS); break;
+                        case CMD_NW:    queue(ACTION_PLAYER_MOVE_NW);    queue(ACTION_MOVE_MONSTERS); break;
+                        case CMD_NE:    queue(ACTION_PLAYER_MOVE_NE);    queue(ACTION_MOVE_MONSTERS); break;
+                        case CMD_SW:    queue(ACTION_PLAYER_MOVE_SW);    queue(ACTION_MOVE_MONSTERS); break;
+                        case CMD_SE:    queue(ACTION_PLAYER_MOVE_SE);    queue(ACTION_MOVE_MONSTERS); break;
                         case CMD_WIELDWEAR:
                                        l = ask_char("Which item would you like to wield/wear?");
                                        actiondata = (void *) get_object_from_letter(l.c, player->inventory);
@@ -1001,11 +1009,13 @@ int main(int argc, char *argv[])
                                 dsprintf("Setting all cells to visible.");
                                 set_level_visited(world->curlevel);
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_SPAWNMONSTER:
                                 spawn_monster_at(ply+5, plx+5, ri(1, game->monsterdefs), world->curlevel->monsters, world->curlevel, 100);
                                 //dump_monsters(world->curlevel->monsters);
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_WIZARDMODE:
                                 game->wizardmode = (game->wizardmode ? false : true); queue(ACTION_NOTHING);
@@ -1014,6 +1024,7 @@ int main(int argc, char *argv[])
                         case CMD_SAVE:
                                 save_game(game->savefile);
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_LOAD:
                                 if(!load_game(game->savefile, 1))
@@ -1021,10 +1032,12 @@ int main(int argc, char *argv[])
                                 else
                                         dsprintf("Loading successful!");
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_DUMPOBJECTS:
                                 dump_objects(world->curlevel->c[ply][plx].inventory);
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_INCFOV:
                                 player->viewradius++;
@@ -1032,6 +1045,7 @@ int main(int argc, char *argv[])
                                 //generate_terrain(1);
                                 //dsprintf("lakelimit = %d", world->out->lakelimit);
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_DECFOV:
                                 player->viewradius--;
@@ -1039,6 +1053,7 @@ int main(int argc, char *argv[])
                                 //generate_terrain(1);
                                 //dsprintf("lakelimit = %d", world->out->lakelimit);
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_DUMPCOLORS:
                                 for(x = 0;  x < 64; x++) {
@@ -1048,6 +1063,7 @@ int main(int argc, char *argv[])
                                         wattroff(wstat, A_BOLD);*/
                                 }
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_FLOODFILL:
                                 x = ri(11, world->curlevel->xsize);
@@ -1059,9 +1075,11 @@ int main(int argc, char *argv[])
                                 dsprintf("floodfilling from %d, %d\n", y, x);
                                 floodfill(world->curlevel, y, x);
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_INVENTORY:
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 dump_objects(player->inventory);
                                 break;
                         case CMD_PICKUP:
@@ -1074,6 +1092,7 @@ int main(int argc, char *argv[])
                                 } else {
                                         dsprintf("You can't go up here!");
                                         queue(ACTION_NOTHING);
+                                        doturn = false;
                                 }
                                 break;
                         case CMD_ASCEND:
@@ -1083,6 +1102,7 @@ int main(int argc, char *argv[])
                                 } else {
                                         dsprintf("You can't go up here!");
                                         queue(ACTION_NOTHING);
+                                        doturn = false;
                                 }
                                 break;
                         case CMD_REST:
@@ -1091,26 +1111,28 @@ int main(int argc, char *argv[])
                         case CMD_PATHFINDER:
                                 pathfinder(world->curlevel, player->y, player->x, player->y + ri(-15,15), player->x + ri(-15,15));
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 break;
                         case CMD_INCTIME:
                                 c = 5000000;
                                 while(c--) {
                                         inc_second(&game->t, 1);
                                 };
-                                draw_world(world->curlevel);
+                                draw_map(world->curlevel);
                                 draw_wstat();
                                 update_screen();
 
                                 break;
-                        case CMD_MOVE_ON:
-                                animate_only = true;
+                        //case CMD_MOVE_ON:
+                                //animate_only = true;
                         default:
                                 queue(ACTION_NOTHING);
+                                doturn = false;
                                 game->turn--;
                                 break;
                 }
 
-                do_turn();
+                do_turn(doturn);
         } while(!game->dead);
 
         shutdown_display();

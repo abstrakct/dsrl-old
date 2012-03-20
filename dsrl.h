@@ -28,7 +28,7 @@ typedef struct {                              // ds_config_t
 } ds_config_t;
 
 typedef struct {
-        int w, h;
+        int x, y, w, h;
         TCOD_console_t c;
 } win_t;
 
@@ -53,10 +53,11 @@ typedef struct {                              // game_t
         obj_t         *objects[2000];
         dstime         t;
         win_t          map, messages, left, right;
+        //int            vpx, vpy, vpw, vph;      // viewport x,y,w,h
 } game_t;
 
 typedef struct {                              // message_t
-        int color;
+        TCOD_color_t color;
         char text[250];
 } message_t;
 

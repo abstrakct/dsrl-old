@@ -11,7 +11,7 @@
 // Prototypes
 void init_display();
 void shutdown_display();
-void draw_world(level_t *level);
+void draw_map(level_t *level);
 void draw_wstat();
 
 void dsmapaddch(int y, int x, TCOD_color_t color, char c);
@@ -23,10 +23,13 @@ TCOD_key_t dsgetch();
 void domess();
 void scrollmessages();
 void mess(char *message);
-void messc(int color, char *message);
+void messc(TCOD_color_t color, char *message);
 void delete_last_message();
 
 bool blocks_light(int y, int x);
+
+#define COLS  120         // x
+#define ROWS   60         // y
 
 // Color definitions
 #define C_BLACK_BLACK           0
@@ -108,7 +111,7 @@ bool blocks_light(int y, int x);
 #define COLOR_BAD     C_BLACK_RED
 #define COLOR_GOOD    C_BLACK_GREEN
 #define COLOR_NORMAL  C_BLACK_WHITE
-#define COLOR_INFO    C_BLACK_YELLOW
+#define COLOR_INFO    TCOD_yellow
 #define COLOR_VISIBLE C_BLACK_YELLOW
 
 #define COLOR_SHADE   63

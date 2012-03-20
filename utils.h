@@ -39,10 +39,10 @@ int perc(int i);
 int ri(int a, int b);
 
 void you(char *fmt, ...);
-void youc(int color, char *fmt, ...);
+void youc(TCOD_color_t color, char *fmt, ...);
 void yousee(char *fmt, ...);
 void dsprintf(char *fmt, ...);
-void dsprintfc(int color, char *fmt, ...);
+void dsprintfc(TCOD_color_t color, char *fmt, ...);
 TCOD_key_t ask_char(char *question);
 TCOD_key_t ask_for_hand();
 

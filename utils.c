@@ -154,7 +154,7 @@ void you(char *fmt, ...)
         mess(s2);
 }
 
-void youc(int color, char *fmt, ...)
+void youc(TCOD_color_t color, char *fmt, ...)
 {
         va_list argp;
         char s[1000];
@@ -198,7 +198,7 @@ void dsprintf(char *fmt, ...)
         mess(s);
 }
 
-void dsprintfc(int color, char *fmt, ...)
+void dsprintfc(TCOD_color_t color, char *fmt, ...)
 {
         va_list argp;
         char s[1000];
@@ -267,6 +267,8 @@ void more()
         TCOD_key_t c;
 
         dsprintf("-- more --");
+        domess();
+        update_screen();
         while(1) {
                 c = dsgetch();
                 if(c.vk == TCODK_SPACE || c.vk == TCODK_ENTER) {
