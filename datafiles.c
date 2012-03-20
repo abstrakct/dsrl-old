@@ -619,18 +619,6 @@ int parse_configfile()
                 return 1;
         }
 
-        sprintf(sname, "config.[0].min_forests");
-        config_lookup_int(cf, sname, &dsconfig.minf);
-        sprintf(sname, "config.[0].max_forests");
-        config_lookup_int(cf, sname, &dsconfig.maxf);
-        sprintf(sname, "config.[0].min_cities");
-        config_lookup_int(cf, sname, &dsconfig.minc);
-        sprintf(sname, "config.[0].max_cities");
-        config_lookup_int(cf, sname, &dsconfig.maxc);
-        sprintf(sname, "config.[0].min_villages");
-        config_lookup_int(cf, sname, &dsconfig.minv);
-        sprintf(sname, "config.[0].max_villages");
-        config_lookup_int(cf, sname, &dsconfig.maxv);
         sprintf(sname, "config.[0].dxsize");
         config_lookup_int(cf, sname, &dsconfig.dxsize);
         sprintf(sname, "config.[0].dysize");
@@ -639,6 +627,12 @@ int parse_configfile()
         config_lookup_bool(cf, sname, &dsconfig.compress_savefile);
         sprintf(sname, "config.[0].autopickup");
         config_lookup_string(cf, sname, &value);
+        sprintf(sname, "config.[0].fontsize");
+        config_lookup_int(cf, sname, &dsconfig.fontsize);
+        sprintf(sname, "config.[0].rows");
+        config_lookup_int(cf, sname, &dsconfig.rows);
+        sprintf(sname, "config.[0].cols");
+        config_lookup_int(cf, sname, &dsconfig.cols);
 
         strcpy(dsconfig.autopickup, value);
 

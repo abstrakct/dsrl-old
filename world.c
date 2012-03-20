@@ -798,7 +798,7 @@ void generate_collinwood()
         fill_level_with_walls(&world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         insert_areadef_at(&world->area[AREA_COLLINWOOD_MAIN_FLOOR], 1, 1, AREA_COLLINWOOD_MAIN_FLOOR);
 
-        spawn_monsters(ri(1,1), 3, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
+        spawn_monsters(ri(1,3), 3, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         spawn_golds(ri(1, 2), 30, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         spawn_objects(4, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
 

@@ -58,7 +58,7 @@ void domess()
         int i;
 
         TCOD_console_set_default_foreground(game->messages.c, TCOD_white);
-        TCOD_console_print_frame(game->messages.c, 0, 0, game->messages.w, game->messages.h - 1, true, TCOD_BKGND_NONE, "Messages");
+        TCOD_console_clear(game->messages.c);
         currmess++;
         for(i = maxmess-1; i > 0; i--) {
                 TCOD_console_set_default_foreground(game->messages.c, messages[i].color);
@@ -112,6 +112,39 @@ void messc(TCOD_color_t color, char *message)
         domess();
 }
 
+void draw_left()
+{
+        int i;
+        TCOD_color_t color;
+
+        i = 0;
+        TCOD_console_set_default_foreground(game->left.c, TCOD_white);
+
+        //TCOD_console_set_alignment(game->left.c, TCOD_CENTER);
+        TCOD_console_print(game->left.c, (game->left.w/2)-(strlen(player->name)/2), i+1, "%c %s %c", 228+8, player->name, 228+8);
+        TCOD_console_print(game->left.c, (game->left.w/2)-9, i+2, "%02d:%02d - %s %d, %d", game->t.hour, game->t.minute, monthstring[game->t.month], game->t.day, game->t.year);
+
+        i++;
+        TCOD_console_print(game->left.c, 1, i+3, "Weapon: %s", player->weapon ? player->weapon->fullname : "bare hands");
+        //TCOD_console_print(game->left.c, 1, i+4, "viewradius: %d", player->viewradius);
+        
+        /* Hitpoints */
+        if(player->hp >= (player->maxhp/4*3))
+                color = TCOD_green;
+        else if(player->hp >= (player->maxhp/4) && player->hp < (player->maxhp/4*3))
+                color = TCOD_yellow;
+        else if(player->hp < (player->maxhp/4))
+                color = TCOD_red;
+
+        TCOD_console_print(game->left.c, 1, i+4, "HP:");
+        TCOD_console_set_default_foreground(game->left.c, color);
+        TCOD_console_print(game->left.c, 5, i+4, "%d/%d (%.1f%%)", player->hp, player->maxhp, ((float)(100/(float)player->maxhp) * (float)player->hp));
+
+        
+        //mvwprintw(wleft, 3, 1, "y,x     %d,%d", ply, plx);
+        //mvwprintw(wleft, 4, 1, "(py,px) (%d,%d)", ppy, ppx);
+}
+
 /*
 void draw_wstat()
 {
@@ -119,17 +152,6 @@ void draw_wstat()
         int i, j;
         int color;
 
-        werase(wleft);
-        werase(wstat);
-        box(wleft, ACS_VLINE, ACS_HLINE);                                                                                                                                                                                                                                                                         
-        box(wstat, ACS_VLINE, ACS_HLINE);                                                                                                                                                                                                                                                                         
-
-        mvwprintw(wleft, 1, 1, "Name:   %s", player->name);
-        mvwprintw(wleft, 2, 1, "Time:   %02d:%02d - %s %d, %d", game->t.hour, game->t.minute, monthstring[game->t.month], game->t.day, game->t.year);
-        mvwprintw(wleft, 3, 1, "Weapon: %s", player->weapon ? player->weapon->fullname : "bare hands");
-        //mvwprintw(wleft, 3, 1, "y,x     %d,%d", ply, plx);
-        //mvwprintw(wleft, 4, 1, "(py,px) (%d,%d)", ppy, ppx);
-        mvwprintw(wleft, 5, 1, "viewradius: %d", player->viewradius);
         if(player->hp >= (player->maxhp/4*3))
                 color = COLOR_PAIR(COLOR_GREEN);
         else if(player->hp >= (player->maxhp/4) && player->hp < (player->maxhp/4*3))
@@ -379,12 +401,18 @@ void initial_update_screen()
 
 void update_screen()
 {
+        TCOD_console_clear(game->map.c);
+        TCOD_console_clear(game->left.c);
+        TCOD_console_clear(game->right.c);
+
         //TCOD_console_rect(game->map.c, game->map.x, game->map.y, game->map.w, game->map.h, true, TCOD_BKGND_NONE);
-        TCOD_console_print_frame(game->map.c, 0, 0, game->map.w, game->map.h, true, TCOD_BKGND_NONE, "Map");
+        /*TCOD_console_print_frame(game->map.c, 0, 0, game->map.w, game->map.h, true, TCOD_BKGND_NONE, "Map");
         TCOD_console_print_frame(game->left.c, 0, 0, game->left.w, game->left.h, true, TCOD_BKGND_NONE, "You");
-        TCOD_console_print_frame(game->right.c, 0, 0, game->right.w - 2, game->right.h, true, TCOD_BKGND_NONE, "Inventory");
+        TCOD_console_print_frame(game->right.c, 0, 0, game->right.w - 2, game->right.h, true, TCOD_BKGND_NONE, "Inventory");*/
 
         draw_map(world->curlevel);
+        draw_left();
+
         TCOD_console_blit(game->map.c, 0, 0, game->map.w, game->map.h, NULL, game->map.x, game->map.y, 1.0, 1.0);
         TCOD_console_blit(game->messages.c, 0, 0, game->messages.w, game->messages.h, NULL, game->messages.x, game->messages.y, 1.0, 1.0);
         TCOD_console_blit(game->left.c, 0, 0, game->left.w, game->left.h, NULL, game->left.x, game->left.y, 1.0, 1.0);
@@ -422,42 +450,44 @@ void init_display()
 	screenwidth -= 6;
 	screenheight -= 48;
 
+	dsconfig.rows = ROWS;
+	dsconfig.cols = COLS;
+
 	if (fontsize < 1 || fontsize > 13) {
-		for (fontsize = 13; fontsize > 1 && (fontwidths[fontsize - 1] * COLS / 16 >= screenwidth || fontheights[fontsize - 1] * ROWS / 16 >= screenheight); fontsize--);
+		for (fontsize = 13; fontsize > 1 && (fontwidths[fontsize - 1] * dsconfig.cols / 16 >= screenwidth || fontheights[fontsize - 1] * dsconfig.rows / 16 >= screenheight); fontsize--);
 	}
 
-	sprintf(font, "fonts/ds.png");
+	sprintf(font, "fonts/df.png");
 	//sprintf(font, "fonts/font-%i.png", fontsize);
         TCOD_console_set_custom_font(font, /*TCOD_FONT_TYPE_GREYSCALE |*/ TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
 
-        TCOD_console_init_root(COLS, ROWS, GAME_NAME, false, TCOD_RENDERER_SDL);
-	//TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);
+        TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_SDL);
+	TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);
 	TCOD_console_set_keyboard_repeat(175, 30);
-        //TCOD_console_disable_keyboard_repeat();
 
-        game->width = COLS;
-        game->height = ROWS;
+        game->width = dsconfig.cols;
+        game->height = dsconfig.rows;
 
-        game->left.w = COLS/4;
-        game->left.h = (ROWS/3) * 2;
+        game->left.w = dsconfig.cols/4;
+        game->left.h = (dsconfig.rows/3) * 2;
         game->left.x = 0;
         game->left.y = 0;
         game->left.c = TCOD_console_new(game->left.w, game->left.h);
 
-        game->map.w = COLS/2;
-        game->map.h = (ROWS/3) * 2;
+        game->map.w = dsconfig.cols/2;
+        game->map.h = (dsconfig.rows/3) * 2;
         game->map.x = game->left.w + 1;
         game->map.y = 0;
         game->map.c = TCOD_console_new(game->map.w, game->map.h);
 
-        game->right.w = COLS/4;
-        game->right.h = (ROWS/3) * 2;
+        game->right.w = dsconfig.cols/4;
+        game->right.h = (dsconfig.rows/3) * 2;
         game->right.x = game->map.x + game->map.w + 1;
         game->right.y = 0;
         game->right.c = TCOD_console_new(game->left.w, game->left.h);
 
-        game->messages.w = COLS;
-        game->messages.h = ROWS / 3;
+        game->messages.w = dsconfig.cols;
+        game->messages.h = dsconfig.rows / 3;
         game->messages.x = 0;
         game->messages.y = game->left.h + 1;
         game->messages.c = TCOD_console_new(game->messages.w, game->messages.h);

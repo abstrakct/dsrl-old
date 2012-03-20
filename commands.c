@@ -48,7 +48,7 @@ cmd_t outsidecommands[] = {
         { { TCODK_CHAR,       '>', 1, 0, 0, 0, 0, 0 }, CMD_DESCEND,     "Go down stairs" },
         { { TCODK_CHAR,       'd', 1, 0, 0, 0, 0, 0 }, CMD_DROP,        "Drop an object" },
 #ifdef DEVELOPMENT_MODE
-        { { TCODK_CHAR,       'W', 1, 0, 0, 0, 0, 0 }, CMD_WIZARDMODE,  "Toggle wizard mode" },
+        { { TCODK_F1,           0, 1, 0, 0, 0, 0, 0 }, CMD_WIZARDMODE,  "Toggle wizard mode" },
         //{ TCODK_F2,  CMD_INCTIME,     "Time travel!?" },
         { { TCODK_CHAR,       '+', 1, 0, 0, 0, 0, 0 }, CMD_INCFOV,      "Increase FOV" },
         { { TCODK_CHAR,       '-', 1, 0, 0, 0, 0, 0 }, CMD_DECFOV,      "Decrease FOV" },

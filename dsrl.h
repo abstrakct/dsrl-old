@@ -17,14 +17,13 @@
 #define DEVELOPMENT_MODE
 
 typedef struct {                              // ds_config_t
-        int  minf, maxf;
-        int  minc, maxc;
-        int  minv, maxv;
         int  mind, maxd;
         int  dxsize, dysize;
-        int  compress_savefile;                // compress the savefile?
+        int  compress_savefile;               // compress the savefile?
         char autopickup[10];
         bool ap[10];                          // adjust later, match object type
+        int  fontsize;
+        int  rows, cols;                      // screen "resolution"
 } ds_config_t;
 
 typedef struct {

@@ -28,8 +28,9 @@ void delete_last_message();
 
 bool blocks_light(int y, int x);
 
-#define COLS  120         // x
-#define ROWS   60         // y
+#define MESSAGE_LINES   5
+#define COLS  100                             // x
+#define ROWS  (29 + MESSAGE_LINES)         // y
 
 // Color definitions
 #define C_BLACK_BLACK           0
