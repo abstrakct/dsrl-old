@@ -51,8 +51,8 @@ typedef struct {                 // cell_t
         char         type;
         int          flags;
         short        desty, destx;       // for stairs and portals; destination y,x
-        TCOD_color_t color;
-        TCOD_color_t litcolor;
+        //TCOD_color_t color;
+        //TCOD_color_t litcolor;
         bool         visible;
         signed int   height;
         short        exitindex;

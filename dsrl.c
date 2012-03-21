@@ -679,10 +679,9 @@ void queue(int action)
         tmp->action = action;
         actionnum++;
         tmp->num = actionnum;
-        tmp->count = actionnum;
         prev->next = tmp;
         aq->num++;
-        fprintf(stderr, "Queued up action %d (%d) -- %d\n", tmp->count, aq->num, tmp->action);
+        //fprintf(stderr, "Queued up action %d (%d) -- %d\n", tmp->num, aq->num, tmp->action);
 }
 
 void queue_immediately(int action)
@@ -698,7 +697,7 @@ void queue_immediately(int action)
         new->num = actionnum;
         aq->num++;
         aq->next = new;
-        fprintf(stderr, "Queued up action %d (%d) -- %d - to take effect immediately!\n", new->count, aq->num, new->action);
+        //fprintf(stderr, "Queued up action %d (%d) -- %d - to take effect immediately!\n", new->num, aq->num, new->action);
         do_next_thing_in_queue();  // might as well do it right away, right?
 }
 /*
@@ -747,7 +746,7 @@ bool do_next_thing_in_queue() // needs a better name..
         ret = false;
 
         if(tmp) {
-                fprintf(stderr, "Doing action %d -- %d\n", tmp->count, tmp->action);
+                //fprintf(stderr, "Doing action %d -- %d\n", tmp->num, tmp->action);
                 ret = do_action(tmp->action);
                 aq->num--;
                 aq->next = tmp->next;

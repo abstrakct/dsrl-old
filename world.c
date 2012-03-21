@@ -389,7 +389,7 @@ void generate_area_type_2(int d)
 
                         if(a >= chance && fy != ty && fy != (ty+ysize) && fx != tx && fx != (tx+xsize)) {
                                 world->area[d].c[fy][fx].type = CELL_FLOOR;
-                                world->area[d].c[fy][fx].color = TCOD_white;
+                                //world->area[d].c[fy][fx].color = TCOD_white;
                         }
                 }
         }
@@ -482,11 +482,11 @@ void pathfinder(level_t *l, int y1, int x1, int y2, int x2)
         x = (float) x1;
         y = (float) y1;
 
-        l->c[(int)y][(int)x].color = TCOD_blue;
+        //l->c[(int)y][(int)x].color = TCOD_blue;
         for(k = 1; k <= step; k++) {
                 x += xinc;
                 y += yinc;
-                l->c[(int)y][(int)x].color = TCOD_blue;
+                //l->c[(int)y][(int)x].color = TCOD_blue;
         }
 }
 
@@ -500,7 +500,7 @@ void floodfill(level_t *l, int y, int x)
 //fprintf(stderr, "DEBUG: %s:%d - entering floodfill! x,y = %d,%d\n", __FILE__, __LINE__, x, y);
         if(l->c[y][x].type == CELL_FLOOR) {
                 l->c[y][x].type  = CELL_WALL;
-                l->c[y][x].color = TCOD_blue;
+                //l->c[y][x].color = TCOD_blue;
                 floodfill(l, y-1, x);
                 floodfill(l, y+1, x);
                 floodfill(l, y,   x-1);
@@ -530,16 +530,16 @@ void addfloor(level_t *l, float y, float x)
 
         if(l->c[(int)y][(int)x].type == CELL_WALL) {
                 l->c[(int)y][(int)x].type = CELL_FLOOR;
-                l->c[(int)y][(int)x].color = TCOD_gray;
-                l->c[(int)y][(int)x].litcolor = TCOD_gray;
+                //l->c[(int)y][(int)x].color = TCOD_gray;
+                //l->c[(int)y][(int)x].litcolor = TCOD_gray;
         }
 }
 
 void addwall(level_t *l, int y, int x)
 {
         l->c[y][x].type     = CELL_WALL;
-        l->c[y][x].litcolor = TCOD_orange;
-        l->c[y][x].color    = perc(50) ? TCOD_crimson : TCOD_red;
+        //l->c[y][x].litcolor = TCOD_orange;
+        //l->c[y][x].color    = perc(50) ? TCOD_crimson : TCOD_red;
 }
 
 void adddoor(level_t *l, int y, int x, bool secret)
@@ -892,7 +892,7 @@ void generate_terrain(int visible)
                         if(world->out->c[y][x].height >= world->out->zero - world->out->lakelimit && world->out->c[y][x].height <= world->out->zero + world->out->lakelimit) {
                                 world->out->c[y][x].type = CELL_FLOOR;
                                 //world->out->c[y][x].flags = 0;
-                                world->out->c[y][x].color = TCOD_amber;
+                                //world->out->c[y][x].color = TCOD_amber;
                                 world->out->c[y][x].monster = NULL;
                                 world->out->c[y][x].inventory = NULL;
                                 world->out->c[y][x].visible = visible;

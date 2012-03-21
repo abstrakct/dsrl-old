@@ -65,7 +65,6 @@ struct actionqueue {                          // struct actionqueue
         struct actionqueue *next;
         int action;
         int num;
-        int count;
 };
 
 typedef struct coord {

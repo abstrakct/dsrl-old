@@ -90,7 +90,7 @@ void save_cell(cell_t *c, FILE *f)
         fwrite(&c->flags,   sizeof(int), 1, f);
         fwrite(&c->desty,   sizeof(short), 1, f);
         fwrite(&c->destx,   sizeof(short), 1, f);
-        fwrite(&c->color,   sizeof(short), 1, f);
+        //fwrite(&c->color,   sizeof(short), 1, f);
         fwrite(&c->visible, sizeof(bool), 1, f);
 
         flag = c->monster ? true : false;
@@ -400,7 +400,7 @@ bool load_cell(cell_t *c, level_t *l, FILE *f)
         fread(&c->flags,   sizeof(int), 1, f);
         fread(&c->desty,   sizeof(short), 1, f);
         fread(&c->destx,   sizeof(short), 1, f);
-        fread(&c->color,   sizeof(short), 1, f);
+        //fread(&c->color,   sizeof(short), 1, f);
         fread(&c->visible, sizeof(bool), 1, f);
 
         /* cell has monster? */

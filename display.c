@@ -140,7 +140,18 @@ void draw_left()
         TCOD_console_set_default_foreground(game->left.c, color);
         TCOD_console_print(game->left.c, 5, i+4, "%d/%d (%.1f%%)", player->hp, player->maxhp, ((float)(100/(float)player->maxhp) * (float)player->hp));
 
+        TCOD_console_set_default_foreground(game->left.c, TCOD_white);
+        TCOD_console_print(game->left.c, 1, i+6,  "AC: %d", player->ac);
+        TCOD_console_print(game->left.c, 1, i+7,  "STR:   %d", player->attr.str);
+        TCOD_console_print(game->left.c, 1, i+8,  "DEX:   %d", player->attr.dex);
+        TCOD_console_print(game->left.c, 1, i+9,  "PHY:   %d", player->attr.phy);
+        TCOD_console_print(game->left.c, 1, i+10, "INT:   %d", player->attr.intl);
+        TCOD_console_print(game->left.c, 1, i+11, "WIS:   %d", player->attr.wis);
+        TCOD_console_print(game->left.c, 1, i+12, "CHA:   %d", player->attr.cha);
+        TCOD_console_print(game->left.c, 1, i+13, "XP:    %d", player->xp);
+        TCOD_console_print(game->left.c, 1, i+14,  "Level: %d", player->level);
         
+        //TCOD_console_print(game->left.c, 1, i+9, 1, "Dungeon level: %d (out of %d)", game->currentlevel, game->createdareas);
         //mvwprintw(wleft, 3, 1, "y,x     %d,%d", ply, plx);
         //mvwprintw(wleft, 4, 1, "(py,px) (%d,%d)", ppy, ppx);
 }
@@ -152,26 +163,6 @@ void draw_wstat()
         int i, j;
         int color;
 
-        if(player->hp >= (player->maxhp/4*3))
-                color = COLOR_PAIR(COLOR_GREEN);
-        else if(player->hp >= (player->maxhp/4) && player->hp < (player->maxhp/4*3))
-                color = COLOR_PAIR(COLOR_YELLOW);
-        else if(player->hp < (player->maxhp/4))
-                color = COLOR_PAIR(COLOR_RED);
-        mvwprintw(wleft, 6, 1, "HP:");
-        wattron(wleft, color);
-        mvwprintw(wleft, 6, 5, "%d/%d (%.1f%%)", player->hp, player->maxhp, ((float)(100/(float)player->maxhp) * (float)player->hp));
-        wattroff(wleft, color);
-        mvwprintw(wleft, 7, 1, "Player level: %d", player->level);
-        mvwprintw(wleft, 8, 1, "AC: %d", player->ac);
-        mvwprintw(wleft, 9, 1, "Dungeon level: %d (out of %d)", game->currentlevel, game->createdareas);
-        mvwprintw(wleft, 10, 1, "STR:   %d", player->attr.str);
-        mvwprintw(wleft, 11, 1, "DEX:   %d", player->attr.dex);
-        mvwprintw(wleft, 12, 1, "PHY:   %d", player->attr.phy);
-        mvwprintw(wleft, 13, 1, "INT:   %d", player->attr.intl);
-        mvwprintw(wleft, 14, 1, "WIS:   %d", player->attr.wis);
-        mvwprintw(wleft, 15, 1, "CHA:   %d", player->attr.cha);
-        mvwprintw(wleft, 16, 1, "XP:    %d", player->xp);
         mvwprintw(wleft, 17, 1, "Level: %d", player->level);
 
 
@@ -332,10 +323,14 @@ void draw_map(level_t *level)
                 for(j = ppy, dy = 1; j < (ppy + game->map.h - 2); j++, dy++) {
                         if(j < level->ysize && i < level->xsize) {
                                 if(hasbit(level->c[j][i].flags, CF_VISITED)) {
-                                        color = cc(j,i);
+                                        //color = cc(j,i);
+                                        if(ct(j, i) == CELL_WALL)
+                                                color = TCOD_red;
+                                        else if(ct(j, i) == CELL_FLOOR)
+                                                color = TCOD_gray;
 
                                         if(hasbit(level->c[j][i].flags, CF_LIT)) {
-                                                color = level->c[j][i].litcolor;
+                                                color = TCOD_orange; //level->c[j][i].litcolor;
                                         }
 
                                         dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
