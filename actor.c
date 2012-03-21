@@ -49,21 +49,13 @@ int level_table[] = {
 
 #define MAX_PLAYER_LEVEL ((sizeof(level_table) / sizeof(int)) - 1)
 
-
-// object-to-letter and vise versa 
-
-char get_first_free_letter()
-{
-        int i;
-
-        for(i = 0; i < 52; i++) {
-                if(!objlet[i])
-                        return(slot_to_letter(i));
-        }
-        
-        return 0;    // == no free slots!
-}
-
+/**
+ * @brief Convert slot number to letter
+ *
+ * @param i Slot number
+ *
+ * @return letter
+ */
 char slot_to_letter(int i)
 {
         int retval;
@@ -77,6 +69,13 @@ char slot_to_letter(int i)
         return retval;
 }
 
+/**
+ * @brief Convert letter to slot number
+ *
+ * @param c letter
+ *
+ * @return slot number
+ */
 int letter_to_slot(char c)
 {
         int retval;
@@ -90,11 +89,27 @@ int letter_to_slot(char c)
         return retval;
 }
 
+/**
+ * @brief Returns which object in an inventory corresponds to a letter
+ *
+ * @param c Letter
+ * @param i Inventory
+ *
+ * @return Which object the letter corresponds to.
+ */
 obj_t *get_object_from_letter(char c, inv_t *i)
 {
         return i->object[letter_to_slot(c)];
 }
 
+/**
+ * @brief Find which slot an object is in
+ *
+ * @param o Pointer to the object
+ * @param inv Pointer to the inventory
+ *
+ * @return Slot number of object in inventory, -1 if object was not found in inventory.
+ */
 int object_to_slot(obj_t *o, inv_t *inv)
 {
         int i;
@@ -107,16 +122,34 @@ int object_to_slot(obj_t *o, inv_t *inv)
         return -1;
 }
 
+/**
+ * @brief Check if an actor is in lineofsight of another actor.  This will soon be obsolete.
+ *
+ * @param src The actor which is looking
+ * @param dest The destionation
+ *
+ * @return True if src can see dest, false if not.
+ */
 bool actor_in_lineofsight(actor_t *src, actor_t *dest)
 {
         return in_lineofsight(src, dest->y, dest->x);
 }
 
 /*
+ */
+/**
+ * @brief Check if cell is in line of sight
+ *
  * This function will check if the actor src can see cell at goaly,goalx
  * Returns true if it can, false if not,
  *
  * Adapted from http://roguebasin.roguelikedevelopment.org/index.php/Simple_Line_of_Sight
+ *
+ * @param src actor which is looking
+ * @param goaly Y coord of dest cell
+ * @param goalx X coord of dest cell
+ *
+ * @return True if in line of sight, false if not.
  */
 bool in_lineofsight(actor_t *src, int goaly, int goalx)
 {
@@ -185,6 +218,14 @@ bool in_lineofsight(actor_t *src, int goaly, int goalx)
         }
 }
 
+/**
+ * @brief See if one actor is next to the other.
+ *
+ * @param a Actor 1
+ * @param b Actor 2
+ *
+ * @return True if Actor 1 is next to Actor 2
+ */
 bool next_to(actor_t *a, actor_t *b)
 {
         if(!a)
@@ -207,7 +248,16 @@ bool next_to(actor_t *a, actor_t *b)
         return false;
 }
 
-// loaned from the d20 system
+/**
+ * @brief Get the modifier of an ability.
+ *
+ * This will return the modifier (+/- x) of an ability score. Scales to infinity.
+ * Pretty much stolen from the D20 system.
+ *
+ * @param ab Ability score
+ *
+ * @return Modifier (e.g. +2 or -1 or +5 or whatever).
+ */
 int ability_modifier(int ab)
 {
         return ((ab / 2) - 5);
