@@ -64,7 +64,8 @@ struct actionqueue {                          // struct actionqueue
         struct actionqueue *head;
         struct actionqueue *next;
         int action;
-        long num;
+        int num;
+        int count;
 };
 
 typedef struct coord {
@@ -141,6 +142,7 @@ extern WINDOW *wmap;*/
 
 bool do_next_thing_in_queue();
 void queue(int action);
+void queue_immediately(int action);
 void shutdown_ds();
 
 #endif

@@ -429,7 +429,9 @@ TCOD_key_t dsgetch()
 {
         TCOD_key_t key;
 
-        key = TCOD_console_wait_for_keypress(true);
+        //key = TCOD_console_wait_for_keypress(true);
+        
+        key = TCOD_console_check_for_keypress(TCOD_KEY_PRESSED);
 
         return key;
 }
@@ -468,7 +470,7 @@ void init_display()
 
         TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_SDL);
 	TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);
-	TCOD_console_set_keyboard_repeat(175, 30);
+	TCOD_console_set_keyboard_repeat(350, 60);
 
         game->width = dsconfig.cols;
         game->height = dsconfig.rows;

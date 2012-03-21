@@ -90,9 +90,11 @@ int get_command()
         int i;
         TCOD_key_t key;
 
-        //TCOD_console_flush();
+        TCOD_console_flush();
 
-        key = TCOD_console_wait_for_keypress(false);
+        key = dsgetch();
+        if(key.vk == TCODK_NONE)
+                return 0;
 
         if(key.vk == TCODK_ESCAPE)
                 return CMD_QUIT;       // easy exit even if C&C breaks down!
