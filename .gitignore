@@ -8,3 +8,6 @@ core
 terminal.png
 obsolete
 *.vimsession
+doc
+fonts/msgothic.png
+fonts/kai.png
