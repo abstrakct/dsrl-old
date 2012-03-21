@@ -51,6 +51,7 @@ typedef struct {                              // game_t
         char           savefile[255];           // filename of the save file for this game
         obj_t         *objects[2000];
         dstime         t;
+        dstime         total;
         win_t          map, messages, left, right;
         //int            vpx, vpy, vpw, vph;      // viewport x,y,w,h
 } game_t;
@@ -140,8 +141,10 @@ extern WINDOW *wmap;*/
 /* function prototypes */
 
 bool do_next_thing_in_queue();
+bool do_all_things_in_queue();
 void queue(int action);
 void queue_immediately(int action);
+bool do_action(int action);
 void shutdown_ds();
 
 #endif

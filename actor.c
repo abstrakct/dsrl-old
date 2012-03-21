@@ -309,6 +309,7 @@ void player_die(actor_t *killer)
         if(game->context == CONTEXT_OUTSIDE)
                 printf("\t\twhile outside the area.\n");
 
+        printf("\t\tYou survived for a total of %d years, %d months, %d days, %d hours, %d minutes, %d seconds.\n", game->total.year, game->total.month, game->total.day, game->total.hour, game->total.minute, game->total.second);
         printf("\t\tYou killed a total of %d monsters.\n", player->kills);
         printf("\t\tYou got a total of %d experience points.\n\t\tYou got a final score of %d points.\n\n\n\n\n\n", player->xp, calculate_final_score());
 
@@ -348,14 +349,14 @@ void attack(actor_t *attacker, actor_t *defender)
         if(attack >= defense) {  // it's a hit!
                 if(attacker == player) {
                         if(damage <= 0)
-                                youc(TCOD_white, "You hit the %s, but do no damage!", defender->name);
+                                youc(TCOD_white, "hit the %s, but do no damage!", defender->name);
                         else
                                 youc(TCOD_red, "hit the %s with %s for %d damage!", defender->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
                 } else {
                         if(damage <= 0)
-                                dsprintfc(TCOD_white, "The %s hits you, but does no damage!", attacker->name);
+                                dsprintfc(TCOD_white, "  The %s hits you, but does no damage!", attacker->name);
                         else
-                                dsprintfc(TCOD_red, "The %s hits you with %s for %d damage.", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
+                                dsprintfc(TCOD_red, "  The %s hits you with %s for %d damage.", attacker->name, attacker->weapon ? a_an(attacker->weapon->basename) : "a fistful of nothing", damage);
                 }
 
                 if(damage > 0)
@@ -374,7 +375,7 @@ void attack(actor_t *attacker, actor_t *defender)
                 if(attacker == player)
                         youc(TCOD_white, "miss the %s!", defender->name);
                 else
-                        dsprintfc(TCOD_white, "The %s tries to hit you, but fails!", attacker->name);
+                        dsprintfc(TCOD_white, "  The %s tries to hit you, but fails!", attacker->name);
         }
 
         if(attacker == player)

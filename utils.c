@@ -216,7 +216,9 @@ TCOD_key_t ask_char(char *question)
 
         dsprintf(question);
         update_screen();
-        c = dsgetch();
+        c.c = 0;
+        while(!((c.c >= 'a' && c.c <= 'z') || (c.c >= 'A' && c.c <= 'Z')))
+                c = dsgetch();
         return c;
 }
 

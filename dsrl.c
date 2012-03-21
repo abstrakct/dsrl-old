@@ -77,6 +77,7 @@ struct option ds_options[] = {
         { NULL,      0, NULL, 0  }
 };
 
+/*! \brief Initialize some variables. */
 void init_variables()
 {
         int i, j;
@@ -125,11 +126,7 @@ void init_variables()
                 inc_second(&game->t, 1);
 }
 
-/*********************************************
-* Description - initialize player
-* Author - RK
-* Date - Dec 14 2011
-* *******************************************/
+/*! \brief Initialize player struct */
 void init_player()
 {
         // TODO: Character generation!!
@@ -155,6 +152,9 @@ void init_player()
         strcpy(player->name, "Barnabas Collins");
 }
 
+/*! \brief Shutdown DS
+ * Frees all allocated memory and closes open files
+ */
 void shutdown_ds()
 {
         int i;
@@ -169,9 +169,9 @@ void shutdown_ds()
         fclose(messagefile);
 }
 
-/*
- * The following (parse_commandline) is muchly stolen
- * from getopt's wikipedia page
+/*! \brief Parse the commandline
+ * Parse the commandline
+ * Most of this function is stolen from getopt's wikipedia page
  */
 void parse_commandline(int argc, char **argv)
 {
@@ -195,6 +195,7 @@ void parse_commandline(int argc, char **argv)
         }
 }
 
+/*! \brief Fix the view */
 void fixview()
 {
         ppx = plx - (game->map.w / 2);
@@ -223,6 +224,10 @@ void fixview()
                 ppy = 0;
 }
 
+/*! \brief Open a door
+ *  \param x The X coordinate
+ *  \param y The Y coordinate
+ */
 void open_door(int y, int x)
 {
         clearbit(cf(y, x), CF_HAS_DOOR_CLOSED);
@@ -237,11 +242,40 @@ void open_door(int y, int x)
                 open_door(y,x-1);
 }
 
-/*********************************************
-* Description - Do an action specified by parameter action
-* Author - RK
-* Date - Dec 14 2011
-* *******************************************/
+/*! \brief Clear the actionqueue */
+void clear_aq()
+{
+        struct actionqueue *tmp;
+
+        while(aq->num) {
+                tmp = aq->next;
+                aq->next = tmp->next;
+                dsfree(tmp);
+                aq->num--;
+        }
+}
+
+/*! \brief Setup attack
+ * Actually perform an attack.
+ */
+void setup_attack()
+{
+        int i;
+
+        makedistancemap(player->y, player->x);
+        do_action(ACTION_ATTACK);
+        do_action(ACTION_MOVE_MONSTERS);
+        do_action(ACTION_HEAL_PLAYER);
+
+        i = d(1, 2);
+        inc_second(&game->t, i);
+        inc_second(&game->total, i);
+}
+
+/*! \brief Do an action
+ *  \param action What action to do
+ *  \return True if action should be treated as a full turn, false if not.
+ */
 bool do_action(int action)
 {
         int oldy, oldx;
@@ -260,7 +294,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else
@@ -288,7 +322,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else
@@ -314,7 +348,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx-1].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else
@@ -340,7 +374,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx+1].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else
@@ -368,7 +402,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx-1].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else {
@@ -405,7 +439,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx+1].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else {
@@ -445,7 +479,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx-1].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else {
@@ -483,7 +517,7 @@ bool do_action(int action)
                                         //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx+1].monster;
-                                        queue_immediately(ACTION_ATTACK);
+                                        setup_attack();
                                         fullturn = false;
                                         break;
                                 } else {
@@ -540,6 +574,7 @@ bool do_action(int action)
                 case ACTION_ATTACK:
                         attack(a_attacker, a_victim);
                         player->ticks -= TICKS_ATTACK;
+                        fullturn = true;
                         break;
                 case ACTION_MOVE_MONSTERS:
                         move_monsters();
@@ -652,12 +687,10 @@ bool do_action(int action)
         return fullturn;
 }
 
-/*********************************************
-* Description - Add action to action queue
-* Parameters: int action = ACTION_#define to add
-* Author - RK
-* Date - Dec 14 2011
-* *******************************************/
+/*!
+* Add action to action queue
+* \param action ACTION_#define to add
+*/
 void queue(int action)
 {
         struct actionqueue *tmp, *prev;
@@ -742,10 +775,11 @@ bool do_next_thing_in_queue() // needs a better name..
         bool ret;
         struct actionqueue *tmp;
 
-        tmp = aq->next;
         ret = false;
+        tmp = aq->next;
 
         if(tmp) {
+                tmp = aq->next;
                 //fprintf(stderr, "Doing action %d -- %d\n", tmp->num, tmp->action);
                 ret = do_action(tmp->action);
                 aq->num--;
@@ -758,15 +792,12 @@ bool do_next_thing_in_queue() // needs a better name..
 
 bool do_all_things_in_queue() // needs a better name..
 {
-        struct actionqueue *tmp;
         bool ret;
 
-        tmp = aq->next;
         ret = false;
 
-        while(tmp) {
+        while(aq->num) {
                 ret = do_next_thing_in_queue();
-                tmp = tmp->next;
         }
 
         return ret;
@@ -864,6 +895,11 @@ void look()
         }
 }
 
+/**
+ * @brief Do a turn
+ *
+ * @param do_monsters True if we shall move monsters, false if not.
+ */
 void do_turn(bool do_monsters)
 {
        // bool fullturn;
@@ -899,6 +935,7 @@ void do_turn(bool do_monsters)
 
                 s = d(1, 2);
                 inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
+                inc_second(&game->total, s);
                 update_screen();
         }
         //}

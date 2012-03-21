@@ -118,10 +118,11 @@ void draw_left()
         TCOD_color_t color;
 
         i = 0;
-        TCOD_console_set_default_foreground(game->left.c, TCOD_white);
 
         //TCOD_console_set_alignment(game->left.c, TCOD_CENTER);
+        TCOD_console_set_default_foreground(game->left.c, TCOD_light_blue);
         TCOD_console_print(game->left.c, (game->left.w/2)-(strlen(player->name)/2), i+1, "%c %s %c", 228+8, player->name, 228+8);
+        TCOD_console_set_default_foreground(game->left.c, TCOD_white);
         TCOD_console_print(game->left.c, (game->left.w/2)-9, i+2, "%02d:%02d - %s %d, %d", game->t.hour, game->t.minute, monthstring[game->t.month], game->t.day, game->t.year);
 
         i++;
@@ -156,37 +157,35 @@ void draw_left()
         //mvwprintw(wleft, 4, 1, "(py,px) (%d,%d)", ppy, ppx);
 }
 
-/*
-void draw_wstat()
+void draw_right()
 {
         obj_t *o;
         int i, j;
-        int color;
 
-        mvwprintw(wleft, 17, 1, "Level: %d", player->level);
+        TCOD_console_set_default_foreground(game->right.c, TCOD_light_blue);
+        TCOD_console_print(game->right.c, (game->right.w/2)-7, 1, "%c INVENTORY %c", 228+8, 228+8);
+
+        TCOD_console_set_default_foreground(game->right.c, TCOD_yellow);
+        TCOD_console_print(game->right.c, 1, 3, "Gold: %d", player->inventory->gold);
 
 
-        mvwprintw(wstat, 1, 1, "== INVENTORY ==");
-        mvwprintw(wstat, 2, 1, "Gold: %d", player->inventory->gold);
+        TCOD_console_set_default_foreground(game->right.c, TCOD_white);
         
-        i = 3;
+        i = 4;
         for(j = 0; j < 52; j++) {
                 if(player->inventory->object[j]) {
                         //o = get_object_from_letter(slot_to_letter(j), player->inventory);
                         o = player->inventory->object[j];
                         if(is_worn(o)) {
-                                mvwprintw(wstat, i, 1, "%c)   %s %s", slot_to_letter(j), a_an(o->fullname), is_bracelet(o) ? (o == pw_leftbracelet ? "[<]" : "[>]") : "\0");
-                                wattron(wstat, COLOR_PAIR(COLOR_GREEN));
-                                mvwprintw(wstat, i, 4, "*"); 
-                                wattroff(wstat, COLOR_PAIR(COLOR_GREEN));
+                                TCOD_console_print(game->right.c, 1, i, "%c)   %s %s", slot_to_letter(j), a_an(o->fullname), is_bracelet(o) ? (o == pw_leftbracelet ? "[<]" : "[>]") : "\0");
+                                TCOD_console_put_char_ex(game->right.c, 4, i, '*', TCOD_light_green, TCOD_black);
                         } else {
-                                mvwprintw(wstat, i, 1, "%c)   %s", slot_to_letter(j), a_an(o->fullname));
+                                TCOD_console_print(game->right.c, 1, i, "%c)   %s", slot_to_letter(j), a_an(o->fullname));
                         }
                         i++;
                 }
         }
 }
-*/
 
 void clear_map_to_invisible(level_t *l)
 {
@@ -407,6 +406,7 @@ void update_screen()
 
         draw_map(world->curlevel);
         draw_left();
+        draw_right();
 
         TCOD_console_blit(game->map.c, 0, 0, game->map.w, game->map.h, NULL, game->map.x, game->map.y, 1.0, 1.0);
         TCOD_console_blit(game->messages.c, 0, 0, game->messages.w, game->messages.h, NULL, game->messages.x, game->messages.y, 1.0, 1.0);
@@ -424,9 +424,10 @@ TCOD_key_t dsgetch()
 {
         TCOD_key_t key;
 
-        //key = TCOD_console_wait_for_keypress(true);
+        TCOD_console_flush();
+        key = TCOD_console_wait_for_keypress(true);
         
-        key = TCOD_console_check_for_keypress(TCOD_KEY_PRESSED);
+        //key = TCOD_console_check_for_keypress(TCOD_KEY_PRESSED);
 
         return key;
 }

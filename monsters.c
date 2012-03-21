@@ -362,7 +362,7 @@ void hostile_ai(actor_t *m)
 void heal_monster(actor_t *m, int num)
 {
         increase_hp(m, num);
-        dsprintf("The %s looks a bit healthier! (%d)", m->name, num);
+        dsprintf("  The %s looks a bit healthier! (%d)", m->name, num);
 }
 
 void move_monsters()
@@ -396,7 +396,7 @@ void move_monsters()
                                 hostile_ai(m);
                                 m->ticks -= 1000;
                                 if(m->hp < m->maxhp) {
-                                        if(game->turn % 3)
+                                        if(!game->turn % 3)
                                                 if(perc(40+m->attr.phy)) {
                                                         int i;
 
