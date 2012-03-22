@@ -303,15 +303,50 @@ void FOVlight(actor_t *a, level_t *l)
         }
 }
 
+void donewfov(actor_t *a, level_t *l)
+{
+        TCOD_map_compute_fov(l->map, a->x, a->y, 10, true, FOV_SHADOW);
+
+}
+
+void newfov_initmap(level_t *l)
+{
+        int x, y;
+        bool trans, walk;
+
+        for(x = 1; x < l->xsize; x++) {
+                for(y = 1; y < l->ysize; y++) {
+                        switch(l->c[y][x].type) {
+                                case CELL_NOTHING:
+                                case CELL_WALL:
+                                        trans = false;
+                                        walk = false;
+                                        break;
+                                case CELL_FLOOR:
+                                        trans = true;
+                                        walk = true;
+                                        break;
+                        }
+                        if(blocks_light(y, x))
+                                trans = false;
+
+                        TCOD_map_set_properties(l->map, x, y, trans, walk);
+                }
+        }
+}
+
 void draw_map(level_t *level)
 {
         int i,j, slot;
         int dx, dy;  // coordinates on screen!
         TCOD_color_t color;
 
-        FOV(player, level);
-        if(game->context == CONTEXT_INSIDE)
-                FOVlight(player, level);     // only necessary inside
+        //FOV(player, level);
+        //if(game->context == CONTEXT_INSIDE)
+        //        FOVlight(player, level);     // only necessary inside
+
+
+        donewfov(player, level);
 
         /*
          * in this function, (j,i) are the coordinates on the map,
@@ -321,6 +356,11 @@ void draw_map(level_t *level)
         for(i = ppx, dx = 1; i < (ppx + game->map.w - 2); i++, dx++) {
                 for(j = ppy, dy = 1; j < (ppy + game->map.h - 2); j++, dy++) {
                         if(j < level->ysize && i < level->xsize) {
+                                if(TCOD_map_is_in_fov(level->map, i, j)) {
+                                        setbit(level->c[j][i].flags, CF_VISITED);
+                                        level->c[j][i].visible = true;
+                                }
+
                                 if(hasbit(level->c[j][i].flags, CF_VISITED)) {
                                         //color = cc(j,i);
                                         if(ct(j, i) == CELL_WALL)
@@ -328,9 +368,10 @@ void draw_map(level_t *level)
                                         else if(ct(j, i) == CELL_FLOOR)
                                                 color = TCOD_gray;
 
-                                        if(hasbit(level->c[j][i].flags, CF_LIT)) {
-                                                color = TCOD_orange; //level->c[j][i].litcolor;
-                                        }
+                                        /*if(TCOD_map_is_in_fov(level->map, i, j) && ct(j, i) == CELL_WALL) {
+                                                level->c[j][i].visible = true;
+                                                color = TCOD_orange; 
+                                        }*/
 
                                         dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
 
@@ -425,7 +466,7 @@ TCOD_key_t dsgetch()
         TCOD_key_t key;
 
         TCOD_console_flush();
-        key = TCOD_console_wait_for_keypress(true);
+        key = TCOD_console_wait_for_keypress(false);
         
         //key = TCOD_console_check_for_keypress(TCOD_KEY_PRESSED);
 
@@ -466,7 +507,7 @@ void init_display()
 
         TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_SDL);
 	TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);
-	TCOD_console_set_keyboard_repeat(350, 60);
+	//TCOD_console_set_keyboard_repeat(350, 60);
 
         game->width = dsconfig.cols;
         game->height = dsconfig.rows;

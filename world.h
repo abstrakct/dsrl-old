@@ -69,6 +69,7 @@ struct levelstruct {
         monster_t  *monsters;      // point to head of linked lists of monsters on this level
         obj_t      *objects;
         exit_t      exit[10];
+        TCOD_map_t  map;
 };
 
 struct room {

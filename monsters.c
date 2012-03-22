@@ -276,7 +276,6 @@ void newpathfinder_chaseplayer(actor_t *m)
         m->x += dx;
 }
 
-
 bool newpathfinder(actor_t *m)
 {
         int oy, ox, dx, dy, dist, newdist, newdx, newdy;
@@ -394,7 +393,7 @@ void move_monsters()
 
                         while(m->ticks >= 1000) {
                                 hostile_ai(m);
-                                m->ticks -= 1000;
+                                m->ticks -= TICKS_ATTACK;
                                 if(m->hp < m->maxhp) {
                                         if(!game->turn % 3)
                                                 if(perc(40+m->attr.phy)) {

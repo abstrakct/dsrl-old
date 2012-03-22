@@ -27,6 +27,7 @@ void messc(TCOD_color_t color, char *message);
 void delete_last_message();
 
 bool blocks_light(int y, int x);
+void newfov_initmap(level_t *l);
 
 #define MESSAGE_LINES   5
 #define COLS  119                             // x

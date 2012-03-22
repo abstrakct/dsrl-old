@@ -802,6 +802,10 @@ void generate_collinwood()
         spawn_golds(ri(1, 2), 30, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         spawn_objects(4, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
 
+        world->area[AREA_COLLINWOOD_MAIN_FLOOR].map = TCOD_map_new(world->area[AREA_COLLINWOOD_MAIN_FLOOR].xsize, world->area[AREA_COLLINWOOD_MAIN_FLOOR].ysize);
+        world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
+        newfov_initmap(&world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
+
         game->createdareas++;
 }
 

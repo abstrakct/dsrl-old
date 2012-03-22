@@ -121,7 +121,7 @@ void init_variables()
         game->t.hour   = 18;
         game->t.minute = 0;
         game->t.second = 0;
-        i = ri(72, 7200);
+        i = ri(72, 18000);
         for(j=0;j<i;j++)
                 inc_second(&game->t, 1);
 }
@@ -255,6 +255,16 @@ void clear_aq()
         }
 }
 
+/**
+ * @brief Do the steps necessary to move monsters.
+ * A kind of wrapper function I guess.
+ */
+void monsters_move()
+{
+        do_action(ACTION_MAKE_DISTANCEMAP);
+        do_action(ACTION_MOVE_MONSTERS);
+}
+
 /*! \brief Setup attack
  * Actually perform an attack.
  */
@@ -262,9 +272,8 @@ void setup_attack()
 {
         int i;
 
-        makedistancemap(player->y, player->x);
         do_action(ACTION_ATTACK);
-        do_action(ACTION_MOVE_MONSTERS);
+        monsters_move();
         do_action(ACTION_HEAL_PLAYER);
 
         i = d(1, 2);
@@ -272,8 +281,8 @@ void setup_attack()
         inc_second(&game->total, i);
 }
 
-/*! \brief Do an action
- *  \param action What action to do
+/*! \brief Do an action.
+ *  \param action What action to do (see ACTION_defines).
  *  \return True if action should be treated as a full turn, false if not.
  */
 bool do_action(int action)
@@ -291,7 +300,6 @@ bool do_action(int action)
                 case ACTION_PLAYER_MOVE_DOWN:
                         if(passable(world->curlevel, ply+1, plx)) {
                                 if(world->curlevel->c[ply+1][plx].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx].monster;
                                         setup_attack();
@@ -315,11 +323,11 @@ bool do_action(int action)
                         if(ppy < 0)
                                 ppy = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_UP:
                         if(passable(world->curlevel, ply-1,plx)) {
                                 if(world->curlevel->c[ply-1][plx].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx].monster;
                                         setup_attack();
@@ -341,11 +349,11 @@ bool do_action(int action)
                         if(ppy < 0)
                                 ppy = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_LEFT:
                         if(passable(world->curlevel, ply, plx-1)) {
                                 if(world->curlevel->c[ply][plx-1].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx-1].monster;
                                         setup_attack();
@@ -367,11 +375,11 @@ bool do_action(int action)
                         if(ppx < 0)
                                 ppx = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_RIGHT:
                         if(passable(world->curlevel, ply,plx+1)) {
                                 if(world->curlevel->c[ply][plx+1].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx+1].monster;
                                         setup_attack();
@@ -395,11 +403,11 @@ bool do_action(int action)
                         if(ppx < 0)
                                 ppx = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_NW:
                         if(passable(world->curlevel, ply-1,plx-1)) {
                                 if(world->curlevel->c[ply-1][plx-1].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx-1].monster;
                                         setup_attack();
@@ -432,11 +440,11 @@ bool do_action(int action)
                         if(ppx < 0)
                                 ppx = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_NE:
                         if(passable(world->curlevel, ply-1,plx+1)) {
                                 if(world->curlevel->c[ply-1][plx+1].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply-1][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx+1].monster;
                                         setup_attack();
@@ -472,11 +480,11 @@ bool do_action(int action)
                         if(ppy < 0)
                                 ppy = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_SW:
                         if(passable(world->curlevel, ply+1, plx-1)) {
                                 if(world->curlevel->c[ply+1][plx-1].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx-1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx-1].monster;
                                         setup_attack();
@@ -510,11 +518,11 @@ bool do_action(int action)
                         if(ppx < 0)
                                 ppx = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_SE:
                         if(passable(world->curlevel, ply+1, plx+1)) {
                                 if(world->curlevel->c[ply+1][plx+1].monster) {
-                                        //dsprintf("You attack the %s!", world->curlevel->c[ply+1][plx+1].monster->name);
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx+1].monster;
                                         setup_attack();
@@ -554,6 +562,7 @@ bool do_action(int action)
                         if(ppx < 0)
                                 ppx = 0;
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_PICKUP:
                         if(ci(ply, plx) && ci(ply, plx)->gold > 0) {
@@ -605,6 +614,7 @@ bool do_action(int action)
                                         player->viewradius = 8;
                         }
                         player->ticks -= TICKS_MOVEMENT;
+                        monsters_move();
                         break;
                 case ACTION_GO_UP_STAIRS:
                         tmpy = ply; tmpx = plx;
@@ -627,7 +637,7 @@ bool do_action(int action)
                         if(o)
                                 wieldwear(o);
                         else
-                                dsprintf("HUH????????????????????");
+                                dsprintf("That doesn't seem to work.");
                         player->ticks -= TICKS_WIELDWEAR;
                         break;
                 case ACTION_UNWIELDWEAR:
@@ -635,7 +645,7 @@ bool do_action(int action)
                         if(o)
                                 unwieldwear(o);
                         else
-                                dsprintf("HUH????????????????????");
+                                dsprintf("That doesn't seem to work.");
 
                         player->ticks -= TICKS_WIELDWEAR;
                         break;
@@ -644,7 +654,7 @@ bool do_action(int action)
                         if(o)
                                 drop(o, player);
                         else
-                                dsprintf("Drop what?");
+                                dsprintf("That doesn't seem to work.");
                         player->ticks -= TICKS_WIELDWEAR;
                         break;  
                 case ACTION_FIX_VIEW:
@@ -717,6 +727,11 @@ void queue(int action)
         //fprintf(stderr, "Queued up action %d (%d) -- %d\n", tmp->num, aq->num, tmp->action);
 }
 
+/**
+ * @brief Put an action as the immediate next action in the queue - and execute it.
+ *
+ * @param action Which action to do.
+ */
 void queue_immediately(int action)
 {
         struct actionqueue *tmp, *new;
@@ -733,8 +748,12 @@ void queue_immediately(int action)
         //fprintf(stderr, "Queued up action %d (%d) -- %d - to take effect immediately!\n", new->num, aq->num, new->action);
         do_next_thing_in_queue();  // might as well do it right away, right?
 }
-/*
- *  Queue num actions
+
+/**
+ * @brief Queue a number of actions
+ *
+ * @param num How many times to queue the action
+ * @param action What action
  */
 void queuex(int num, int action)
 {
@@ -744,10 +763,12 @@ void queuex(int num, int action)
                 queue(action);
 }
 
-/*
- * Queue up many actions. Argument list must{
-
- * end with ENDOFLIST
+/**
+ * @brief Queue up as many different actions as you like.
+ * Argument list must end with ENDOFLIST.
+ *
+ * @param first The first action
+ * @param ...   Subsequent actions
  */
 void queuemany(int first, ...)
 {
@@ -912,20 +933,19 @@ void do_turn(bool do_monsters)
 
         player->ticks += 1000;
 
-        if(do_monsters) {
+        /*if(do_monsters) {
                 queue(ACTION_MOVE_MONSTERS);
-        }
-
-        if(game->turn % 5)                      // TODO: Better condition... based on physique etc.
-                queue(ACTION_HEAL_PLAYER);
+        }*/
 
         i = aq->num;
 
         while(i) {
-                i = aq->num;
                 ret = do_next_thing_in_queue();
 
                 if(ret) {
+                        //if(game->turn % 5)                      // TODO: Better condition... based on physique etc.
+                                queue(ACTION_HEAL_PLAYER);
+
                         game->turn++;
                         look();
                 }
@@ -937,6 +957,7 @@ void do_turn(bool do_monsters)
                 inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
                 inc_second(&game->total, s);
                 update_screen();
+                i = aq->num;
         }
         //}
 }
