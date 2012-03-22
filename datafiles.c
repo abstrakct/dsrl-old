@@ -28,7 +28,7 @@ areadef_t r;
 int parse_areadef_cfgfile(char *filename, int index)
 {
         config_setting_t *cfg;
-        int i, j;
+        int i, j, val;
         char sname[200];
         const char *value;
 
@@ -65,8 +65,6 @@ int parse_areadef_cfgfile(char *filename, int index)
                         if(!strcmp(value, "bedrooms"))
                                 areadef[index].exit[x].location = AREA_COLLINWOOD_UPSTAIRS;
 
-
-
                         sprintf(sname, "config.[%d].exit.[%d].type", i, x);
                         config_lookup_string(cf, sname, &value);
                         if(!strcmp(value, "exit"))
@@ -77,11 +75,14 @@ int parse_areadef_cfgfile(char *filename, int index)
                                 areadef[index].exit[x].type = ET_STAIRS_DOWN;
                         if(!strcmp(value, "door"))
                                 areadef[index].exit[x].type = ET_DOOR;
-                                
-
+                               
                         sprintf(sname, "config.[i].exit.[x].char");
                         config_lookup_string(cf, sname, &value);
                         areadef[index].exit[x].c = value[0];
+
+                        sprintf(sname, "config.[i].exit.[x].corresponds_to");
+                        config_lookup_int(cf, sname, &val);
+                        areadef[index].exit[x].dest = val;
                 }
         }
 
@@ -135,6 +136,8 @@ int parse_areadef_file(char *filename, int index)
                                           areadef[index].c[i][j].type = CELL_FLOOR;
                                           setbit(areadef[index].c[i][j].flags, CF_HAS_EXIT);
                                           areadef[index].c[i][j].exitindex = n;
+                                          areadef[index].exit[n].x = j+1;
+                                          areadef[index].exit[n].y = i+1;
                                           break;
                                 default: areadef[index].c[i][j].type = CELL_FLOOR; break;
                         }
@@ -148,8 +151,11 @@ int parse_areadef_file(char *filename, int index)
 
 int parse_areadef_files()
 {
-        return parse_areadef_file("data/area/collinwood.1", AREA_COLLINWOOD_MAIN_FLOOR);
-        return parse_areadef_file("data/area/collinwood.2", AREA_COLLINWOOD_UPSTAIRS_HALL);
+        int ret;
+        ret = parse_areadef_file("data/area/collinwood.1", AREA_COLLINWOOD_MAIN_FLOOR);
+        ret = parse_areadef_file("data/area/collinwood.2", AREA_COLLINWOOD_UPSTAIRS_HALL);
+
+        return ret;
 }
 
 int parse_monsters()

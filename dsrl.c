@@ -292,6 +292,7 @@ bool do_action(int action)
         bool fullturn;
         obj_t *o;
         int i;
+        exit_t *src, *dest;
 
         oldy = ply; oldx = plx;
         fullturn = true;
@@ -631,6 +632,23 @@ bool do_action(int action)
                                 player->viewradius = 45;
                         }
                         player->ticks -= TICKS_MOVEMENT;
+                        break;
+                case ACTION_USE_EXIT:
+                        tmpy = ply; tmpx = plx;
+                        src  = &world->curlevel->exit[world->curlevel->c[tmpy][tmpx].exitindex];
+                        dest = &world->area[src->location].exit[src->dest];
+                        //dsprintf("src: location=%d x=%d y=%d type=%d dest=%d", src->location, src->x, src->y, src->type, src->dest);
+                        //dsprintf("dest: location=%d x=%d y=%d type=%d dest=%d", dest->location, dest->x, dest->y, dest->type, dest->dest);
+
+                        ply = dest->y;
+                        plx = dest->x;
+                        world->curlevel = &world->area[src->location];
+                        world->cmap     = world->area[src->location].c;
+                        game->currentlevel = src->location;
+                        newfov_initmap(&world->area[src->location]);
+                        update_screen();
+
+                        //ply = world->curlevel->exit[world->curlevel->c[tmpy][tmpx].exitindex].
                         break;
                 case ACTION_WIELDWEAR:
                         o = (obj_t *) actiondata;
@@ -1178,6 +1196,16 @@ int main(int argc, char *argv[])
                                         queue(ACTION_FIX_VIEW);
                                 } else {
                                         dsprintf("You can't go up here!");
+                                        queue(ACTION_NOTHING);
+                                        domonstermove = false;
+                                }
+                                break;
+                        case CMD_USE_EXIT:
+                                if(hasbit(cf(ply, plx), CF_HAS_EXIT)) {
+                                        queue(ACTION_USE_EXIT);
+                                        queue(ACTION_FIX_VIEW);
+                                } else {
+                                        dsprintf("There is no exit here!");
                                         queue(ACTION_NOTHING);
                                         domonstermove = false;
                                 }

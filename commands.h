@@ -44,6 +44,7 @@ typedef struct {
 #define CMD_UNWIELDWEAR   28
 #define CMD_PATHFINDER    29
 #define CMD_MOVE_ON       30
+#define CMD_USE_EXIT      31
 
 // development/debug commands
 #define CMD_FLOODFILL     1001

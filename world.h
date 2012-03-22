@@ -43,7 +43,9 @@
 
 typedef struct {
         int location;
+        int x, y;
         int type;
+        int dest;                // which exit in destination does this correspond to?
         char c;
 } exit_t;
 

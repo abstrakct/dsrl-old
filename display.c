@@ -305,7 +305,7 @@ void FOVlight(actor_t *a, level_t *l)
 
 void donewfov(actor_t *a, level_t *l)
 {
-        TCOD_map_compute_fov(l->map, a->x, a->y, 10, true, FOV_SHADOW);
+        TCOD_map_compute_fov(l->map, a->x, a->y, 30, true, FOV_PERMISSIVE_0);
 
 }
 
