@@ -30,17 +30,13 @@ bool blocks_light(int y, int x)
 {
         level_t *l = world->curlevel;
 
-        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED))
+        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED)) {
                 return true;
-
-        /*
-        if(l->c[y][x].type == AREA_FOREST || l->c[y][x].type == AREA_CITY || l->c[y][x].type == AREA_VILLAGE) {    // trees and houses can be "see through" (e.g. if they are small)
-                if(perc(20))
-                        return false;
-                else
-                        return true;
         }
-        */
+        if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_OPEN)) {
+                return false;
+        }
+
         switch(l->c[y][x].type) {
                 case CELL_NOTHING:
                 case CELL_WALL:
@@ -305,7 +301,7 @@ void FOVlight(actor_t *a, level_t *l)
 
 void donewfov(actor_t *a, level_t *l)
 {
-        TCOD_map_compute_fov(l->map, a->x, a->y, 30, true, FOV_PERMISSIVE_0);
+        TCOD_map_compute_fov(l->map, a->x, a->y, 13, true, FOV_SHADOW);
 
 }
 
@@ -316,6 +312,11 @@ void newfov_initmap(level_t *l)
 
         for(x = 1; x < l->xsize; x++) {
                 for(y = 1; y < l->ysize; y++) {
+                        if(blocks_light(y, x))
+                                trans = false;
+                        else
+                                trans = true;
+
                         switch(l->c[y][x].type) {
                                 case CELL_NOTHING:
                                 case CELL_WALL:
@@ -323,12 +324,10 @@ void newfov_initmap(level_t *l)
                                         walk = false;
                                         break;
                                 case CELL_FLOOR:
-                                        trans = true;
                                         walk = true;
                                         break;
                         }
-                        if(blocks_light(y, x))
-                                trans = false;
+
 
                         TCOD_map_set_properties(l->map, x, y, trans, walk);
                 }
@@ -356,23 +355,21 @@ void draw_map(level_t *level)
         for(i = ppx, dx = 1; i < (ppx + game->map.w - 2); i++, dx++) {
                 for(j = ppy, dy = 1; j < (ppy + game->map.h - 2); j++, dy++) {
                         if(j < level->ysize && i < level->xsize) {
-                                if(TCOD_map_is_in_fov(level->map, i, j)) {
+                                if(TCOD_map_is_in_fov(level->map, i, j))
                                         setbit(level->c[j][i].flags, CF_VISITED);
-                                        level->c[j][i].visible = true;
+
+                                if(hasbit(level->c[j][i].flags, CF_VISITED)) {
+                                        if(TCOD_map_is_in_fov(level->map, i, j)) {
+                                                if(ct(j, i) == CELL_WALL)
+                                                        color = TCOD_red;
+                                                else if(ct(j, i) == CELL_FLOOR)
+                                                        color = TCOD_gray;
+                                        } else {
+                                                color = TCOD_darker_gray;
+                                        }
                                 }
 
                                 if(hasbit(level->c[j][i].flags, CF_VISITED)) {
-                                        //color = cc(j,i);
-                                        if(ct(j, i) == CELL_WALL)
-                                                color = TCOD_red;
-                                        else if(ct(j, i) == CELL_FLOOR)
-                                                color = TCOD_gray;
-
-                                        /*if(TCOD_map_is_in_fov(level->map, i, j) && ct(j, i) == CELL_WALL) {
-                                                level->c[j][i].visible = true;
-                                                color = TCOD_orange; 
-                                        }*/
-
                                         dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
 
                                         if(level->c[j][i].inventory) {
@@ -387,15 +384,20 @@ void draw_map(level_t *level)
                                                 }
                                         }
 
-                                        if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_CLOSED))
+                                        if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_CLOSED)) {
+                                                //dsprintf("closed door at %d,%d", dx, dy);
                                                 dsmapaddch(dy, dx, color, '+');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_OPEN))
+                                        }
+                                        if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_OPEN)) {
+                                                //dsprintf("open door at %d,%d", dx, dy);
                                                 dsmapaddch(dy, dx, color, '\'');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_DOWN))
+                                        }
+                                        
+                                        if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_DOWN))
                                                 dsmapaddch(dy, dx, TCOD_white, '>');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_UP))
+                                        if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_UP))
                                                 dsmapaddch(dy, dx, TCOD_white, '<');
-                                        else if(hasbit(level->c[j][i].flags, CF_HAS_EXIT)) {
+                                        if(hasbit(level->c[j][i].flags, CF_HAS_EXIT)) {
                                                 int index;
                                                 index = level->c[j][i].exitindex;
                                                 if(level->exit[index].type == ET_EXIT)
@@ -407,14 +409,13 @@ void draw_map(level_t *level)
                                                 if(level->exit[index].type == ET_DOOR)
                                                         dsmapaddch(dy, dx, TCOD_white, '+');
                                         } 
+
+                                        if(TCOD_map_is_in_fov(level->map, i, j) && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
+                                                dsmapaddch(dy, dx, TCOD_red, (char) level->c[j][i].monster->c);
+
+                                        if(j == ply && i == plx)
+                                                dsmapaddch(dy, dx, TCOD_blue, '@');
                                 }
-
-
-                                if(level->c[j][i].visible && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
-                                        dsmapaddch(dy, dx, TCOD_red, (char) level->c[j][i].monster->c);
-
-                        if(j == ply && i == plx)
-                                dsmapaddch(dy, dx, TCOD_blue, '@');
                         }
                 }
         }

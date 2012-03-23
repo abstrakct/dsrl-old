@@ -831,6 +831,27 @@ void generate_collinwood_upstairs()
         game->createdareas++;
 }
 
+void generate_collinwood_study()
+{
+        world->area[AREA_COLLINWOOD_STUDY].ysize = areadef[AREA_COLLINWOOD_STUDY].y + 5;
+        world->area[AREA_COLLINWOOD_STUDY].xsize = areadef[AREA_COLLINWOOD_STUDY].x + 5;
+        world->area[AREA_COLLINWOOD_STUDY].level = 2;
+        init_level(&world->area[AREA_COLLINWOOD_STUDY]);
+        fill_level_with_walls(&world->area[AREA_COLLINWOOD_STUDY]);
+        insert_areadef_at(&world->area[AREA_COLLINWOOD_STUDY], 1, 1, AREA_COLLINWOOD_STUDY);
+
+        //spawn_monsters(ri(1,3), 3, &world->area[AREA_COLLINWOOD_STUDY]);
+        spawn_golds(ri(1, 2), 30, &world->area[AREA_COLLINWOOD_STUDY]);
+        spawn_objects(4, &world->area[AREA_COLLINWOOD_STUDY]);
+
+        world->area[AREA_COLLINWOOD_STUDY].map = TCOD_map_new(world->area[AREA_COLLINWOOD_STUDY].xsize, world->area[AREA_COLLINWOOD_STUDY].ysize);
+        world->curlevel = &world->area[AREA_COLLINWOOD_STUDY];
+        newfov_initmap(&world->area[AREA_COLLINWOOD_STUDY]);
+        world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
+        // TODO: DO FOV when entering new map!
+
+        game->createdareas++;
+}
 void meta_generate_area(int d, int type)
 {
         if(type && type <= 3) {
@@ -962,6 +983,7 @@ void generate_world()
         generate_terrain(0);
 
         generate_collinwood_upstairs();
+        generate_collinwood_study();
         generate_collinwood();
 
 

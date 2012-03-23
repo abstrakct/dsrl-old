@@ -232,6 +232,8 @@ void open_door(int y, int x)
 {
         clearbit(cf(y, x), CF_HAS_DOOR_CLOSED);
         setbit(cf(y, x), CF_HAS_DOOR_OPEN);
+        TCOD_map_set_properties(world->curlevel->map, x, y, true, true);
+
         if(hasbit(cf(y+1,x), CF_HAS_DOOR_CLOSED))
                 open_door(y+1,x);
         if(hasbit(cf(y-1,x), CF_HAS_DOOR_CLOSED))

@@ -154,6 +154,7 @@ int parse_areadef_files()
         int ret;
         ret = parse_areadef_file("data/area/collinwood.1", AREA_COLLINWOOD_MAIN_FLOOR);
         ret = parse_areadef_file("data/area/collinwood.2", AREA_COLLINWOOD_UPSTAIRS_HALL);
+        ret = parse_areadef_file("data/area/collinwood.3", AREA_COLLINWOOD_STUDY);
 
         return ret;
 }
