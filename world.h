@@ -51,7 +51,7 @@ typedef struct {
 
 typedef struct {                 // cell_t
         char         type;
-        int          flags;
+        long         flags;
         short        desty, destx;       // for stairs and portals; destination y,x
         //TCOD_color_t color;
         //TCOD_color_t litcolor;
@@ -108,7 +108,10 @@ extern char *areanames[50];
 #define CF_HAS_DOOR_SECRET   (1<<6)
 #define CF_IS_STARTING_POINT (1<<7)
 #define CF_HAS_EXIT          (1<<8)
-
+#define CF_HAS_FURNITURE     (1<<9)
+#define CF_HASF_TABLE        (1<<10)
+#define CF_HASF_CHAIR        (1<<11)
+#define CF_HASF_FIRE         (1<<12)
 
 void generate_world();
 void floodfill(level_t *l, int y, int x);

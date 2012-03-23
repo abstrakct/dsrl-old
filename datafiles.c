@@ -139,6 +139,21 @@ int parse_areadef_file(char *filename, int index)
                                           areadef[index].exit[n].x = j+1;
                                           areadef[index].exit[n].y = i+1;
                                           break;
+                                case 'T':
+                                          areadef[index].c[i][j].type = CELL_FLOOR;
+                                          setbit(areadef[index].c[i][j].flags, CF_HAS_FURNITURE);
+                                          setbit(areadef[index].c[i][j].flags, CF_HASF_TABLE);
+                                          break;
+                                case 'h':
+                                          areadef[index].c[i][j].type = CELL_FLOOR;
+                                          setbit(areadef[index].c[i][j].flags, CF_HAS_FURNITURE);
+                                          setbit(areadef[index].c[i][j].flags, CF_HASF_CHAIR);
+                                          break;
+                                case 'f':
+                                          areadef[index].c[i][j].type = CELL_FLOOR;
+                                          setbit(areadef[index].c[i][j].flags, CF_HAS_FURNITURE);
+                                          setbit(areadef[index].c[i][j].flags, CF_HASF_FIRE);
+                                          break;
                                 default: areadef[index].c[i][j].type = CELL_FLOOR; break;
                         }
                 }

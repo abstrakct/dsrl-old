@@ -372,6 +372,14 @@ void draw_map(level_t *level)
                                 if(hasbit(level->c[j][i].flags, CF_VISITED)) {
                                         dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
 
+                                        if(hasbit(level->c[j][i].flags, CF_HAS_FURNITURE)) {
+                                                if(hasbit(level->c[j][i].flags, CF_HASF_TABLE))
+                                                        dsmapaddch(dy, dx, color, 'T');
+                                                if(hasbit(level->c[j][i].flags, CF_HASF_CHAIR))
+                                                        dsmapaddch(dy, dx, color, 'h');
+                                        }
+
+
                                         if(level->c[j][i].inventory) {
                                                 if(level->c[j][i].inventory->gold > 0) {
                                                         dsmapaddch(dy, dx, TCOD_yellow, objchars[OT_GOLD]);

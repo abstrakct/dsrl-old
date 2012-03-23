@@ -143,6 +143,8 @@ void insert_areadef_at(level_t *l, int y, int x, int index)
 
         for(i = 0; i < areadef[index].y; i++) {
                 for(j = 0; j < areadef[index].x; j++) {
+                        l->c[y+i][x+j].flags = areadef[index].c[i][j].flags;
+
                         switch(areadef[index].c[i][j].type) {
                                 case CELL_WALL:
                                         addwall(l, y+i, x+j);
