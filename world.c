@@ -63,6 +63,13 @@ char *areanames[50] = {
 * Author - RK
 * Date - Jan 02 2012
 * *******************************************/
+/**
+ * @brief Initialize a level_t struct
+ * This function will allocate memory for a level_t struct.
+ * It must be done before using a level_t struct!
+ *
+ * @param level Pointer to the level struct.
+ */
 void init_level(level_t *level)
 {
         int i;
@@ -77,6 +84,11 @@ void init_level(level_t *level)
         level->monsters = dsmalloc(sizeof(monster_t));
 }
 
+/**
+ * @brief Fill a level's cells with CELL_NOTHING
+ *
+ * @param l Pointer to level
+ */
 void fill_level_with_nothing(level_t *l)
 {
         int x, y;
@@ -88,6 +100,11 @@ void fill_level_with_nothing(level_t *l)
         }
 }
 
+/**
+ * @brief Fill a level's cells with WALLS
+ *
+ * @param l Pointer to level struct
+ */
 void fill_level_with_walls(level_t *l)
 {
         int x, y;

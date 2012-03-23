@@ -278,7 +278,7 @@ void setup_attack()
         monsters_move();
         do_action(ACTION_HEAL_PLAYER);
 
-        i = d(1, 2);
+        i = d(1, 4);
         inc_second(&game->t, i);
         inc_second(&game->total, i);
 }
@@ -681,7 +681,7 @@ bool do_action(int action)
                         fixview();
                         break;
                 case ACTION_HEAL_PLAYER:
-                        i = 25 - pphy;
+                        i = 20 - pphy;
                         if(i <= 0)
                                 i = 1;
 
@@ -968,14 +968,14 @@ void do_turn(bool do_monsters)
 
                         game->turn++;
                         look();
+                        s = d(1, 2);
+                        inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
+                        inc_second(&game->total, s);
                 }
 
                 //draw_map(world->curlevel);
                 //draw_wstat();
 
-                s = d(1, 2);
-                inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
-                inc_second(&game->total, s);
                 update_screen();
                 i = aq->num;
         }
