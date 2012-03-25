@@ -26,10 +26,8 @@
 
 extern int maxmess;
 
-bool blocks_light(int y, int x)
+bool blocks_light(level_t *l, int y, int x)
 {
-        level_t *l = world->curlevel;
-
         if(hasbit(l->c[y][x].flags, CF_HAS_DOOR_CLOSED)) {
                 return true;
         }
@@ -219,7 +217,7 @@ void newfov_initmap(level_t *l)
 
         for(x = 1; x < l->xsize; x++) {
                 for(y = 1; y < l->ysize; y++) {
-                        if(blocks_light(y, x))
+                        if(blocks_light(l, y, x))
                                 trans = false;
                         else
                                 trans = true;

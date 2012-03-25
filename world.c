@@ -822,7 +822,6 @@ void generate_collinwood()
         spawn_objects(4, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
 
         world->area[AREA_COLLINWOOD_MAIN_FLOOR].map = TCOD_map_new(world->area[AREA_COLLINWOOD_MAIN_FLOOR].xsize, world->area[AREA_COLLINWOOD_MAIN_FLOOR].ysize);
-        world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
         newfov_initmap(&world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
 
         game->createdareas++;
@@ -842,9 +841,7 @@ void generate_collinwood_upstairs()
         spawn_objects(4, &world->area[AREA_COLLINWOOD_UPSTAIRS_HALL]);
 
         world->area[AREA_COLLINWOOD_UPSTAIRS_HALL].map = TCOD_map_new(world->area[AREA_COLLINWOOD_UPSTAIRS_HALL].xsize, world->area[AREA_COLLINWOOD_UPSTAIRS_HALL].ysize);
-        world->curlevel = &world->area[AREA_COLLINWOOD_UPSTAIRS_HALL];
         newfov_initmap(&world->area[AREA_COLLINWOOD_UPSTAIRS_HALL]);
-        world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
         // TODO: DO FOV when entering new map!
 
         game->createdareas++;
@@ -864,13 +861,12 @@ void generate_collinwood_study()
         spawn_objects(4, &world->area[AREA_COLLINWOOD_STUDY]);
 
         world->area[AREA_COLLINWOOD_STUDY].map = TCOD_map_new(world->area[AREA_COLLINWOOD_STUDY].xsize, world->area[AREA_COLLINWOOD_STUDY].ysize);
-        world->curlevel = &world->area[AREA_COLLINWOOD_STUDY];
         newfov_initmap(&world->area[AREA_COLLINWOOD_STUDY]);
-        world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
         // TODO: DO FOV when entering new map!
 
         game->createdareas++;
 }
+
 void meta_generate_area(int d, int type)
 {
         if(type && type <= 3) {
@@ -1000,12 +996,12 @@ void generate_world()
         generate_heightmap();
         world->out->lakelimit = 4;
         generate_terrain(0);
-        world->curlevel = &world->area[0];
         newfov_initmap(&world->area[0]);
 
         generate_collinwood_upstairs();
         generate_collinwood_study();
         generate_collinwood();
+        world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
 
 
 //        spawn_monsters(ri(75,125), 3, world->out); 
