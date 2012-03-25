@@ -1000,6 +1000,8 @@ void generate_world()
         generate_heightmap();
         world->out->lakelimit = 4;
         generate_terrain(0);
+        world->curlevel = &world->area[0];
+        newfov_initmap(&world->area[0]);
 
         generate_collinwood_upstairs();
         generate_collinwood_study();

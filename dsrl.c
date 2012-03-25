@@ -99,7 +99,7 @@ void init_variables()
 
         world = (world_t *) dsmalloc(sizeof(world_t));
 
-        world->area = dscalloc(26, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = areas
+        world->area = dscalloc(10, sizeof(level_t));    // allocate n levels, 0 = outside, 1..n = areas
         world->out = world->area;                      // i.e. it points to world->area[0]
         world->out->xsize = XSIZE;
         world->out->ysize = YSIZE;

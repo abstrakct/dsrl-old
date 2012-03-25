@@ -30,8 +30,8 @@
 #define ET_STAIRS_DOWN  3
 #define ET_DOOR         4
 
-#define YSIZE 1024
-#define XSIZE 1024
+#define YSIZE 512
+#define XSIZE 512
 #define DUNGEON_SIZE 200
 
 #define cc(a,b) world->curlevel->c[a][b].color

@@ -117,7 +117,7 @@ void draw_left()
 
         //TCOD_console_set_alignment(game->left.c, TCOD_CENTER);
         TCOD_console_set_default_foreground(game->left.c, TCOD_light_blue);
-        TCOD_console_print(game->left.c, (game->left.w/2)-(strlen(player->name)/2), i+1, "%c %s %c", 228+8, player->name, 228+8);
+        TCOD_console_print(game->left.c, (game->left.w/2)-(strlen(player->name)/2), i+1, "%c %s %c", 236, player->name, 236);
         TCOD_console_set_default_foreground(game->left.c, TCOD_white);
         TCOD_console_print(game->left.c, (game->left.w/2)-9, i+2, "%02d:%02d - %s %d, %d", game->t.hour, game->t.minute, monthstring[game->t.month], game->t.day, game->t.year);
 
@@ -206,102 +206,9 @@ void clear_map_to_unlit(level_t *l)
         }
 }
 
-/*
- * The next two functions are about FOV.
- * Stolen/adapted from http://roguebasin.roguelikedevelopment.org/index.php/Eligloscode
- */
-
-void dofov(actor_t *actor, level_t *l, float x, float y)
-{
-        int i;
-        float ox, oy;
-
-        ox = (float) actor->x + 0.5f;
-        oy = (float) actor->y + 0.5f;
-
-        for(i = 0; i < actor->viewradius; i++) {
-                if((int)oy >= 0 && (int)ox >= 0 && (int)oy < l->ysize && (int)ox < l->xsize) {
-                        l->c[(int)oy][(int)ox].visible = 1;
-                        setbit(l->c[(int)oy][(int)ox].flags, CF_VISITED);
-                        if(blocks_light((int) oy, (int) ox)) {
-                                return;
-                        }/* else {  //SCARY MODE! 
-                                if(perc((100-actor->viewradius)/3))
-                                        return;
-                        }*/
-
-
-                        ox += x;
-                        oy += y;
-                }
-        }
-}
-
-void FOV(actor_t *a, level_t *l)
-{
-        float x, y;
-        int i;
-        //signed int tmpx,tmpy;
-
-        // if dark area
-        clear_map_to_invisible(l);
-
-        for(i = 0; i < 360; i++) {
-                x = cos((float) i * 0.01745f);
-                y = sin((float) i * 0.01745f);
-                dofov(a, l, x, y);
-        }
-}
-
-void dofovlight(actor_t *actor, level_t *l, float x, float y)
-{
-        int i;
-        float ox, oy;
-
-        ox = (float) actor->x + 0.5f;
-        oy = (float) actor->y + 0.5f;
-
-
-        //dsprintf("\tentering dofovlight");
-        for(i = 0; i < (actor->viewradius/2); i++) {       // TODO: add a lightradius in actor_t, calculate it based on stuff
-                if((int)oy >= 0 && (int)ox >= 0 && (int)oy < l->ysize && (int)ox < l->xsize) {
-                        //dsprintf("\t\tchecking cell %d,%d", (int)oy, (int)ox);
-                        if(hasbit(l->c[(int)oy][(int)ox].flags, CF_LIT))
-                                return;
-
-                        if(l->c[(int)oy][(int)ox].type == CELL_WALL) {
-                                setbit(l->c[(int)oy][(int)ox].flags, CF_LIT);
-                        }
-
-                        if(blocks_light((int) oy, (int) ox)) {
-                                //dsprintf("cell %d,%d blocks light", (int)oy, (int)ox);
-                                return;
-                        }
-
-                        ox += x;
-                        oy += y;
-                }
-        }
-}
-
-void FOVlight(actor_t *a, level_t *l)
-{
-        float x, y;
-        int i;
-
-        //dsprintf("entering FOVlight..");
-        clear_map_to_unlit(l);
-        for(i = 0; i < 360; i++) {
-                x = cos((float) i * 0.01745f);
-                y = sin((float) i * 0.01745f);
-                //fprintf(stderr, "DEBUG: %s:%d - now going to dofovlight i = %d y = %.4f x = %.4f\n", __FILE__, __LINE__, i, y, x);
-                dofovlight(a, l, x, y);
-        }
-}
-
 void donewfov(actor_t *a, level_t *l)
 {
-        TCOD_map_compute_fov(l->map, a->x, a->y, 8, true, FOV_SHADOW);
+        TCOD_map_compute_fov(l->map, a->x, a->y, 16, true, FOV_SHADOW);
 
 }
 
@@ -377,6 +284,8 @@ void draw_map(level_t *level)
                                                         dsmapaddch(dy, dx, color, 'T');
                                                 if(hasbit(level->c[j][i].flags, CF_HASF_CHAIR))
                                                         dsmapaddch(dy, dx, color, 'h');
+                                                if(hasbit(level->c[j][i].flags, CF_HASF_FIRE))
+                                                        dsmapaddch(dy, dx, TCOD_dark_orange, 21);
                                         }
 
 
@@ -507,7 +416,7 @@ void init_display()
 
         if(screenwidth <= 1024) {
         	sprintf(font, "fonts/ds.png");
-        	dsconfig.rows *= 2;
+        	//dsconfig.rows *= 2;
         } else
                 sprintf(font, "fonts/df.png");
 
