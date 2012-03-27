@@ -106,6 +106,69 @@ void messc(TCOD_color_t color, char *message)
         domess();
 }
 
+void clear_map_to_invisible(level_t *l)
+{
+        int x, y;
+
+        for(y = ppy; y < (ppy+game->map.h); y++) {
+                for(x = ppx; x < (ppx+game->map.w); x++) {
+                        if(x >= 0 && y >= 0 && x < l->xsize && y < l->ysize)
+                                l->c[y][x].visible = 0;
+                }
+        }
+}
+
+void clear_map_to_unlit(level_t *l)
+{
+        int x, y;
+
+        for(y = 0; y < l->ysize; y++) {
+                for(x = 0; x < l->xsize; x++) {
+                        clearbit(l->c[y][x].flags, CF_LIT);
+                }
+        }
+}
+
+void donewfov(actor_t *a, level_t *l)
+{
+        TCOD_map_compute_fov(l->map, a->x, a->y, 16, true, FOV_SHADOW);
+
+}
+
+void newfov_initmap(level_t *l)
+{
+        int x, y;
+        bool trans, walk;
+
+        for(x = 1; x < l->xsize; x++) {
+                for(y = 1; y < l->ysize; y++) {
+                        if(blocks_light(l, y, x))
+                                trans = false;
+                        else
+                                trans = true;
+
+                        /*switch(l->c[y][x].type) {
+                                case CELL_NOTHING:
+                                case CELL_WALL:
+                                        trans = false;
+                                        walk = false;
+                                        break;
+                                case CELL_FLOOR:
+                                        walk = true;
+                                        break;
+                        }*/
+
+                        if(passable(l, y, x))
+                                walk = true;
+                        else
+                                walk = false;
+
+
+                        TCOD_map_set_properties(l->map, x, y, trans, walk);
+                }
+        }
+}
+
 void draw_left()
 {
         int i;
@@ -171,70 +234,19 @@ void draw_right()
                         //o = get_object_from_letter(slot_to_letter(j), player->inventory);
                         o = player->inventory->object[j];
                         if(is_worn(o)) {
-                                TCOD_console_print(game->right.c, 1, i, "%c)   %s %s", slot_to_letter(j), a_an(o->fullname), is_bracelet(o) ? (o == pw_leftbracelet ? "[<]" : "[>]") : "\0");
-                                TCOD_console_put_char_ex(game->right.c, 4, i, '*', TCOD_light_green, TCOD_black);
+                                if(is_pair(o))
+                                        TCOD_console_print(game->right.c, 1, i, "%c   a pair of %s %s", slot_to_letter(j), o->fullname, is_bracelet(o) ? (o == pw_leftbracelet ? "[<]" : "[>]") : "\0");
+                                else
+                                        TCOD_console_print(game->right.c, 1, i, "%c   %s %s", slot_to_letter(j), a_an(o->fullname), is_bracelet(o) ? (o == pw_leftbracelet ? "[<]" : "[>]") : "\0");
+                                TCOD_console_put_char_ex(game->right.c, 3, i, '*', TCOD_light_green, TCOD_black);
                         } else {
-                                TCOD_console_print(game->right.c, 1, i, "%c)   %s", slot_to_letter(j), a_an(o->fullname));
+                                if(is_pair(o))
+                                        TCOD_console_print(game->right.c, 1, i, "%c   a pair of %s", slot_to_letter(j), o->fullname);
+                                else
+                                        TCOD_console_print(game->right.c, 1, i, "%c   %s", slot_to_letter(j), a_an(o->fullname));
+                                TCOD_console_put_char_ex(game->right.c, 3, i, '-', TCOD_white, TCOD_black);
                         }
                         i++;
-                }
-        }
-}
-
-void clear_map_to_invisible(level_t *l)
-{
-        int x, y;
-
-        for(y = ppy; y < (ppy+game->map.h); y++) {
-                for(x = ppx; x < (ppx+game->map.w); x++) {
-                        if(x >= 0 && y >= 0 && x < l->xsize && y < l->ysize)
-                                l->c[y][x].visible = 0;
-                }
-        }
-}
-
-void clear_map_to_unlit(level_t *l)
-{
-        int x, y;
-
-        for(y = 0; y < l->ysize; y++) {
-                for(x = 0; x < l->xsize; x++) {
-                        clearbit(l->c[y][x].flags, CF_LIT);
-                }
-        }
-}
-
-void donewfov(actor_t *a, level_t *l)
-{
-        TCOD_map_compute_fov(l->map, a->x, a->y, 16, true, FOV_SHADOW);
-
-}
-
-void newfov_initmap(level_t *l)
-{
-        int x, y;
-        bool trans, walk;
-
-        for(x = 1; x < l->xsize; x++) {
-                for(y = 1; y < l->ysize; y++) {
-                        if(blocks_light(l, y, x))
-                                trans = false;
-                        else
-                                trans = true;
-
-                        switch(l->c[y][x].type) {
-                                case CELL_NOTHING:
-                                case CELL_WALL:
-                                        trans = false;
-                                        walk = false;
-                                        break;
-                                case CELL_FLOOR:
-                                        walk = true;
-                                        break;
-                        }
-
-
-                        TCOD_map_set_properties(l->map, x, y, trans, walk);
                 }
         }
 }
@@ -266,80 +278,79 @@ void draw_map(level_t *level)
                                 if(hasbit(level->c[j][i].flags, CF_VISITED)) {
                                         if(TCOD_map_is_in_fov(level->map, i, j)) {
                                                 if(ct(j, i) == CELL_WALL)
-                                                        color = TCOD_red;
+                                                        color = TCOD_dark_red;
                                                 else if(ct(j, i) == CELL_FLOOR)
                                                         color = TCOD_gray;
                                         } else {
-                                                color = TCOD_darker_gray;
+                                                color = TCOD_darkest_gray;
                                         }
                                 }
 
                                 if(hasbit(level->c[j][i].flags, CF_VISITED)) {
-                                        dsmapaddch(dy, dx, color, mapchars[(int) level->c[j][i].type]);
+                                        dsmapaddch(dy, dx, color, level->c[j][i].backcolor, mapchars[(int) level->c[j][i].type]);
 
                                         if(hasbit(level->c[j][i].flags, CF_HAS_FURNITURE)) {
                                                 if(hasbit(level->c[j][i].flags, CF_HASF_TABLE))
-                                                        dsmapaddch(dy, dx, color, 'T');
+                                                        dsmapaddch(dy, dx, TCOD_darker_sepia, level->c[j][i].backcolor, 'T');
                                                 if(hasbit(level->c[j][i].flags, CF_HASF_CHAIR))
-                                                        dsmapaddch(dy, dx, color, 'h');
+                                                        dsmapaddch(dy, dx, TCOD_crimson, level->c[j][i].backcolor, 'h');
                                                 if(hasbit(level->c[j][i].flags, CF_HASF_FIRE))
-                                                        dsmapaddch(dy, dx, TCOD_dark_orange, 21);
+                                                        dsmapaddch(dy, dx, TCOD_flame, level->c[j][i].backcolor, 21);
                                         }
 
 
                                         if(level->c[j][i].inventory) {
                                                 if(level->c[j][i].inventory->gold > 0) {
-                                                        dsmapaddch(dy, dx, TCOD_yellow, objchars[OT_GOLD]);
+                                                        dsmapaddch(dy, dx, TCOD_gold, level->c[j][i].backcolor, objchars[OT_GOLD]);
                                                 } else {                                                         // TODO ADD OBJECT COLORS!!!
                                                         slot = get_first_used_slot(level->c[j][i].inventory);
                                                         if(level->c[j][i].inventory->num_used > 0 && slot >= 0 && level->c[j][i].inventory->object[slot]) {
                                                                 color = level->c[j][i].inventory->object[slot]->color;
-                                                                dsmapaddch(dy, dx, color, objchars[level->c[j][i].inventory->object[slot]->type]);
+                                                                dsmapaddch(dy, dx, color, level->c[j][i].backcolor, objchars[level->c[j][i].inventory->object[slot]->type]);
                                                         }
                                                 }
                                         }
 
                                         if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_CLOSED)) {
                                                 //dsprintf("closed door at %d,%d", dx, dy);
-                                                dsmapaddch(dy, dx, color, '+');
+                                                dsmapaddch(dy, dx, color, level->c[j][i].backcolor, '+');
                                         }
                                         if(hasbit(level->c[j][i].flags, CF_HAS_DOOR_OPEN)) {
                                                 //dsprintf("open door at %d,%d", dx, dy);
-                                                dsmapaddch(dy, dx, color, '\'');
+                                                dsmapaddch(dy, dx, color, level->c[j][i].backcolor, '\'');
                                         }
                                         
                                         if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_DOWN))
-                                                dsmapaddch(dy, dx, TCOD_white, '>');
+                                                dsmapaddch(dy, dx, TCOD_white, level->c[j][i].backcolor, '>');
                                         if(hasbit(level->c[j][i].flags, CF_HAS_STAIRS_UP))
-                                                dsmapaddch(dy, dx, TCOD_white, '<');
+                                                dsmapaddch(dy, dx, TCOD_white, level->c[j][i].backcolor, '<');
                                         if(hasbit(level->c[j][i].flags, CF_HAS_EXIT)) {
                                                 int index;
                                                 index = level->c[j][i].exitindex;
                                                 if(level->exit[index].type == ET_EXIT)
-                                                        dsmapaddch(dy, dx, TCOD_white, '^');
+                                                        dsmapaddch(dy, dx, TCOD_white, level->c[j][i].backcolor, '^');
                                                 if(level->exit[index].type == ET_STAIRS_UP)
-                                                        dsmapaddch(dy, dx, TCOD_white, '|');
+                                                        dsmapaddch(dy, dx, TCOD_white, level->c[j][i].backcolor, '|');
                                                 if(level->exit[index].type == ET_STAIRS_DOWN)
-                                                        dsmapaddch(dy, dx, TCOD_white, '>');
+                                                        dsmapaddch(dy, dx, TCOD_white, level->c[j][i].backcolor, '>');
                                                 if(level->exit[index].type == ET_DOOR)
-                                                        dsmapaddch(dy, dx, TCOD_white, '+');
+                                                        dsmapaddch(dy, dx, TCOD_white, level->c[j][i].backcolor, '+');
                                         } 
 
                                         if(TCOD_map_is_in_fov(level->map, i, j) && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
-                                                dsmapaddch(dy, dx, TCOD_red, (char) level->c[j][i].monster->c);
+                                                dsmapaddch(dy, dx, TCOD_red, level->c[j][i].backcolor, (char) level->c[j][i].monster->c);
 
                                         if(j == ply && i == plx)
-                                                dsmapaddch(dy, dx, TCOD_blue, '@');
+                                                dsmapaddch(dy, dx, TCOD_blue, level->c[j][i].backcolor, '@');
                                 }
                         }
                 }
         }
-
 }
 
-void dsmapaddch(int y, int x, TCOD_color_t color, char c)
+void dsmapaddch(int y, int x, TCOD_color_t color, TCOD_color_t backcolor, char c)
 {
-        TCOD_console_put_char_ex(game->map.c, x, y, c, color, TCOD_black);
+        TCOD_console_put_char_ex(game->map.c, x, y, c, color, backcolor);
 }
 
 void initial_update_screen()

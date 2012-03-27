@@ -549,6 +549,7 @@ void addfloor(level_t *l, float y, float x)
 
         if(l->c[(int)y][(int)x].type == CELL_WALL) {
                 l->c[(int)y][(int)x].type = CELL_FLOOR;
+                l->c[(int)y][(int)x].backcolor = TCOD_black;
                 //l->c[(int)y][(int)x].color = TCOD_gray;
                 //l->c[(int)y][(int)x].litcolor = TCOD_gray;
         }
@@ -556,7 +557,9 @@ void addfloor(level_t *l, float y, float x)
 
 void addwall(level_t *l, int y, int x)
 {
-        l->c[y][x].type     = CELL_WALL;
+        l->c[y][x].type      = CELL_WALL;
+        l->c[y][x].backcolor = TCOD_black;
+
         //l->c[y][x].litcolor = TCOD_orange;
         //l->c[y][x].color    = perc(50) ? TCOD_crimson : TCOD_red;
 }
@@ -688,6 +691,10 @@ bool passable(level_t *l, int y, int x)
                 return false;
         if(type == CELL_NOTHING)
                 return false;
+        if(hasbit(l->c[y][x].flags, CF_HASF_TABLE))
+                return false;
+        if(hasbit(l->c[y][x].flags, CF_HASF_FIRE))
+                return false;
 
         return true;
 }
@@ -723,6 +730,10 @@ bool monster_passable(level_t *l, int y, int x)
         if(type == CELL_MOUNTAIN)
                 return false;
         if(type == CELL_LAKE)
+                return false;
+        if(hasbit(l->c[y][x].flags, CF_HASF_TABLE))
+                return false;
+        if(hasbit(l->c[y][x].flags, CF_HASF_FIRE))
                 return false;
 
         return true;

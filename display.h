@@ -14,7 +14,7 @@ void shutdown_display();
 void draw_map(level_t *level);
 void draw_wstat();
 
-void dsmapaddch(int y, int x, TCOD_color_t color, char c);
+void dsmapaddch(int y, int x, TCOD_color_t color, TCOD_color_t backcolor, char c);
 void update_screen();
 void update_player();
 void initial_update_screen();

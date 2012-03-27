@@ -149,6 +149,8 @@ void init_player()
         // TODO: Starting HP - FIX according to race etc.
         player->hp = player->maxhp = (dice(1, 8, 5)) + ability_modifier(player->attr.phy);
 
+        player->path = TCOD_path_new_using_map(world->curlevel->map, 1.41f);
+
         strcpy(player->name, "Barnabas Collins");
 }
 
@@ -278,7 +280,7 @@ void setup_attack()
         monsters_move();
         do_action(ACTION_HEAL_PLAYER);
 
-        i = d(1, 4);
+        i = d(1, 10);
         inc_second(&game->t, i);
         inc_second(&game->total, i);
 }
@@ -879,6 +881,16 @@ void look()
                 }
         }
 
+        if(cf(ply, plx) & CF_HAS_FURNITURE) {
+                if(cf(ply, plx) & CF_HASF_TABLE)
+                        dsprintf("There is table here.");
+                if(cf(ply, plx) & CF_HASF_CHAIR)
+                        dsprintf("There is a chair here.");
+                if(cf(ply, plx) & CF_HASF_FIRE)
+                        dsprintf("There is a fire here!");
+
+        }
+
         if(ci(ply, plx)) {
                 if(ci(ply, plx) && ci(ply, plx)->gold) {
                         if(dsconfig.ap[OT_GOLD])
@@ -968,7 +980,7 @@ void do_turn(bool do_monsters)
 
                         game->turn++;
                         look();
-                        s = d(1, 2);
+                        s = d(1, 10);
                         inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
                         inc_second(&game->total, s);
                 }
@@ -984,7 +996,7 @@ void do_turn(bool do_monsters)
 
 int main(int argc, char *argv[])
 {
-        int c, x, y;
+        int c, x, y, i;
         char messagefilename[50];
         TCOD_key_t l;
         bool domonstermove;
@@ -1216,7 +1228,13 @@ int main(int argc, char *argv[])
                                 queue(ACTION_NOTHING);
                                 break;
                         case CMD_PATHFINDER:
-                                pathfinder(world->curlevel, player->y, player->x, player->y + ri(-15,15), player->x + ri(-15,15));
+                                //dsprintf("computing path..");
+                                TCOD_path_compute(player->path, player->x, player->y, player->x + (ri(-10,10)), player->y + (ri(-10,10)));
+                                for(i = 0; i < TCOD_path_size(player->path); i++) {
+                                        TCOD_path_get(player->path, i, &x, &y);
+                                        world->curlevel->c[y][x].backcolor = TCOD_light_blue;
+                                        //dsprintf("path step %d at %d,%d", i, x, y);
+                                }
                                 queue(ACTION_NOTHING);
                                 domonstermove = false;
                                 break;
