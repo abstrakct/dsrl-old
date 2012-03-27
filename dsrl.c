@@ -996,7 +996,7 @@ void do_turn(bool do_monsters)
 
 int main(int argc, char *argv[])
 {
-        int c, x, y, i;
+        int c, x, y, i, nx, ny;
         char messagefilename[50];
         TCOD_key_t l;
         bool domonstermove;
@@ -1228,15 +1228,40 @@ int main(int argc, char *argv[])
                                 queue(ACTION_NOTHING);
                                 break;
                         case CMD_PATHFINDER:
-                                //dsprintf("computing path..");
+                                nx = plx; ny = ply;
                                 TCOD_path_compute(player->path, player->x, player->y, player->x + (ri(-10,10)), player->y + (ri(-10,10)));
                                 for(i = 0; i < TCOD_path_size(player->path); i++) {
                                         TCOD_path_get(player->path, i, &x, &y);
                                         world->curlevel->c[y][x].backcolor = TCOD_light_blue;
-                                        //dsprintf("path step %d at %d,%d", i, x, y);
+                                        // and let's move!
+                                        if(y > ny) { // moving downward
+                                                if(x > nx)
+                                                        queue(ACTION_PLAYER_MOVE_SE);
+                                                if(x < nx)
+                                                        queue(ACTION_PLAYER_MOVE_SW);
+                                                if(x == nx)
+                                                        queue(ACTION_PLAYER_MOVE_DOWN);
+                                        }
+
+                                        if(y < ny) {
+                                                if(x > nx)
+                                                        queue(ACTION_PLAYER_MOVE_NE);
+                                                if(x < nx)
+                                                        queue(ACTION_PLAYER_MOVE_NW);
+                                                if(x == nx)
+                                                        queue(ACTION_PLAYER_MOVE_UP);
+                                        }
+
+                                        if(y == ny) {
+                                                if(x > nx)
+                                                        queue(ACTION_PLAYER_MOVE_RIGHT);
+                                                if(x < nx)
+                                                        queue(ACTION_PLAYER_MOVE_LEFT);
+                                        }
+                                        nx = x; ny = y;
                                 }
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
+                                //queue(ACTION_NOTHING);
+                                //domonstermove = false;
                                 break;
                         case CMD_INCTIME:
                                 c = 5000000;
