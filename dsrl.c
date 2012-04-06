@@ -650,6 +650,7 @@ bool do_action(int action)
                         world->cmap     = world->area[src->location].c;
                         game->currentlevel = src->location;
                         newfov_initmap(&world->area[src->location]);
+                        player->path = TCOD_path_new_using_map(world->curlevel->map, 1.41f);
                         update_screen();
 
                         //ply = world->curlevel->exit[world->curlevel->c[tmpy][tmpx].exitindex].
@@ -1229,10 +1230,11 @@ int main(int argc, char *argv[])
                                 break;
                         case CMD_PATHFINDER:
                                 nx = plx; ny = ply;
-                                TCOD_path_compute(player->path, player->x, player->y, player->x + (ri(-10,10)), player->y + (ri(-10,10)));
+                                
+                                TCOD_path_compute(player->path, player->x, player->y, player->x + (ri(-30,30)), player->y + (ri(-30,30)));
                                 for(i = 0; i < TCOD_path_size(player->path); i++) {
                                         TCOD_path_get(player->path, i, &x, &y);
-                                        world->curlevel->c[y][x].backcolor = TCOD_light_blue;
+                                        //world->curlevel->c[y][x].backcolor = TCOD_light_blue;
                                         // and let's move!
                                         if(y > ny) { // moving downward
                                                 if(x > nx)
