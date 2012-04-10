@@ -56,17 +56,12 @@ char *areanames[50] = {
         "the kitchen"
 };
 
-/*********************************************
-* Description - Initialize a level_t struct.
-* This function will allocate memory for xsize*ysize*sizeof(cell_t)
-* If memory already has been allocated, it will be free'd and reallocated!
-* Author - RK
-* Date - Jan 02 2012
-* *******************************************/
 /**
  * @brief Initialize a level_t struct
  * This function will allocate memory for a level_t struct.
  * It must be done before using a level_t struct!
+ * This function will allocate memory for xsize*ysize*sizeof(cell_t)
+ * If memory already has been allocated, it will be free'd and reallocated!
  *
  * @param level Pointer to the level struct.
  */
