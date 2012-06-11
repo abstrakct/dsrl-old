@@ -67,7 +67,6 @@ void save_monster(monster_t *m, FILE *f)
         fwrite(&m->hp,       sizeof(int),   1, f);
         fwrite(&m->goalx,    sizeof(short), 1, f);
         fwrite(&m->goaly,    sizeof(short), 1, f);
-        fwrite(&m->movement, sizeof(float), 1, f);
         if(m->attacker && m->attacker == player)
                 tmp = 1;
         else
@@ -194,7 +193,6 @@ void save_player(actor_t *p, FILE *f)
         s.cla = p->cla;
         s.flags = p->flags;
         s.speed = p->speed;
-        s.movement = p->movement;
         s.wvfactor = p->wvfactor;
         s.worldview = p->worldview;
         s.weapon = (p->weapon ? p->weapon->oid : 0);
@@ -353,7 +351,6 @@ bool load_monster(monster_t *m, level_t *l, FILE *f)
         fread(&m->hp,       sizeof(int),   1, f);
         fread(&m->goalx,    sizeof(short), 1, f);
         fread(&m->goaly,    sizeof(short), 1, f);
-        fread(&m->movement, sizeof(float), 1, f);
         fread(&i,           sizeof(int),   1, f);
         if(i)
                 m->attacker = player;
@@ -543,7 +540,6 @@ bool load_player(actor_t *p, FILE *f)
         p->cla = s.cla;
         p->flags = s.flags;
         p->speed = s.speed;
-        p->movement = s.movement;
         p->worldview = s.worldview;
         p->wvfactor  = s.wvfactor;
         for(i = 0; i < MAX_SKILLS; i++)

@@ -212,14 +212,20 @@ void dsprintfc(TCOD_color_t color, char *fmt, ...)
 
 TCOD_key_t ask_char(char *question)
 {
-        TCOD_key_t c;
+        TCOD_key_t key;
 
         dsprintf(question);
         update_screen();
-        c.c = 0;
-        while(!((c.c >= 'a' && c.c <= 'z') || (c.c >= 'A' && c.c <= 'Z')))
-                c = dsgetch();
-        return c;
+
+        
+        TCOD_console_flush();
+        key = TCOD_console_wait_for_keypress(true);
+        key = TCOD_console_wait_for_keypress(true);
+
+        if(key.shift && key.c >= 'a' && key.c <= 'z')
+                key.c += 'A' - 'a';
+
+        return key;
 }
 
 TCOD_key_t ask_for_hand()

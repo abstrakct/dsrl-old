@@ -62,7 +62,9 @@ bool        animate_only;
 int         tempxsize, tempysize;
 bool        loadgame;
 void        *actiondata;
+actor_t     *a_attacker, *a_victim;
 struct      actionqueue *aq;
+action_t    *act;
 
 actor_t *a_attacker, *a_victim;
 
@@ -70,6 +72,9 @@ actor_t *a_attacker, *a_victim;
 message_t messages[500];
 int currmess, maxmess;
 
+/**
+ * @brief Command line options
+ */
 struct option ds_options[] = {
         { "seed",    1,   0, 's' },
         { "load",    1,   0, 'l' },
@@ -77,7 +82,9 @@ struct option ds_options[] = {
         { NULL,      0, NULL, 0  }
 };
 
-/*! \brief Initialize some variables. */
+/**
+ * @brief Initialize important variables and data structures.
+ */
 void init_variables()
 {
         int i, j;
@@ -91,11 +98,9 @@ void init_variables()
         objdefs = (obj_t *) dsmalloc(sizeof(obj_t));
         objdefs->head = objdefs;
 
-        aq = (struct actionqueue *) dsmalloc(sizeof(struct actionqueue));
-        aq->head = aq;
-        aq->next = 0;
-        aq->action = ACTION_NOTHING;
-        actionnum = 0;
+        act = (action_t *) dsmalloc(sizeof(action_t) * MAXACT);
+        for(i=0;i<MAXACT;i++)
+                act[i].action = ACTION_FREESLOT;
 
         world = (world_t *) dsmalloc(sizeof(world_t));
 
@@ -146,6 +151,8 @@ void init_player()
         player->attr.cha  = dice(3, 6, 0);
         player->attr.intl = dice(3, 6, 0);
 
+        player->speed = 9;
+
         // TODO: Starting HP - FIX according to race etc.
         player->hp = player->maxhp = (dice(1, 8, 5)) + ability_modifier(player->attr.phy);
 
@@ -168,7 +175,8 @@ void shutdown_ds()
                        free((void *)garbage[i]);
         }
         
-        fclose(messagefile);
+        if(messagefile)
+                fclose(messagefile);
 }
 
 /*! \brief Parse the commandline
@@ -227,8 +235,8 @@ void fixview()
 }
 
 /*! \brief Open a door
- *  \param x The X coordinate
- *  \param y The Y coordinate
+ *  \param x The X coordinate of the door.
+ *  \param y The Y coordinate of the door.
  */
 void open_door(int y, int x)
 {
@@ -259,37 +267,35 @@ void clear_aq()
         }
 }
 
-/**
- * @brief Do the steps necessary to move monsters.
- * A kind of wrapper function I guess.
- */
-void monsters_move()
-{
-        do_action(ACTION_MAKE_DISTANCEMAP);
-        do_action(ACTION_MOVE_MONSTERS);
-}
-
-/*! \brief Setup attack
- * Actually perform an attack.
+/*! \brief Setup attack - that is, do what's needed to perform an attack by the player.
  */
 void setup_attack()
 {
         int i;
 
-        do_action(ACTION_ATTACK);
-        monsters_move();
-        do_action(ACTION_HEAL_PLAYER);
+
+        schedule_action(ACTION_ATTACK, player);
 
         i = d(1, 10);
         inc_second(&game->t, i);
         inc_second(&game->total, i);
 }
 
-/*! \brief Do an action.
- *  \param action What action to do (see ACTION_defines).
- *  \return True if action should be treated as a full turn, false if not.
+void do_one_action(int action)
+{
+        action_t a;
+
+        a.action = action;
+        a.tick = game->tick;
+
+        do_action(&a);
+}
+
+/**
+ * @brief Do an action.
+ *
  */
-bool do_action(int action)
+bool do_action(action_t *aqe)
 {
         int oldy, oldx;
         int tmpy, tmpx;
@@ -301,14 +307,13 @@ bool do_action(int action)
         oldy = ply; oldx = plx;
         fullturn = true;
 
-        switch(action) {
+        switch(aqe->action) {
                 case ACTION_PLAYER_MOVE_DOWN:
                         if(passable(world->curlevel, ply+1, plx)) {
                                 if(world->curlevel->c[ply+1][plx].monster) {
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else
                                         ply++;
@@ -327,8 +332,6 @@ bool do_action(int action)
                         }
                         if(ppy < 0)
                                 ppy = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_UP:
                         if(passable(world->curlevel, ply-1,plx)) {
@@ -336,7 +339,6 @@ bool do_action(int action)
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else
                                         ply--;
@@ -353,8 +355,6 @@ bool do_action(int action)
                         }
                         if(ppy < 0)
                                 ppy = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_LEFT:
                         if(passable(world->curlevel, ply, plx-1)) {
@@ -362,7 +362,6 @@ bool do_action(int action)
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx-1].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else
                                         plx--;
@@ -379,8 +378,6 @@ bool do_action(int action)
                         }
                         if(ppx < 0)
                                 ppx = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_RIGHT:
                         if(passable(world->curlevel, ply,plx+1)) {
@@ -388,7 +385,6 @@ bool do_action(int action)
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply][plx+1].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else
                                         plx++;
@@ -407,8 +403,6 @@ bool do_action(int action)
                         }
                         if(ppx < 0)
                                 ppx = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_NW:
                         if(passable(world->curlevel, ply-1,plx-1)) {
@@ -416,7 +410,6 @@ bool do_action(int action)
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx-1].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else {
                                         ply--;
@@ -444,8 +437,6 @@ bool do_action(int action)
                         }
                         if(ppx < 0)
                                 ppx = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_NE:
                         if(passable(world->curlevel, ply-1,plx+1)) {
@@ -453,7 +444,6 @@ bool do_action(int action)
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx+1].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else {
                                         ply--; plx++;
@@ -484,8 +474,6 @@ bool do_action(int action)
                         }
                         if(ppy < 0)
                                 ppy = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_SW:
                         if(passable(world->curlevel, ply+1, plx-1)) {
@@ -493,7 +481,6 @@ bool do_action(int action)
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx-1].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else {
                                         ply++; plx--;
@@ -522,8 +509,6 @@ bool do_action(int action)
                         }
                         if(ppx < 0)
                                 ppx = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PLAYER_MOVE_SE:
                         if(passable(world->curlevel, ply+1, plx+1)) {
@@ -531,7 +516,6 @@ bool do_action(int action)
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply+1][plx+1].monster;
                                         setup_attack();
-                                        fullturn = false;
                                         break;
                                 } else {
                                         ply++; plx++;
@@ -566,8 +550,6 @@ bool do_action(int action)
                         }
                         if(ppx < 0)
                                 ppx = 0;
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_PICKUP:
                         if(ci(ply, plx) && ci(ply, plx)->gold > 0) {
@@ -583,16 +565,11 @@ bool do_action(int action)
                                 ci(ply, plx)->object[slot] = NULL;
                                 ci(ply, plx)->num_used--;
                         }
-                        player->ticks -= TICKS_MOVEMENT;
                         break;
                 case ACTION_ATTACK:
                         attack(a_attacker, a_victim);
-                        player->ticks -= TICKS_ATTACK;
-                        fullturn = true;
                         break;
                 case ACTION_MOVE_MONSTERS:
-                        move_monsters();
-                        fullturn = false;
                         break;
                 case ACTION_GO_DOWN_STAIRS:
                         if(game->currentlevel < game->createdareas) {
@@ -617,9 +594,8 @@ bool do_action(int action)
                                         player->viewradius = 16;
                                 else
                                         player->viewradius = 8;
+                                player->path = TCOD_path_new_using_map(world->curlevel->map, 1.0f);
                         }
-                        player->ticks -= TICKS_MOVEMENT;
-                        monsters_move();
                         break;
                 case ACTION_GO_UP_STAIRS:
                         tmpy = ply; tmpx = plx;
@@ -635,7 +611,7 @@ bool do_action(int action)
                                 game->context = CONTEXT_OUTSIDE;
                                 player->viewradius = 45;
                         }
-                        player->ticks -= TICKS_MOVEMENT;
+                        player->path = TCOD_path_new_using_map(world->curlevel->map, 1.0f);
                         break;
                 case ACTION_USE_EXIT:
                         tmpy = ply; tmpx = plx;
@@ -650,7 +626,7 @@ bool do_action(int action)
                         world->cmap     = world->area[src->location].c;
                         game->currentlevel = src->location;
                         newfov_initmap(&world->area[src->location]);
-                        player->path = TCOD_path_new_using_map(world->curlevel->map, 1.41f);
+                        player->path = TCOD_path_new_using_map(world->curlevel->map, 1.0f);
                         update_screen();
 
                         //ply = world->curlevel->exit[world->curlevel->c[tmpy][tmpx].exitindex].
@@ -670,7 +646,6 @@ bool do_action(int action)
                         else
                                 dsprintf("That doesn't seem to work.");
 
-                        player->ticks -= TICKS_WIELDWEAR;
                         break;
                 case ACTION_DROP:
                         o = (obj_t *) actiondata;
@@ -678,35 +653,39 @@ bool do_action(int action)
                                 drop(o, player);
                         else
                                 dsprintf("That doesn't seem to work.");
-                        player->ticks -= TICKS_WIELDWEAR;
                         break;  
                 case ACTION_FIX_VIEW:
                         fixview();
                         break;
                 case ACTION_HEAL_PLAYER:
-                        i = 20 - pphy;
-                        if(i <= 0)
-                                i = 1;
-
-                        if(!(game->turn % i)) {
-                                if(perc(40+pphy))
-                                        increase_hp(player, 1);
-                        }
-
-                        fullturn = false;
+                        increase_hp(player, 1);
                         break;
                 case ACTION_MAKE_DISTANCEMAP:
                         makedistancemap(player->y, player->x);
-                        fullturn = false;
+                        break;
+                case ACTION_MOVE_MONSTER:
+                        if(aqe)
+                                move_monster(aqe->monster);
+                        break;
+                case ACTION_PLAYER_NEXTMOVE:
+                        process_player_input();
+
+                        i = 17 - pphy;
+                        if(i <= 0)
+                                i = 1;
+
+                        if(!(game->tick % i)) {
+                                if(perc(40+pphy))
+                                        schedule_action(ACTION_HEAL_PLAYER, player);
+                        }
+                        
+                        schedule_action_delayed(ACTION_PLAYER_NEXTMOVE, player, 0, 1);
                         break;
                 case ACTION_NOTHING:
-                        //updatescreen = false;
                         break;
                 default:
-                        fprintf(stderr, "DEBUG: %s:%d - Unknown action %d attempted!\n", __FILE__, __LINE__, action);
-                        dsprintf("DEBUG: %s:%d - Unknown action %d attempted!\n", __FILE__, __LINE__, action);
-                        fullturn = false;
-                        //updatescreen = false;
+                        fprintf(stderr, "DEBUG: %s:%d - Unknown action %d attempted!\n", __FILE__, __LINE__, aqe->action);
+                        dsprintf("DEBUG: %s:%d - Unknown action %d attempted!\n", __FILE__, __LINE__, aqe->action);
                         break;
         }
 
@@ -716,137 +695,167 @@ bool do_action(int action)
                 ply = oldy; plx = oldx;
         }
 
-
         return fullturn;
 }
 
-/*!
-* Add action to action queue
-* \param action ACTION_#define to add
-*/
-void queue(int action)
+int get_next_free_action_slot()
 {
-        struct actionqueue *tmp, *prev;
+        int i;
 
-        if(action == ACTION_MOVE_MONSTERS)
-                queue(ACTION_MAKE_DISTANCEMAP);
-
-        prev = aq;
-        tmp = aq->next;
-        
-        while(tmp) {
-                prev = tmp;
-                tmp = tmp->next; 
+        for(i = 1; i < MAXACT; i++) {
+                if(act[i].action == ACTION_FREESLOT)
+                        return i;
         }
 
-        tmp = (struct actionqueue *) dsmalloc(sizeof(struct actionqueue));
-        tmp->head = aq;
-        tmp->next = 0;
-        tmp->action = action;
-        actionnum++;
-        tmp->num = actionnum;
-        prev->next = tmp;
-        aq->num++;
-        //fprintf(stderr, "Queued up action %d (%d) -- %d\n", tmp->num, aq->num, tmp->action);
+        return 0;
 }
 
-/**
- * @brief Put an action as the immediate next action in the queue - and execute it.
- *
- * @param action Which action to do.
- */
-void queue_immediately(int action)
+int schedule_action(int action, actor_t *actor)
 {
-        struct actionqueue *tmp, *new;
+        int i;
 
-        tmp = aq->next;
-        new = (struct actionqueue *) dsmalloc(sizeof(struct actionqueue));
-        new->head = aq;
-        new->next = tmp;
-        new->action = action;
-        actionnum++;
-        new->num = actionnum;
-        aq->num++;
-        aq->next = new;
-        //fprintf(stderr, "Queued up action %d (%d) -- %d - to take effect immediately!\n", new->num, aq->num, new->action);
-        do_next_thing_in_queue();  // might as well do it right away, right?
+        i = get_next_free_action_slot();
+        if(!i)
+                die("fatal! no free slots in action queue!");
+
+        act[i].action = action;
+        act[i].tick = game->tick + actor->speed;
+        act[i].actor = actor;
+        //dsprintfc(COLOR_SKYBLUE, "Scheduled action %s at tick %d!", action_name[action], act[i].tick);
+
+        return i;
+}
+
+int schedule_action_delayed(int action, actor_t *actor, obj_t *object, int delay)
+{
+        int i;
+
+        i = get_next_free_action_slot();
+        if(!i)
+                die("fatal! no free slots in action queue!");
+
+        act[i].action = action;
+        act[i].tick = game->tick + actor->speed + delay;
+        act[i].actor = actor;
+        act[i].object = object;
+        //dsprintfc(COLOR_SKYBLUE, "Scheduled delayed action %s at tick %d!", action_name[action], act[i].tick);
+
+        return i;
+}
+
+int schedule_action_immediately(int action, actor_t *actor)
+{
+        int i;
+        action_t a;
+
+        i = get_next_free_action_slot();
+        if(!i)
+                die("fatal! no free slots in action queue!");
+
+        a.action = action;
+        a.tick = game->tick;
+
+
+        //dsprintfc(COLOR_SKYBLUE, "Doing action immediately - %s at tick %d (game->tick = %d)!", action_name[action], act[i].tick, game->tick);
+        do_action(&a);
+
+        return i;
+}
+
+void unschedule_action(int index)
+{
+        act[index].action  = ACTION_FREESLOT;
+        act[index].tick    = 0;
+        act[index].monster = 0;
+        act[index].object  = 0;
+}
+
+void schedule_monster(monster_t *m)
+{
+        int i;
+
+        i = schedule_action(ACTION_MOVE_MONSTER, m);
+        act[i].monster = m;
+
+        //dsprintfc(COLOR_SKYBLUE, "Scheduled monster %s at tick %d", m->name, act[i].tick);
+}
+
+void unschedule_all_monsters()
+{
+        int i;
+
+        for(i = 0; i < MAXACT; i++) {
+                if(act[i].action == ACTION_MOVE_MONSTERS || act[i].action == ACTION_MOVE_MONSTER)
+                        unschedule_action(i);
+        }
 }
 
 /**
- * @brief Queue a number of actions
+ * @brief Queue more than one instance of the same action.
  *
- * @param num How many times to queue the action
- * @param action What action
+ * @param num How many instances.
+ * @param action Which action to queue - see \ref group_actions "ACTION-defines" in gt.h
  */
-void queuex(int num, int action)
+void schedule_actionx(int num, int action, actor_t *actor)
 {
         int i;
 
         for(i=0; i<num; i++)
-                queue(action);
+                schedule_action(action, actor);
 }
 
 /**
- * @brief Queue up as many different actions as you like.
- * Argument list must end with ENDOFLIST.
+ * @brief Add several, possibly different, actions to the action queue.
  *
- * @param first The first action
- * @param ...   Subsequent actions
+ * @param first The first action to add (see \ref group_actions "ACTION-defines")
+ * @param ... Additional actions to add. The last argument has to be ENDOFLIST.
  */
-void queuemany(int first, ...)
+void queuemany(actor_t *actor, int first, ...)
 {
         va_list args;
         int i;
 
         va_start(args, first);
-        queue(first);
+        schedule_action(first, actor);
 
         i = va_arg(args, int);
         while(i != ENDOFLIST) {
-                queue(i);
+                schedule_action(i, actor);
                 i = va_arg(args, int);
         }
         va_end(args);
 }
 
-/*********************************************
-* Description - Process the first action in the action queue
-* Author - RK
-* Date - Dec 14 2011
-* *******************************************/
-bool do_next_thing_in_queue() // needs a better name..
+void process_autopickup()
 {
-        bool ret;
-        struct actionqueue *tmp;
+        if(ci(ply, plx)) {
+                if(ci(ply, plx) && ci(ply, plx)->gold) {
+                        if(dsconfig.ap[OT_GOLD])
+                                schedule_action_immediately(ACTION_PICKUP, player);
+                }
 
-        ret = false;
-        tmp = aq->next;
+                if(ci(ply, plx)->num_used > 0) {
+                        if(ci(ply, plx)->num_used == 1) {
+                                int slot;
+                                obj_t *ob;
 
-        if(tmp) {
-                tmp = aq->next;
-                //fprintf(stderr, "Doing action %d -- %d\n", tmp->num, tmp->action);
-                ret = do_action(tmp->action);
-                aq->num--;
-                aq->next = tmp->next;
-                dsfree(tmp);
+                                slot = get_first_used_slot(ci(ply, plx));
+                                if(slot < 0)
+                                        return;
+
+                                ob = ci(ply, plx)->object[slot];
+                                if(dsconfig.ap[ob->type] && !hasbit(ob->flags, OF_DONOTAP)) {
+                                        schedule_action_immediately(ACTION_PICKUP, player);
+                                }
+                        }
+                }
         }
-
-        return ret;
 }
 
-bool do_all_things_in_queue() // needs a better name..
-{
-        bool ret;
-
-        ret = false;
-
-        while(aq->num) {
-                ret = do_next_thing_in_queue();
-        }
-
-        return ret;
-}
-
+/**
+ * @brief Take a look at the player's current position, and tell him what he sees.
+ *
+ */
 void look()
 {
         //char *stairmat[] = { "stone", "wood", "bone", "marble", "metal" };
@@ -894,10 +903,7 @@ void look()
 
         if(ci(ply, plx)) {
                 if(ci(ply, plx) && ci(ply, plx)->gold) {
-                        if(dsconfig.ap[OT_GOLD])
-                                do_action(ACTION_PICKUP);
-                        else
-                                dsprintf("There is %d gold %s here.", ci(ply, plx)->gold, (ci(ply, plx)->gold > 1) ? "pieces" : "piece");
+                        dsprintf("There is %d gold %s here.", ci(ply, plx)->gold, (ci(ply, plx)->gold > 1) ? "pieces" : "piece");
                 }
 
                 if(ci(ply, plx)->num_used > 0) {
@@ -910,97 +916,310 @@ void look()
                                         return;
 
                                 ob = ci(ply, plx)->object[slot];
-                                if(dsconfig.ap[ob->type] && !hasbit(ob->flags, OF_DONOTAP)) {
-                                        do_action(ACTION_PICKUP);
-                                } else {
-                                        if(is_pair(ob))
-                                                dsprintf("There is a pair of %s here.", ob->fullname);
-                                        else
-                                                dsprintf("There is %s here.", a_an(ob->fullname));
-                                }
+                                if(is_pair(ob))
+                                        dsprintf("There is a pair of %s here.", ob->fullname);
+                                else
+                                        dsprintf("There is %s here.", a_an(ob->fullname));
                         }
+                }
 
-                        if(ci(ply, plx)->num_used == 2) {
-                                int slot, slot2;
+                if(ci(ply, plx)->num_used == 2) {
+                        int slot, slot2;
 
-                                slot  = get_first_used_slot(ci(ply, plx));
-                                slot2 = get_next_used_slot_after(slot, ci(ply, plx));
-                                if(slot < 0)
-                                        return;
-                                if(slot2 < 0)
-                                        return;
+                        slot  = get_first_used_slot(ci(ply, plx));
+                        slot2 = get_next_used_slot_after(slot, ci(ply, plx));
+                        if(slot < 0)
+                                return;
+                        if(slot2 < 0)
+                                return;
 
-                                /*if(is_pair(ci(ply, plx)->object[slot]))
-                                        dsprintf("There is a pair of %s here.", ci(ply, plx)->object[slot]->fullname);
-                                else*/
-                                        dsprintf("There is %s and %s here.", a_an(ci(ply, plx)->object[slot]->fullname), a_an(ci(ply, plx)->object[slot2]->fullname));
-                        }
+                        dsprintf("There is %s and %s here.", a_an(ci(ply, plx)->object[slot]->fullname), a_an(ci(ply, plx)->object[slot2]->fullname));
+                }
 
-                        if(ci(ply, plx)->num_used > 2) {
-                                int i;
+                if(ci(ply, plx)->num_used > 2) {
+                        int i;
 
-                                dsprintfc(COLOR_INFO, "There are several things here:");
-                                for(i=0;i<52;i++) {
-                                        if(ci(ply, plx)->object[i])
-                                                dsprintf("%s", a_an(ci(ply, plx)->object[i]->fullname));
-                                }
+                        dsprintfc(COLOR_INFO, "There are several things here:");
+                        for(i=0;i<52;i++) {
+                                if(ci(ply, plx)->object[i])
+                                        dsprintf("%s", a_an(ci(ply, plx)->object[i]->fullname));
                         }
                 }
         }
+}
+
+void do_everything_at_tick(int tick)
+{
+        int i;
+
+        for(i = 0; i < MAXACT; i++) {
+                if(act[i].action >= 0) {
+                        if(act[i].tick == tick) {
+                                do_action(&act[i]);
+                                unschedule_action(i);
+                        }
+                }
+        }
+}
+
+void increase_ticks(int i)
+{
+        game->tick += i;
+        //update_ticks();
 }
 
 /**
  * @brief Do a turn
  *
- * @param do_monsters True if we shall move monsters, false if not.
  */
-void do_turn(bool do_monsters)
+void do_turn()
 {
-       // bool fullturn;
-        int i, ret, s;
+        int i, s;
 
-        //if(animate_only) {
+        /*if(animate_only) {
                 // Add cool animations here?!
-                //dsprintf("animating.....");
-        //} else {
+                dsprintf("animating.....");
+        } else {*/
 
-        player->ticks += 1000;
 
-        /*if(do_monsters) {
-                queue(ACTION_MOVE_MONSTERS);
-        }*/
+        look_for_monsters();
+        update_screen();
 
-        i = aq->num;
+        // autoexplore
 
-        while(i) {
-                ret = do_next_thing_in_queue();
+        if(game->dead)
+                return;
 
-                if(ret) {
-                        //if(game->turn % 5)                      // TODO: Better condition... based on physique etc.
-                                queue(ACTION_HEAL_PLAYER);
-
-                        game->turn++;
-                        look();
-                        s = d(1, 10);
-                        inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
-                        inc_second(&game->total, s);
-                }
-
-                //draw_map(world->curlevel);
-                //draw_wstat();
+        for(i = 0; i < 10; i++) {
+                do_everything_at_tick(game->tick);
+                look_for_monsters();
+                increase_ticks(1);
+                
+                s = d(1, 10);
+                inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
+                inc_second(&game->total, s);
 
                 update_screen();
-                i = aq->num;
         }
-        //}
+
+        look();
+        update_screen();
+}
+
+void process_player_input()
+{
+        int x, y, c, nx, ny, i;
+        TCOD_key_t l;
+
+        c = 0;
+        while(!c)
+                c = get_command();
+
+        mapchanged   = false;
+        animate_only = false;
+        player->oldx = plx;
+        player->oldy = ply;
+
+        switch(c) {
+                case CMD_QUIT:
+                        schedule_action(ACTION_NOTHING, player);
+                        game->dead = 1;
+                        break;
+                case CMD_DOWN:  schedule_action(ACTION_PLAYER_MOVE_DOWN, player);   break;
+                case CMD_UP:    schedule_action(ACTION_PLAYER_MOVE_UP, player);     break;
+                case CMD_LEFT:  schedule_action(ACTION_PLAYER_MOVE_LEFT, player);   break;
+                case CMD_RIGHT: schedule_action(ACTION_PLAYER_MOVE_RIGHT, player);  break;
+                case CMD_NW:    schedule_action(ACTION_PLAYER_MOVE_NW, player);     break;
+                case CMD_NE:    schedule_action(ACTION_PLAYER_MOVE_NE, player);     break;
+                case CMD_SW:    schedule_action(ACTION_PLAYER_MOVE_SW, player);     break;
+                case CMD_SE:    schedule_action(ACTION_PLAYER_MOVE_SE, player);     break;
+                case CMD_WIELDWEAR:
+                                l = ask_char("Which item would you like to wield/wear?");
+                                actiondata = (void *) get_object_from_letter(l.c, player->inventory);
+                                schedule_action(ACTION_WIELDWEAR, player);
+                                break;
+                case CMD_UNWIELDWEAR:
+                                l = ask_char("Which item would you like to remove/unwield?");
+                                actiondata = (void *) get_object_from_letter(l.c, player->inventory);
+                                schedule_action(ACTION_UNWIELDWEAR, player);
+                                break;
+                case CMD_DROP:
+                                l = ask_char("Which item would you like to drop?");
+                                actiondata = (void *) get_object_from_letter(l.c, player->inventory);
+                                schedule_action(ACTION_DROP, player);
+                                break;
+                case CMD_LONGDOWN:
+                                schedule_actionx(20, ACTION_PLAYER_MOVE_DOWN, player);
+                                break;
+                case CMD_LONGUP:
+                                schedule_actionx(20, ACTION_PLAYER_MOVE_UP, player);
+                                break;
+                case CMD_LONGLEFT:
+                                schedule_actionx(20, ACTION_PLAYER_MOVE_LEFT, player);
+                                break;
+                case CMD_LONGRIGHT:
+                                schedule_actionx(20, ACTION_PLAYER_MOVE_RIGHT, player);
+                                break;
+                case CMD_TOGGLEFOV:
+                                dsprintf("Setting all cells to visible.");
+                                set_level_visited(world->curlevel);
+                                break;
+                case CMD_SPAWNMONSTER:
+                                spawn_monster_at(ply+5, plx+5, ri(1, game->monsterdefs), world->curlevel->monsters, world->curlevel, 100);
+                                break;
+                case CMD_WIZARDMODE:
+                                game->wizardmode = (game->wizardmode ? false : true);
+                                dsprintf("Wizard mode %s!", game->wizardmode ? "on" : "off");
+                                break;
+                case CMD_SAVE:
+                                save_game(game->savefile);
+                                break;
+                case CMD_LOAD:
+                                if(!load_game(game->savefile, 1))
+                                        dsprintf("Loading failed!");
+                                else
+                                        dsprintf("Loading successful!");
+                                break;
+                case CMD_DUMPOBJECTS:
+                                dump_objects(world->curlevel->c[ply][plx].inventory);
+                                break;
+                case CMD_INCFOV:
+                                player->viewradius++;
+                                //world->out->lakelimit++;
+                                //generate_terrain(1);
+                                //dsprintf("lakelimit = %d", world->out->lakelimit);
+                                break;
+                case CMD_DECFOV:
+                                player->viewradius--;
+                                //world->out->lakelimit--;
+                                //generate_terrain(1);
+                                //dsprintf("lakelimit = %d", world->out->lakelimit);
+                                break;
+                case CMD_DUMPCOLORS:
+                                for(x = 0;  x < 64; x++) {
+                                        /*dsprintfwc(wstat, x, "This is color %d  ", x);
+                                          wattron(wstat, A_BOLD);
+                                          dsprintfwc(wstat, x, "This is BOLD color %d  ", x);
+                                          wattroff(wstat, A_BOLD);*/
+                                }
+                                break;
+                case CMD_FLOODFILL:
+                                x = ri(11, world->curlevel->xsize);
+                                y = ri(11, world->curlevel->ysize);
+                                while(world->curlevel->c[y][x].type != CELL_FLOOR) {
+                                        x = ri(11, world->curlevel->xsize);
+                                        y = ri(11, world->curlevel->ysize);
+                                }
+                                dsprintf("floodfilling from %d, %d\n", y, x);
+                                floodfill(world->curlevel, y, x);
+                                break;
+                case CMD_INVENTORY:
+                                dump_objects(player->inventory);
+                                break;
+                case CMD_PICKUP:
+                                schedule_action(ACTION_PICKUP, player);
+                                break;
+                case CMD_DESCEND:
+                                if(hasbit(cf(ply,plx), CF_HAS_STAIRS_DOWN)) {
+                                        schedule_action(ACTION_GO_DOWN_STAIRS, player);
+                                        schedule_action(ACTION_FIX_VIEW, player);
+                                } else {
+                                        dsprintf("You can't go up here!");
+                                }
+                                break;
+                case CMD_ASCEND:
+                                if(hasbit(cf(ply,plx), CF_HAS_STAIRS_UP)) {
+                                        schedule_action(ACTION_GO_UP_STAIRS, player);
+                                        schedule_action(ACTION_FIX_VIEW, player);
+                                } else {
+                                        dsprintf("You can't go up here!");
+                                }
+                                break;
+                case CMD_USE_EXIT:
+                                if(hasbit(cf(ply, plx), CF_HAS_EXIT)) {
+                                        schedule_action(ACTION_USE_EXIT, player);
+                                        schedule_action(ACTION_FIX_VIEW, player);
+                                } else {
+                                        dsprintf("There is no exit here!");
+                                }
+                                break;
+                case CMD_REST:
+                                break;
+                case CMD_PATHFINDER:
+                                nx = plx; ny = ply;
+
+                                TCOD_path_compute(player->path, player->x, player->y, player->x + (ri(-30,30)), player->y + (ri(-30,30)));
+                                for(i = 0; i < TCOD_path_size(player->path); i++) {
+                                        TCOD_path_get(player->path, i, &x, &y);
+                                        //world->curlevel->c[y][x].backcolor = TCOD_light_blue;
+                                        // and let's move!
+                                        if(y > ny) { // moving downward
+                                                if(x > nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_SE, player);
+                                                if(x < nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_SW, player);
+                                                if(x == nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_DOWN, player);
+                                        }
+
+                                        if(y < ny) {
+                                                if(x > nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_NE, player);
+                                                if(x < nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_NW, player);
+                                                if(x == nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_UP, player);
+                                        }
+
+                                        if(y == ny) {
+                                                if(x > nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_RIGHT, player);
+                                                if(x < nx)
+                                                        schedule_action(ACTION_PLAYER_MOVE_LEFT, player);
+                                        }
+                                        nx = x; ny = y;
+                                }
+                                break;
+                case CMD_INCTIME:
+                                c = 5000000;
+                                while(c--) {
+                                        inc_second(&game->t, 1);
+                                };
+                                draw_map(world->curlevel);
+                                draw_wstat();
+                                update_screen();
+
+                                break;
+                default:
+                                break;
+        }
+}
+
+void game_loop()
+{
+        while(!game->dead) {
+                do_turn();
+        };
+}
+
+/**
+ * @brief Catch a signal and perform an action (currently, that action is to exit).
+ */
+void catchsignal()
+{
+        game->dead = true;
+        shutdown_display();
+        shutdown_ds();
+        fprintf(stderr, "Caught signal - exiting.\n");
+        exit(0);
 }
 
 int main(int argc, char *argv[])
 {
-        int c, x, y, i, nx, ny;
         char messagefilename[50];
-        TCOD_key_t l;
-        bool domonstermove;
+
+        signal(SIGINT,  catchsignal);
+        signal(SIGKILL, catchsignal);
 
         if(!setlocale(LC_ALL, ""))
                 die("couldn't set locale.");
@@ -1059,233 +1278,14 @@ int main(int argc, char *argv[])
 
         init_commands();
 
+        player->path = TCOD_path_new_using_map(world->curlevel->map, 1.0f);
         draw_map(world->curlevel);
         draw_wstat();
         initial_update_screen();
 
-        do {
-                c = 0;
-                while(!c)
-                        c = get_command();
+        schedule_action_delayed(ACTION_PLAYER_NEXTMOVE, player, 0, 1);
 
-                mapchanged   = false;
-                animate_only = false;
-                domonstermove = true;
-                player->oldx = plx;
-                player->oldy = ply;
-
-                switch(c) {
-                        case CMD_QUIT:
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                game->dead = 1;
-                                break;
-                        case CMD_DOWN:  queue(ACTION_PLAYER_MOVE_DOWN);   break;
-                        case CMD_UP:    queue(ACTION_PLAYER_MOVE_UP);     break;
-                        case CMD_LEFT:  queue(ACTION_PLAYER_MOVE_LEFT);   break;
-                        case CMD_RIGHT: queue(ACTION_PLAYER_MOVE_RIGHT);  break;
-                        case CMD_NW:    queue(ACTION_PLAYER_MOVE_NW);     break;
-                        case CMD_NE:    queue(ACTION_PLAYER_MOVE_NE);     break;
-                        case CMD_SW:    queue(ACTION_PLAYER_MOVE_SW);     break;
-                        case CMD_SE:    queue(ACTION_PLAYER_MOVE_SE);     break;
-                        case CMD_WIELDWEAR:
-                                       l = ask_char("Which item would you like to wield/wear?");
-                                       actiondata = (void *) get_object_from_letter(l.c, player->inventory);
-                                       queue(ACTION_WIELDWEAR);
-                                       break;
-                        case CMD_UNWIELDWEAR:
-                                       l = ask_char("Which item would you like to remove/unwield?");
-                                       actiondata = (void *) get_object_from_letter(l.c, player->inventory);
-                                       queue(ACTION_UNWIELDWEAR);
-                                       break;
-                        case CMD_DROP:
-                                       l = ask_char("Which item would you like to drop?");
-                                       actiondata = (void *) get_object_from_letter(l.c, player->inventory);
-                                       queue(ACTION_DROP);
-                                       break;
-                        case CMD_LONGDOWN:
-                                queuex(20, ACTION_PLAYER_MOVE_DOWN);
-                                break;
-                        case CMD_LONGUP:
-                                queuex(20, ACTION_PLAYER_MOVE_UP);
-                                break;
-                        case CMD_LONGLEFT:
-                                queuex(20, ACTION_PLAYER_MOVE_LEFT);
-                                break;
-                        case CMD_LONGRIGHT:
-                                queuex(20, ACTION_PLAYER_MOVE_RIGHT);
-                                break;
-                        case CMD_TOGGLEFOV:
-                                dsprintf("Setting all cells to visible.");
-                                set_level_visited(world->curlevel);
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_SPAWNMONSTER:
-                                spawn_monster_at(ply+5, plx+5, ri(1, game->monsterdefs), world->curlevel->monsters, world->curlevel, 100);
-                                //dump_monsters(world->curlevel->monsters);
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_WIZARDMODE:
-                                game->wizardmode = (game->wizardmode ? false : true); queue(ACTION_NOTHING);
-                                dsprintf("Wizard mode %s!", game->wizardmode ? "on" : "off");
-                                break;
-                        case CMD_SAVE:
-                                save_game(game->savefile);
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_LOAD:
-                                if(!load_game(game->savefile, 1))
-                                        dsprintf("Loading failed!");
-                                else
-                                        dsprintf("Loading successful!");
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_DUMPOBJECTS:
-                                dump_objects(world->curlevel->c[ply][plx].inventory);
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_INCFOV:
-                                player->viewradius++;
-                                //world->out->lakelimit++;
-                                //generate_terrain(1);
-                                //dsprintf("lakelimit = %d", world->out->lakelimit);
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_DECFOV:
-                                player->viewradius--;
-                                //world->out->lakelimit--;
-                                //generate_terrain(1);
-                                //dsprintf("lakelimit = %d", world->out->lakelimit);
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_DUMPCOLORS:
-                                for(x = 0;  x < 64; x++) {
-                                        /*dsprintfwc(wstat, x, "This is color %d  ", x);
-                                        wattron(wstat, A_BOLD);
-                                        dsprintfwc(wstat, x, "This is BOLD color %d  ", x);
-                                        wattroff(wstat, A_BOLD);*/
-                                }
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_FLOODFILL:
-                                x = ri(11, world->curlevel->xsize);
-                                y = ri(11, world->curlevel->ysize);
-                                while(world->curlevel->c[y][x].type != CELL_FLOOR) {
-                                        x = ri(11, world->curlevel->xsize);
-                                        y = ri(11, world->curlevel->ysize);
-                                }
-                                dsprintf("floodfilling from %d, %d\n", y, x);
-                                floodfill(world->curlevel, y, x);
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                break;
-                        case CMD_INVENTORY:
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                dump_objects(player->inventory);
-                                break;
-                        case CMD_PICKUP:
-                                queue(ACTION_PICKUP);
-                                break;
-                        case CMD_DESCEND:
-                                if(hasbit(cf(ply,plx), CF_HAS_STAIRS_DOWN)) {
-                                        queue(ACTION_GO_DOWN_STAIRS);
-                                        queue(ACTION_FIX_VIEW);
-                                } else {
-                                        dsprintf("You can't go up here!");
-                                        queue(ACTION_NOTHING);
-                                        domonstermove = false;
-                                }
-                                break;
-                        case CMD_ASCEND:
-                                if(hasbit(cf(ply,plx), CF_HAS_STAIRS_UP)) {
-                                        queue(ACTION_GO_UP_STAIRS);
-                                        queue(ACTION_FIX_VIEW);
-                                } else {
-                                        dsprintf("You can't go up here!");
-                                        queue(ACTION_NOTHING);
-                                        domonstermove = false;
-                                }
-                                break;
-                        case CMD_USE_EXIT:
-                                if(hasbit(cf(ply, plx), CF_HAS_EXIT)) {
-                                        queue(ACTION_USE_EXIT);
-                                        queue(ACTION_FIX_VIEW);
-                                } else {
-                                        dsprintf("There is no exit here!");
-                                        queue(ACTION_NOTHING);
-                                        domonstermove = false;
-                                }
-                                break;
-                        case CMD_REST:
-                                queue(ACTION_NOTHING);
-                                break;
-                        case CMD_PATHFINDER:
-                                nx = plx; ny = ply;
-                                
-                                TCOD_path_compute(player->path, player->x, player->y, player->x + (ri(-30,30)), player->y + (ri(-30,30)));
-                                for(i = 0; i < TCOD_path_size(player->path); i++) {
-                                        TCOD_path_get(player->path, i, &x, &y);
-                                        //world->curlevel->c[y][x].backcolor = TCOD_light_blue;
-                                        // and let's move!
-                                        if(y > ny) { // moving downward
-                                                if(x > nx)
-                                                        queue(ACTION_PLAYER_MOVE_SE);
-                                                if(x < nx)
-                                                        queue(ACTION_PLAYER_MOVE_SW);
-                                                if(x == nx)
-                                                        queue(ACTION_PLAYER_MOVE_DOWN);
-                                        }
-
-                                        if(y < ny) {
-                                                if(x > nx)
-                                                        queue(ACTION_PLAYER_MOVE_NE);
-                                                if(x < nx)
-                                                        queue(ACTION_PLAYER_MOVE_NW);
-                                                if(x == nx)
-                                                        queue(ACTION_PLAYER_MOVE_UP);
-                                        }
-
-                                        if(y == ny) {
-                                                if(x > nx)
-                                                        queue(ACTION_PLAYER_MOVE_RIGHT);
-                                                if(x < nx)
-                                                        queue(ACTION_PLAYER_MOVE_LEFT);
-                                        }
-                                        nx = x; ny = y;
-                                }
-                                //queue(ACTION_NOTHING);
-                                //domonstermove = false;
-                                break;
-                        case CMD_INCTIME:
-                                c = 5000000;
-                                while(c--) {
-                                        inc_second(&game->t, 1);
-                                };
-                                draw_map(world->curlevel);
-                                draw_wstat();
-                                update_screen();
-
-                                break;
-                        //case CMD_MOVE_ON:
-                                //animate_only = true;
-                        default:
-                                queue(ACTION_NOTHING);
-                                domonstermove = false;
-                                game->turn--;
-                                break;
-                }
-
-                do_turn(domonstermove);
-        } while(!game->dead);
+        game_loop();
 
         shutdown_display();
         shutdown_ds();

@@ -29,6 +29,9 @@ void delete_last_message();
 bool blocks_light(level_t *l, int y, int x);
 void newfov_initmap(level_t *l);
 
+void fov_initmap(void *level);
+void fov_updatemap(void *level);
+
 #define MESSAGE_LINES   5
 #define COLS  119                             // x
 #define ROWS  (45 + MESSAGE_LINES)         // y

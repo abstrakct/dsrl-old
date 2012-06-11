@@ -23,8 +23,8 @@ struct monsterdef_save_struct {
         char    c;
         int     level;
         int     hp;                 // == maxhp
-        float   speed;
         long    flags;
+        int     speed;
         int     aitableindex;       // == the field mid
         short   viewradius;
         // what about AC?
@@ -62,8 +62,7 @@ struct player_save_struct {
         int     weapon;              // save OID of weapon!
         int     w[WEAR_SLOTS];
         long    flags;
-        double  speed;
-        double  movement;
+        int     speed;
         char    wvfactor;
         short   worldview;
         float   skill[MAX_SKILLS];
