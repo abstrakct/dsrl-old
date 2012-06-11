@@ -223,14 +223,22 @@ char *get_enchanted_description()
         int i;
 
         n = malloc(sizeof(char) * 100);
-        i = dice(1, 7, 0);
+        i = dice(1, 15, 0);
         switch(i) {
-                case 1: sprintf(n, "nicely decorated "); break;
-                case 2: sprintf(n, "finely engraved "); break;
-                case 3: sprintf(n, "polished "); break;
-                case 4: sprintf(n, "radiant "); break;
-                case 5: sprintf(n, "strangely inscribed "); break;
-                case 6: sprintf(n, "shiny "); break;
+                case  1: sprintf(n, "quite splendid "); break;
+                case  2: sprintf(n, "marvellous "); break;
+                case  3: sprintf(n, "radiant "); break;
+                case  4: sprintf(n, "finely decorated "); break;
+                case  5: sprintf(n, "brilliant "); break;
+                case  6: sprintf(n, "shiny "); break;
+                case  7: sprintf(n, "handsome "); break;
+                case  8: sprintf(n, "dashing "); break;
+                case  9: sprintf(n, "elegant "); break;
+                case 10: sprintf(n, "gallant "); break;
+                case 11: sprintf(n, "fashionable "); break;
+                case 12: sprintf(n, "stylish "); break;
+                case 13: sprintf(n, "dazzling "); break;
+                case 14: sprintf(n, "classy "); break;
                 default: n[0] = '\0'; break;
         }
 
