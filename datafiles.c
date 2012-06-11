@@ -76,13 +76,17 @@ int parse_areadef_cfgfile(char *filename, int index)
                         if(!strcmp(value, "door"))
                                 areadef[index].exit[x].type = ET_DOOR;
                                
-                        sprintf(sname, "config.[i].exit.[x].char");
+                        sprintf(sname, "config.[%d].exit.[%d].char", i, x);
                         config_lookup_string(cf, sname, &value);
                         areadef[index].exit[x].c = value[0];
 
-                        sprintf(sname, "config.[i].exit.[x].corresponds_to");
-                        config_lookup_int(cf, sname, &val);
-                        areadef[index].exit[x].dest = val;
+                        sprintf(sname, "config.[%d].exit.[%d].corresponds_to", i, x);
+                        if(config_lookup_int(cf, sname, &val) == CONFIG_TRUE)
+                                areadef[index].exit[x].dest = val;
+                        else
+                                areadef[index].exit[x].dest = -1;
+
+                        //printf("areadef[%d].exit[%d].dest = %d\n", index, x, areadef[index].exit[x].dest);
                 }
         }
 

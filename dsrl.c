@@ -106,8 +106,10 @@ void init_variables()
 
         game = (game_t *) dsmalloc(sizeof(game_t));
         game->dead = 0;
+        
         game->seed = time(0);
         srand(game->seed);
+
         game->createdareas = 0;
         generate_savefilename(game->savefile);
         loadgame = false;
@@ -640,6 +642,10 @@ bool do_action(int action)
                 case ACTION_USE_EXIT:
                         tmpy = ply; tmpx = plx;
                         src  = &world->curlevel->exit[world->curlevel->c[tmpy][tmpx].exitindex];
+                        if(src->dest == -1) {
+                                dsprintf("sorry! not currently available!");
+                                break;
+                        }
                         dest = &world->area[src->location].exit[src->dest];
                         //dsprintf("src: location=%d x=%d y=%d type=%d dest=%d", src->location, src->x, src->y, src->type, src->dest);
                         //dsprintf("dest: location=%d x=%d y=%d type=%d dest=%d", dest->location, dest->x, dest->y, dest->type, dest->dest);
