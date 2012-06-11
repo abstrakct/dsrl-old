@@ -73,6 +73,18 @@ typedef struct coord {
         int x;
 } co;
 
+typedef struct action {
+        int        action;
+        int        tick;
+        monster_t *monster;
+        obj_t     *object;
+        actor_t   *actor;
+        int        gain;                      // for temporary effects
+} action_t;
+
+#define MAXACT 100
+
+#define ACTION_FREESLOT          -577
 #define ACTION_NOTHING            0
 #define ACTION_PLAYER_MOVE_LEFT   1
 #define ACTION_PLAYER_MOVE_RIGHT  2
@@ -95,6 +107,8 @@ typedef struct coord {
 #define ACTION_MAKE_DISTANCEMAP  19
 #define ACTION_DROP              20
 #define ACTION_USE_EXIT          21
+#define ACTION_MOVE_MONSTER      22
+#define ACTION_PLAYER_NEXTMOVE   23
 
 #define TICKS_MOVEMENT  1000
 #define TICKS_ATTACK    1000
@@ -107,6 +121,7 @@ typedef struct coord {
 #define TRUE 1
 // #define MAX_MESSAGES 100
 #define ENDOFLIST -577
+#define PLAYER_ID -577
 
 // define some shortcuts
 #define ply player->y
@@ -141,11 +156,19 @@ extern WINDOW *wmap;*/
 
 /* function prototypes */
 
-bool do_next_thing_in_queue();
-bool do_all_things_in_queue();
-void queue(int action);
-void queue_immediately(int action);
-bool do_action(int action);
+
+void queuemany(actor_t *actor, int first, ...);
+void schedule_actionx(int num, int action, actor_t *actor);
+void unschedule_all_monsters();
+void schedule_monster(monster_t *m);
+void unschedule_action(int index);
+int schedule_action_immediately(int action, actor_t *actor);
+int schedule_action_delayed(int action, actor_t *actor, obj_t *object, int delay);
+int schedule_action(int action, actor_t *actor);
+
+void process_player_input();
+
+bool do_action(action_t *aqe);
 void shutdown_ds();
 
 #endif

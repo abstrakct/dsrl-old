@@ -88,8 +88,7 @@ typedef struct actorstruct {                               // actor_t
         long         flags;
         int          c;                                    // character, for monsters.
         // TODO: Add variable for glyph color?!
-        double       speed;
-        double       movement;
+        int          speed;
         long long    ticks;
         float        skill[MAX_SKILLS];
         char         wvfactor;

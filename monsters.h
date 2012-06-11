@@ -22,6 +22,7 @@ extern aifunction aitable[];
 #define MF_CANHAVEGOLD       (1 <<  5)
 #define MF_CANUSESIMPLESWORD (1 <<  6)
 #define MF_SLEEPING          (1 <<  7)
+#define MF_SEENBYPLAYER      (1 <<  8)
 
 // Prototypes
 monster_t get_monsterdef(int n);
@@ -31,6 +32,8 @@ bool spawn_monster_at(int y, int x, int n, monster_t *head, void *level, int max
 void unspawn_monster(monster_t *m);
 void kill_monster(void *level, monster_t *m, actor_t *killer);
 void move_monsters();
+void move_monster(monster_t *m);
+void look_for_monsters();
 
 // AI
 void simpleai(monster_t *m);

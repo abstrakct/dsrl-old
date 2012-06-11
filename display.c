@@ -131,8 +131,7 @@ void clear_map_to_unlit(level_t *l)
 
 void donewfov(actor_t *a, level_t *l)
 {
-        TCOD_map_compute_fov(l->map, a->x, a->y, 16, true, FOV_SHADOW);
-
+        TCOD_map_compute_fov(l->map, a->x, a->y, a->viewradius, true, FOV_SHADOW);
 }
 
 void newfov_initmap(level_t *l)
@@ -167,6 +166,42 @@ void newfov_initmap(level_t *l)
                         TCOD_map_set_properties(l->map, x, y, trans, walk);
                 }
         }
+}
+
+void fov_updatemap(void *level)
+{
+        int x, y;
+        bool trans, walk;
+        level_t *l;
+
+        l = (level_t *)level;
+
+        for(x = 1; x < l->xsize; x++) {
+                for(y = 1; y < l->ysize; y++) {
+                        if(blocks_light(l, y, x))
+                                trans = false;
+                        else
+                                trans = true;
+
+                        if(passable(l, y, x))
+                                walk = true;
+                        else
+                                walk = false;
+
+
+                        TCOD_map_set_properties(l->map, x, y, trans, walk);
+                }
+        }
+}
+
+void fov_initmap(void *level)
+{
+        level_t *l;
+
+        l = (level_t *)level;
+
+        l->map = TCOD_map_new(l->xsize, l->ysize);
+        fov_updatemap(l);
 }
 
 void draw_left()
@@ -207,7 +242,8 @@ void draw_left()
         TCOD_console_print(game->left.c, 1, i+11, "WIS:   %d", player->attr.wis);
         TCOD_console_print(game->left.c, 1, i+12, "CHA:   %d", player->attr.cha);
         TCOD_console_print(game->left.c, 1, i+13, "XP:    %d", player->xp);
-        TCOD_console_print(game->left.c, 1, i+14,  "Level: %d", player->level);
+        TCOD_console_print(game->left.c, 1, i+14, "Level: %d", player->level);
+        TCOD_console_print(game->left.c, 1, i+15, "TICK:  %d", game->tick);
         
         //TCOD_console_print(game->left.c, 1, i+9, 1, "Dungeon level: %d (out of %d)", game->currentlevel, game->createdareas);
         //mvwprintw(wleft, 3, 1, "y,x     %d,%d", ply, plx);
@@ -394,8 +430,12 @@ TCOD_key_t dsgetch()
 
         TCOD_console_flush();
         key = TCOD_console_wait_for_keypress(false);
-        
         //key = TCOD_console_check_for_keypress(TCOD_KEY_PRESSED);
+
+        if(key.shift && key.c >= 'a' && key.c <= 'z')
+                key.c += 'A' - 'a';
+        if(key.shift && key.c == '<')
+                key.c = '>';
 
         return key;
 }
@@ -434,7 +474,7 @@ void init_display()
 
         TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_SDL);
 	TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);
-	//TCOD_console_set_keyboard_repeat(350, 60);
+	TCOD_console_set_keyboard_repeat(350, 70);
 
         game->width = dsconfig.cols;
         game->height = dsconfig.rows;
@@ -465,6 +505,8 @@ void init_display()
         TCOD_console_set_default_foreground(game->messages.c, TCOD_white);
         TCOD_console_set_default_background(game->messages.c, TCOD_black);
         maxmess = game->messages.h - 2;
+
+        TCOD_console_set_window_title(GAME_NAME);
 }
 
 void shutdown_display()

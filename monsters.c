@@ -418,6 +418,84 @@ void move_monsters()
         }
 }
 
+/**
+ * @brief Make a move for a specific monster. Heal the monster if appropriate.
+ *
+ * @param m Monster to move.
+ *
+ */
+void move_monster(monster_t *m)
+{
+        int i;
+
+        if(!m) {
+                fprintf(stderr, "DEBUG: %s:%d - no such monster!\n", __FILE__, __LINE__);
+                return;
+        }
+
+        if(hasbit(m->flags, MF_ISDEAD)) {
+                fprintf(stderr, "DEBUG: %s:%d - monster is dead!\n", __FILE__, __LINE__);
+                return;
+        }
+
+        if(hasbit(m->flags, MF_SLEEPING)) {
+                if(actor_in_lineofsight(m, player))
+                        clearbit(m->flags, MF_SLEEPING);
+        }
+
+        if(!hasbit(m->flags, MF_SLEEPING)) {
+                hostile_ai(m);
+                if(m->hp < m->maxhp) {
+                        i = 17 - m->attr.phy;
+                        if(i <= 0)
+                                i = 1;
+                        if(game->tick % i) {
+                                if(perc(40+m->attr.phy)) {
+                                        int j;
+
+                                        j = ability_modifier(m->attr.phy);
+                                        if(j < 1)
+                                                j = 1;
+                                        heal_monster(m, ri(1, j));
+                                }
+                        }
+                }
+        }
+
+        schedule_monster(m);
+}
+
+/**
+ * @brief See if there are any monsters in players LOS. If so, take note.
+ */
+void look_for_monsters()
+{
+        monster_t *m;
+
+        //gtprintf("looking for monsters...");
+
+        m = world->curlevel->monsters;
+        if(!m)
+                return;
+
+
+        while(m) {
+                m = m->next;
+                while(m && hasbit(m->flags, MF_ISDEAD))
+                        m = m->next;
+
+                if(m && !hasbit(m->flags, MF_SEENBYPLAYER)) {
+                        if(actor_in_lineofsight(player, m)) {
+                                setbit(m->flags, MF_SEENBYPLAYER);
+                                dsprintf("%s comes into view!", Upper(a_an(m->name)));
+                                schedule_monster(m);
+                        }
+                }
+        }
+}
+
+
+
 monster_t get_monsterdef(int n)
 {
         monster_t *tmp;
