@@ -466,11 +466,16 @@ void init_display()
         if(screenwidth <= 1024) {
         	sprintf(font, "fonts/ds.png");
         	//dsconfig.rows *= 2;
-        } else
+        } else {
                 sprintf(font, "fonts/df.png");
+                dsconfig.rows = screenheight / 28;
+                dsconfig.cols = screenwidth  / 30;
+        }
 
 	//sprintf(font, "fonts/font-%i.png", fontsize);
-        TCOD_console_set_custom_font(font, /*TCOD_FONT_TYPE_GREYSCALE |*/ TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
+	
+	sprintf(font, "fonts/terminal8x14_gs_ro.png");
+        TCOD_console_set_custom_font(font, TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
 
         TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_SDL);
 	TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);

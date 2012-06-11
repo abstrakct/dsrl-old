@@ -263,10 +263,15 @@ bool yesno(char *fmt, ...)
 
         update_screen();
         c = dsgetch();
-        if(c.c == 'y' || c.c == 'Y')
-                return true;
-        if(c.c == 'n' || c.c == 'N')
-                return false;
+        while(1) {
+                if(c.c == 'y' || c.c == 'Y')
+                        return true;
+                if(c.c == 'n' || c.c == 'N')
+                        return false;
+
+                c = dsgetch();
+        }
+
         return false;
 }
 

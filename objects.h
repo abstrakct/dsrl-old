@@ -24,10 +24,10 @@ struct object {
         long          flags;                // 4 bytes = 32 bits/flags, see OF_defines below - CONSIDER CHANGE TO LONG LONG
         signed short  attackmod;            // +/- on attack; for armor: acmodifier
         signed short  damagemod;            // +/- on damage;
-        char          basename[50];         // the basic name of the item
-        char          unidname[100];        // unidentified name
-        char          fullname[100];        // should be more than enough, adjust later
-        char          displayname[128];
+        char          basename   [125];     // the basic name of the item
+        char          fullname   [125];     // should be more than enough, adjust later
+        char          truename   [125];
+        char          displayname[125];
         char          c;
         char          slot;                 // inventory slot; not sure if needed?!
         char          minlevel;
@@ -37,6 +37,7 @@ struct object {
         char          skill;                       // a particular skill needed to use this weapon?
         char          effects;
         short         effect[MAX_EFFECTS];
+        short         rarity;
 };
 
 typedef struct object obj_t;
@@ -161,7 +162,7 @@ void   add_to_master_object_list(obj_t *o);
 void   clear_master_object_list();
 
 obj_t  get_objdef(int n);
-int    get_objdef_by_name(const char *wanted);
+int    get_objdef_by_name(char *wanted);
 obj_t *get_object_by_oid(inv_t *i, int oid);
 
 bool   is_pair(obj_t *o);

@@ -45,7 +45,11 @@ char objchars[] = {
 };
 
 char *materialstring[] = {
-        0, "gold", "silver", "bronze", "copper", "wooden", "iron", "marble", "glass", "bone", "platinum", "steel", "blackwood", "brass", "ebony", "bloodwood"
+        0, "gold", "silver", "bronze", "copper", "wooden", "iron", "marble", "glass", "bone", "platinum", "steel", "blackwood", "brass", "ebony", "bloodwood", "stone"
+};
+
+char *potionstring[] = {
+        0, "red", "green", "sparkling", "blue", "clear", "yellow", "pink", "amber", "golden orange", "orange", "lime green", "cyan", "sky blue", "violet", "crimson", "azure"
 };
 
 obj_t get_objdef(int n)
@@ -64,6 +68,31 @@ obj_t get_objdef(int n)
         return *tmp;
 }
 
+obj_t get_random_objdef_with_rarity(int rarity)
+{
+        obj_t *tmp;
+        int i, j, foundone;
+
+        foundone = false;
+
+        while(!foundone) {
+                j = 0;
+                i = ri(0, game->objdefs);           // choose a random object
+
+                tmp = objdefs->head->next;
+                while(j != i) {                     // move up to that object  (should perhaps be a function of it's own, to look up objdef #x
+                        if(tmp->next)
+                                tmp = tmp->next;
+                        j++;
+                }
+
+                if(tmp->rarity == rarity)           // if it has the requested rarity,
+                        foundone = true;            // then we've found one, and can return it.
+        }
+
+        return *tmp;
+}
+
 obj_t *get_object_by_oid(inv_t *i, int oid)
 {
         int j;
@@ -76,7 +105,7 @@ obj_t *get_object_by_oid(inv_t *i, int oid)
         return 0;
 }
 
-int get_objdef_by_name(const char *wanted)
+int get_objdef_by_name(char *wanted)
 {
         obj_t *o;
 
@@ -188,11 +217,162 @@ void get_random_unused_material(short type)
 
 }
 
+char *get_enchanted_description()
+{
+        char *n;
+        int i;
+
+        n = malloc(sizeof(char) * 100);
+        i = dice(1, 7, 0);
+        switch(i) {
+                case 1: sprintf(n, "nicely decorated "); break;
+                case 2: sprintf(n, "finely engraved "); break;
+                case 3: sprintf(n, "polished "); break;
+                case 4: sprintf(n, "radiant "); break;
+                case 5: sprintf(n, "strangely inscribed "); break;
+                case 6: sprintf(n, "shiny "); break;
+                default: n[0] = '\0'; break;
+        }
+
+        return n;
+}
+
 /*
  * Generate the full name of object
  */
 
 void generate_fullname(obj_t *o)
+{
+        char *n;
+        //int i;
+
+        n = dsmalloc(sizeof(char) * 250);
+        if(o->type == OT_WEAPON) {
+                if(!is_identified(o) && (o->attackmod || o->damagemod || (o->damagemod && o->attackmod))) {
+                        strcpy(n, get_enchanted_description());
+                        strcat(n, o->basename);
+                } else {
+                        if(!o->attackmod && !o->damagemod) {
+                                strcat(n, o->basename);
+                        }
+
+                        if(o->attackmod && !o->damagemod) {
+                                if(is_identified(o)) {
+                                        if(o->attackmod > 0)
+                                                sprintf(n, "+%d,+0", o->attackmod);
+                                        if(o->attackmod < 0)
+                                                sprintf(n,  "%d,+0", o->attackmod);
+                                } else {
+                                }
+                                strcat(n, " ");
+                                strcat(n, o->basename);
+                        }
+                        if(is_identified(o) && !o->attackmod && o->damagemod) {
+                                if(o->damagemod > 0)
+                                        sprintf(n, "0,+%d", o->damagemod);
+                                if(o->damagemod < 0)
+                                        sprintf(n, "0,%d", o->damagemod);
+                                strcat(n, " ");
+                                strcat(n, o->basename);
+                        }
+                        if(is_identified(o) && o->attackmod && o->damagemod) {
+                                if(o->attackmod > 0)
+                                        sprintf(n, "+%d", o->attackmod);
+                                if(o->attackmod < 0)
+                                        sprintf(n,  "%d", o->attackmod);
+                                if(o->damagemod > 0)
+                                        sprintf(n, "%s,+%d", n, o->damagemod);
+                                if(o->damagemod < 0)
+                                        sprintf(n, "%s,%d", n, o->damagemod);
+                                strcat(n, " ");
+                                strcat(n, o->basename);
+                        }
+                }
+        } else if(o->type == OT_ARMOR) {
+                if(is_identified(o)) {
+                        if(o->attackmod > 0)
+                                sprintf(n, "+%d ", o->attackmod);
+
+                        if(o->attackmod < 0)
+                                sprintf(n,  "%d ", o->attackmod);
+
+                        /*if(o->effects) {
+                                if(strlen(o->fullname))
+                                        sprintf(n, "%s%s [", n, o->truename);
+                                else
+                                        sprintf(n, "%s%s [", n, o->basename);
+
+                                for(i=0;i<MAX_EFFECTS;i++) {
+                                        if(o->effect[i].effect) {
+                                                switch(o->effect[i].effect) {
+                                                        case OE_DEXTERITY: sprintf(n, "%sDex+%d", n, o->effect[i].gain); break;
+                                                        case OE_STRENGTH:  sprintf(n, "%sStr+%d", n, o->effect[i].gain); break;
+                                                        case OE_WISDOM:    sprintf(n, "%sWis+%d", n, o->effect[i].gain); break;
+                                                        case OE_INTELLIGENCE: sprintf(n, "%sInt+%d", n, o->effect[i].gain); break;
+                                                        case OE_PHYSIQUE:  sprintf(n, "%sPhy+%d", n, o->effect[i].gain); break;
+                                                        case OE_CHARISMA:  sprintf(n, "%sCha+%d", n, o->effect[i].gain); break;
+                                                        case OE_SPEED: strcat(n, "Speed"); break;
+                                                }
+                                                if(i < MAX_EFFECTS-1 && o->effect[i+1].effect)
+                                                        strcat(n, ", ");
+                                        }
+                                }
+                                strcat(n, "]");
+                        } else*/
+                                strcat(n, o->basename); 
+
+                }
+                
+                if((!is_identified(o) && o->attackmod)) {
+                        strcpy(n, get_enchanted_description());
+                        strcat(n, o->basename); 
+                }
+
+                if((!is_identified(o) && o->effects)) {
+                        strcpy(n, get_enchanted_description());
+                        strcat(n, o->basename); 
+                }
+
+                if(!is_identified(o) && !o->attackmod && !o->effects) {
+                        strcat(n, o->basename); 
+                }
+        } else if(o->type == OT_BRACELET) {
+                if(is_identified(o) && is_id_mod(o)) {
+                        if(o->attackmod > 0)
+                                sprintf(n, "+%d ", o->attackmod);
+                        if(o->attackmod < 0)
+                                sprintf(n,  "%d ", o->attackmod);
+                        strcat(n, o->basename); 
+                } else if(is_identified(o) && !is_id_mod(o)) {
+                        sprintf(n, "%s", o->basename);
+                } else if(!is_identified(o)) {
+                        sprintf(n, "%s bracelet", materialstring[(int)o->material]);
+                }
+        } else if(o->type == OT_AMULET) {
+                if(is_identified(o)) {
+                        sprintf(n, "%s", o->basename);
+                } else {
+                        sprintf(n, "%s amulet", materialstring[(int)o->material]);
+                }
+        } else if(o->type == OT_POTION) {
+                if(is_identified(o)) {
+                        sprintf(n, "%s", o->basename);
+                } else {
+                        sprintf(n, "%s potion", potionstring[(int)o->material]);
+                }
+        } else {
+                strcat(n, o->basename);
+        }
+
+        if(hasbit(o->flags, OF_HOLYFUCK))
+                strcat(n, " of Holy Fuck");
+        
+        //fprintf(stderr, "generated name %s\n", n);
+        strcpy(o->fullname, n);
+        strcpy(o->displayname, n);
+}
+
+/*void generate_fullname(obj_t *o)
 {
         char n[200];
 
@@ -261,7 +441,7 @@ void generate_fullname(obj_t *o)
                 strcat(n, " of Holy Fuck");
         
         strcpy(o->fullname, n);
-}
+}*/
 
 /*
  * place a spawned object at (y,x)

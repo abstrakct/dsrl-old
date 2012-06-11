@@ -184,6 +184,7 @@ int parse_monsters()
         int i, j, boolval, tmp, id;
         char sname[100];
         const char *value;
+        char string[100];
 
         cfg_monsters = config_lookup(cf, "monsters");
         i = config_setting_length(cfg_monsters);
@@ -270,7 +271,8 @@ int parse_monsters()
                         sprintf(sname, "monsters.[%d].weapon", j);
                         config_lookup_string(cf, sname, &value);
 
-                        x = get_objdef_by_name(value);
+                        strcpy(string, value);
+                        x = get_objdef_by_name(string);
 
                         m->inventory = init_inventory();
                         o = spawn_object(x, 0);
