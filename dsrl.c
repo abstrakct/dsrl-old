@@ -666,9 +666,6 @@ bool do_action(action_t *aqe)
                 case ACTION_HEAL_PLAYER:
                         increase_hp(player, 1);
                         break;
-                case ACTION_MAKE_DISTANCEMAP:
-                        makedistancemap(player->y, player->x);
-                        break;
                 case ACTION_MOVE_MONSTER:
                         if(aqe)
                                 move_monster(aqe->monster);

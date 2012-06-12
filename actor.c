@@ -143,8 +143,6 @@ bool actor_in_lineofsight(actor_t *src, actor_t *dest)
  * This function will check if the actor src can see cell at goaly,goalx
  * Returns true if it can, false if not,
  *
- * Adapted from http://roguebasin.roguelikedevelopment.org/index.php/Simple_Line_of_Sight
- *
  * @param src actor which is looking
  * @param goaly Y coord of dest cell
  * @param goalx X coord of dest cell
@@ -153,69 +151,11 @@ bool actor_in_lineofsight(actor_t *src, actor_t *dest)
  */
 bool in_lineofsight(actor_t *src, int goaly, int goalx)
 {
-        int t, x, y, ax, ay, sx, sy, dx, dy;
-
-        if(src->x == goalx && src->y == goaly) // shouldn't actually happen?
+        TCOD_map_compute_fov(world->curlevel->map, src->x, src->y, src->viewradius, true, FOV_SHADOW);
+        if(TCOD_map_is_in_fov(world->curlevel->map, goalx, goaly))
                 return true;
-
-        dx = goalx - src->x;
-        dy = goaly - src->y;
-
-        ax = abs(dx) << 1;
-        ay = abs(dy) << 1;
-
-        sx = SGN(dx);
-        sy = SGN(dy);
-
-        x = src->x;
-        y = src->y;
-
-        // This must be changed to a FOV thing!
-        if(goalx > (x + src->viewradius))
+        else
                 return false;
-        if(goaly > (y + src->viewradius))
-                return false;
-        if(goalx < (x - src->viewradius))
-                return false;
-        if(goaly < (y - src->viewradius))
-                return false;
-
-
-
-        if(ax > ay) {
-                t = ay - (ax >> 1);
-                do {
-                        if(t >= 0) {
-                                y += sy;
-                                t -= ax;
-                        }
-
-                        x += sx;
-                        t += ay;
-
-                        if(x == goalx && y == goaly) {
-                                return true;
-                        }
-                } while(!blocks_light(world->curlevel, y, x));
-
-                return false;
-        } else {
-                t = ax - (ay >> 1);
-                do {
-                        if(t >= 0) {
-                                x += sx;
-                                t -= ay;
-                        }
-
-                        y += sy;
-                        t += ax;
-                        if(x == goalx && y == goaly) {
-                                return true;
-                        }
-                } while(!blocks_light(world->curlevel, y, x));
-
-                return false;
-        }
 }
 
 /**

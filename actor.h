@@ -105,6 +105,8 @@ typedef struct actorstruct {                               // actor_t
         struct actorstruct *head;
 } actor_t;
 
+#define is_invisible(a) (hasbit(a->flags, MF_INVISIBLE))
+
 char   get_first_free_letter();
 char   slot_to_letter(int i);
 int    letter_to_slot(char c);

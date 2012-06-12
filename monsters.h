@@ -23,6 +23,7 @@ extern aifunction aitable[];
 #define MF_CANUSESIMPLESWORD (1 <<  6)
 #define MF_SLEEPING          (1 <<  7)
 #define MF_SEENBYPLAYER      (1 <<  8)
+#define MF_INVISIBLE         (1 <<  9)
 
 // Prototypes
 monster_t get_monsterdef(int n);
@@ -39,9 +40,6 @@ void look_for_monsters();
 void simpleai(monster_t *m);
 void advancedai(monster_t *m);
 void hostile_ai(monster_t *m);
-
-void makedistancemap(int desty, int destx);
-void makedistancemap(int desty, int destx);
 
 #endif
 // vim: fdm=syntax guifont=Terminus\ 8

@@ -21,7 +21,6 @@
 #include "dsrl.h"
 
 unsigned int mid_counter;
-int distancemap[YSIZE][XSIZE];
 
 aifunction aitable[] = {
         simpleai,
@@ -30,80 +29,23 @@ aifunction aitable[] = {
 };
 
 
-/*
- * This function, and get_next_step(), is taken/adapted from:
- *
- * Newsgroups: rec.games.roguelike.development
- * From: "copx" <inva...@dd.com>
- * Date: Mon, 23 Dec 2002 09:57:10 +0100
- * Local: Mon, Dec 23 2002 9:57 am
- * Subject: Re: *simple* pathfinding
- * 
- */
-void makedistancemap(int desty, int destx)
+co get_next_step(void *actor)
 {
-        int y, x, newdist;
-        bool flag;
-
-        //dsprintf("%d - makedistancemap - START!", game->turn);
-        for(y = 0; y < world->curlevel->ysize; y++) {
-                for(x = 0; x < world->curlevel->xsize; x++) {
-                        distancemap[y][x] = 99999;
-                }
-        }
-
-        distancemap[desty][destx] = 0;
-        flag = true;
-        while(flag) {
-                flag = false;
-                for(y = 1; y < world->curlevel->ysize; y++) {
-                        for(x = 1; x < world->curlevel->xsize; x++) {
-                                if(monster_passable(world->curlevel, y, x)) {
-                                        newdist = min(min(2+distancemap[y][x-1], 2+distancemap[y-1][x]), min(3+distancemap[y-1][x-1], 3+distancemap[y-1][x+1]));
-                                        if(newdist < distancemap[y][x]) {
-                                                distancemap[y][x] = newdist;
-                                                flag = true;
-                                        }
-                                }
-                        }
-                }
-
-                for(y = world->curlevel->ysize - 3; y >= 1; --y) {
-                        for(x = world->curlevel->xsize - 3; x >= 1; --x) {
-                                if(monster_passable(world->curlevel, y, x)) {
-                                        newdist = min(min(2+distancemap[y][x+1], 2+distancemap[y+1][x]), min(3+distancemap[y+1][x+1], 3+distancemap[y+1][x-1]));
-                                        if(newdist < distancemap[y][x]) {
-                                                distancemap[y][x] = newdist;
-                                                flag = true;
-                                        }
-                                }
-                        }
-                }
-        }
-        //dsprintf("%d - makedistancemap - END!", game->turn);
-}
-
-co get_next_step(int y, int x)
-{
+        actor_t *a;
         co c;
-        int dx, dy, dist, newdist, newdx, newdy;
+        int x, y;
 
-        dx = 0; 
-        dy = 0;
-        dist = 99999;
-        for(newdy = -1; newdy <= 1; newdy++) {
-                for(newdx = -1; newdx <= 1; newdx++) {
-                        newdist = distancemap[y + newdy][x + newdx];
-                        if(newdist < dist) {
-                                dist = newdist;
-                                dx = newdx;
-                                dy = newdy;
-                        }
-                }
+        a = (actor_t*)actor;
+        
+        TCOD_path_compute(a->path, a->x, a->y, a->goalx, a->goaly);
+        if(!TCOD_path_walk(a->path, &x, &y, true)) {
+                c.x = 0;
+                c.y = 0;
+        } else {
+                c.x = x;
+                c.y = y;
         }
 
-        c.x = dx;
-        c.y = dy;
         return c;
 }
 
@@ -184,12 +126,6 @@ int simpleoutdoorpathfinder(actor_t *m)
                                 break;
                 }*/
         }
-
-        //makedistancemap(m->goaly, m->goalx);
-        //c = get_next_step(m->y, m->x);
-
-        //m->y += c.y;
-        //m->x += c.x;
 
         if(monster_passable(world->curlevel, m->y, m->x)) {
                 world->cmap[oy][ox].monster = NULL;
@@ -276,55 +212,7 @@ void newpathfinder_chaseplayer(actor_t *m)
         m->x += dx;
 }
 
-bool newpathfinder(actor_t *m)
-{
-        int oy, ox, dx, dy, dist, newdist, newdx, newdy;
-
-        if(!m->goalx || !m->goaly || m->x == m->goalx || m->y == m->goaly) {
-                m->goalx = ri(1, world->curlevel->xsize - 1);
-                m->goaly = ri(1, world->curlevel->ysize - 1);
-                while(!monster_passable(world->curlevel, m->goaly, m->goalx)) {
-                        m->goalx = ri(1, world->curlevel->xsize - 1);
-                        m->goaly = ri(1, world->curlevel->ysize - 1);
-                }
-        }
-
-        oy = m->y;
-        ox = m->x;
-        makedistancemap(m->goaly, m->goalx);
-
-        dx = 0; 
-        dy = 0;
-        dist = 99999;
-
-        for(newdy = -1; newdy <= 1; newdy++) {
-                for(newdx = -1; newdx <= 1; newdx++) {
-                        newdist = distancemap[m->y + newdy][m->x + newdx];
-                        if(newdist < dist) {
-                                dist = newdist;
-                                dx = newdx;
-                                dy = newdy;
-                        }
-                }
-        }
-
-        m->y += dy;
-        m->x += dx;
-
-        /*
-        if(!monster_passable(world->curlevel, m->y, m->x)) {
-                m->y = oy;
-                m->x = ox;
-                return false;
-        }
-        */
-
-        world->cmap[oy][ox].monster = NULL;
-        world->cmap[m->y][m->x].monster = m;
-        return true;
-}
-
-void hostile_ai(actor_t *m)
+/*void oldhostile_ai(actor_t *m)
 {
         int oy, ox;
         co c;
@@ -356,66 +244,84 @@ void hostile_ai(actor_t *m)
                 m->attacker = NULL;
                 while(!simpleoutdoorpathfinder(m));
         }
+}*/
+
+/**
+ * @brief A simple, but effective AI function which will attack the player or other hostile creatures - or chase them if necessary!
+ *
+ * @param m The monster/actor which is performing this hostility.
+ */
+void hostile_ai(actor_t *m)
+{
+        int oy, ox;
+        co c;
+
+        oy = m->y;
+        ox = m->x;
+
+        if(m->attacker && next_to(m, m->attacker)) {
+                attack(m, m->attacker);
+                return;
+        }
+
+        if(next_to(m, player) && !is_invisible(player)) {
+                m->attacker = player;
+                attack(m, m->attacker);
+                return;
+        }
+
+        if(actor_in_lineofsight(m, player)) {
+                m->goalx = player->x;
+                m->goaly = player->y;
+        } else {
+                m->attacker = NULL;
+                do {
+                        m->goalx = ri(1, world->curlevel->xsize-1);
+                        m->goaly = ri(1, world->curlevel->ysize-1);
+                } while(!monster_passable(world->curlevel, m->goaly, m->goalx));
+        }
+
+        c = get_next_step(m);
+
+        if(c.x == 0 && c.y == 0) {
+                return;
+        } else {
+                m->y = c.y;
+                m->x = c.x;
+                world->cmap[oy][ox].monster = NULL;
+                world->cmap[m->y][m->x].monster = m;
+        }
+}
+
+/**
+ * @brief Callback function for libtcod pathfinding.
+ *
+ * @param xFrom Source X
+ * @param yFrom Source Y
+ * @param xTo   Dest. X
+ * @param yTo   Dest. Y
+ * @param user_data Pointer to the level where the pathfinding is taking place. 
+ *
+ * @return 1.0 if Dest X,Y is passable for a monster, 0.0 if not.
+ */
+float monster_path_callback_func(int xFrom, int yFrom, int xTo, int yTo, void *user_data)
+{
+        level_t *l;
+        float f;
+
+        l = (level_t*)user_data;
+        if(monster_passable(l, yTo, xTo))
+                f = 1.0f;
+        else
+                f = 0.0f;
+
+        return f;
 }
 
 void heal_monster(actor_t *m, int num)
 {
         increase_hp(m, num);
         dsprintf("  The %s looks a bit healthier! (%d)", m->name, num);
-}
-
-void move_monsters()
-{
-        monster_t *m;
-
-        m = world->curlevel->monsters;
-        if(!m)
-                return;
-
-
-        while(m) {
-                m = m->next;
-                while(m && hasbit(m->flags, MF_ISDEAD))
-                        m = m->next;
-
-                if(m && hasbit(m->flags, MF_SLEEPING)) {
-                        if(actor_in_lineofsight(m, player))
-                                clearbit(m->flags, MF_SLEEPING);
-                }
-
-
-                // TODO: SIMPLIFY!
-                //
-
-                if(m && !hasbit(m->flags, MF_SLEEPING)) {
-                        //if(m->attacker) {
-                        m->ticks += (int) (m->speed*1000);
-
-                        while(m->ticks >= 1000) {
-                                hostile_ai(m);
-                                m->ticks -= TICKS_ATTACK;
-                                if(m->hp < m->maxhp) {
-                                        if(!game->turn % 3)
-                                                if(perc(40+m->attr.phy)) {
-                                                        int i;
-
-                                                        i = ability_modifier(m->attr.phy);
-                                                        if(i <= 0)
-                                                                i = 1;
-                                                        heal_monster(m, ri(1, i));
-                                                }
-                                }
-                        }
-                        /*} else {
-                          m->ticks += (int) (m->speed*1000);
-                          while(m->ticks >= 1000) {
-                          if(m->ai)
-                          m->ai(m);
-                          m->ticks -= 1000;
-                          }
-                          }*/
-                }
-        }
 }
 
 /**
@@ -434,7 +340,7 @@ void move_monster(monster_t *m)
         }
 
         if(hasbit(m->flags, MF_ISDEAD)) {
-                fprintf(stderr, "DEBUG: %s:%d - monster is dead!\n", __FILE__, __LINE__);
+                //fprintf(stderr, "DEBUG: %s:%d - monster is dead!\n", __FILE__, __LINE__);
                 return;
         }
 
@@ -484,11 +390,13 @@ void look_for_monsters()
                 while(m && hasbit(m->flags, MF_ISDEAD))
                         m = m->next;
 
-                if(m && !hasbit(m->flags, MF_SEENBYPLAYER)) {
+                if(m) {
                         if(actor_in_lineofsight(player, m)) {
-                                setbit(m->flags, MF_SEENBYPLAYER);
-                                dsprintf("%s comes into view!", Upper(a_an(m->name)));
-                                schedule_monster(m);
+                                if(!hasbit(m->flags, MF_SEENBYPLAYER)) {
+                                        setbit(m->flags, MF_SEENBYPLAYER);
+                                        dsprintf("%s comes into view!", Upper(a_an(m->name)));
+                                        schedule_monster(m);
+                                }
                         }
                 }
         }
@@ -517,6 +425,7 @@ bool place_monster_at(int y, int x, monster_t *monster, level_t *l)
         monster->y = y;
         if(monster_passable(l, y, x) && l->c[monster->y][monster->x].monster == NULL) {
                 l->c[monster->y][monster->x].monster = monster;
+                monster->path = TCOD_path_new_using_function(l->xsize, l->ysize, monster_path_callback_func, l, 1.0f);
                 return true;
         } else {
                 return false;
