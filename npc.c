@@ -87,7 +87,7 @@ void kill_npc(void *level, actor_t *m, actor_t *killer)
 void unspawn_npc(actor_t *m)
 {
         if(m) {
-fprintf(stderr, "DEBUG: %s:%d - Unspawning NPC %s!\n", __FILE__, __LINE__, m->name);
+fprintf(stderr, "  DEBUG: %s:%d - Unspawning NPC %s!\n", __FILE__, __LINE__, m->name);
                 m->prev->next = m->next;
                 if(m->next)
                         m->next->prev = m->prev;

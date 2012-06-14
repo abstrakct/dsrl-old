@@ -28,34 +28,46 @@ int numcommands;
 cmd_t *curcommands;
 
 /*           keycode         char pressed lalt lctrl ralt rctrl shift */
-cmd_t outsidecommands[] = {
+cmd_t normalcommands[] = {
+        // movement
         { { TCODK_DOWN,         0,   1,     0,   0,   0,    0,    0 }, CMD_DOWN,        "Move down" },
         { { TCODK_CHAR,       'j',   1,     0,   0,   0,    0,    0 }, CMD_DOWN,        "Move down" },
+        { { TCODK_KP2,          0,   1,     0,   0,   0,    0,    0 }, CMD_DOWN,        "Move down" },
         { { TCODK_UP,           0,   1,     0,   0,   0,    0,    0 }, CMD_UP,          "Move up" },
         { { TCODK_CHAR,       'k',   1,     0,   0,   0,    0,    0 }, CMD_UP,          "Move up" },
+        { { TCODK_KP8,          0,   1,     0,   0,   0,    0,    0 }, CMD_UP,          "Move up" },
         { { TCODK_LEFT,         0,   1,     0,   0,   0,    0,    0 }, CMD_LEFT,        "Move left" },
         { { TCODK_CHAR,       'h',   1,     0,   0,   0,    0,    0 }, CMD_LEFT,        "Move left" },
+        { { TCODK_KP4,          0,   1,     0,   0,   0,    0,    0 }, CMD_LEFT,        "Move left" },
         { { TCODK_RIGHT,        0,   1,     0,   0,   0,    0,    0 }, CMD_RIGHT,       "Move right" },
         { { TCODK_CHAR,       'l',   1,     0,   0,   0,    0,    0 }, CMD_RIGHT,       "Move right" },
+        { { TCODK_KP6,          0,   1,     0,   0,   0,    0,    0 }, CMD_RIGHT,       "Move right" },
         { { TCODK_CHAR,       'y',   1,     0,   0,   0,    0,    0 }, CMD_NW,          "Move up-left" },
+        { { TCODK_KP7,          0,   1,     0,   0,   0,    0,    0 }, CMD_NW,          "Move up-left" },
         { { TCODK_CHAR,       'u',   1,     0,   0,   0,    0,    0 }, CMD_NE,          "Move up-right" },
+        { { TCODK_KP9,          0,   1,     0,   0,   0,    0,    0 }, CMD_NE,          "Move up-right" },
         { { TCODK_CHAR,       'b',   1,     0,   0,   0,    0,    0 }, CMD_SW,          "Move down-left" },
+        { { TCODK_KP1,          0,   1,     0,   0,   0,    0,    0 }, CMD_SW,          "Move down-left" },
         { { TCODK_CHAR,       'n',   1,     0,   0,   0,    0,    0 }, CMD_SE,          "Move down-right" },
+        { { TCODK_KP3,          0,   1,     0,   0,   0,    0,    0 }, CMD_SE,          "Move down-right" },
+
+        // actions
         { { TCODK_CHAR,       'w',   0,     0,   0,   0,    0,    0 }, CMD_WIELDWEAR,   "Wield or wear an item" },
         { { TCODK_CHAR,       'r',   0,     0,   0,   0,    0,    0 }, CMD_UNWIELDWEAR, "Remove or unwield an item" },
         { { TCODK_CHAR,       ',',   1,     0,   0,   0,    0,    0 }, CMD_PICKUP,      "Pick up something" },
         { { TCODK_CHAR,       '.',   1,     0,   0,   0,    0,    0 }, CMD_REST,        "Rest one turn" },
-        //{ { TCODK_CHAR,       '<',   1,     0,   0,   0,    0,    0 }, CMD_ASCEND,      "Go up stairs" },
-        //{ { TCODK_CHAR,       '>',   1,     0,   0,   0,    0,    0 }, CMD_DESCEND,     "Go down stairs" },
-        { { TCODK_CHAR,       '<',   1,     0,   0,   0,    0,    0 }, CMD_USE_EXIT,    "Use exit" },
-        { { TCODK_CHAR,       '>',   1,     0,   0,   0,    0,    0 }, CMD_USE_EXIT,    "Use exit" },
+        { { TCODK_CHAR,       '<',   1,     0,   0,   0,    0,    0 }, CMD_ASCEND,      "Go up stairs" },
+        { { TCODK_CHAR,       '>',   1,     0,   0,   0,    0,    1 }, CMD_DESCEND,     "Go down stairs" },
         { { TCODK_CHAR,       'd',   0,     0,   0,   0,    0,    0 }, CMD_DROP,        "Drop an object" },
+        //{ { TCODK_CHAR,       'q',   0,     0,   0,   0,    0,    0 }, CMD_QUAFF,       "Quaff a potion" },
+        //{ { TCODK_CHAR,       'o',   1,     0,   0,   0,    0,    0 }, CMD_AUTOEXPLORE, "Autoexplore" },
         //{ { TCODK_CHAR,       'i', 1, 0, 0, 0, 0, 0 }, CMD_INVENTORY,   "Show inventory" },
         //{ TCODK_F5,  CMD_SAVE,        "Save" },
         //{ TCODK_F6,  CMD_LOAD,        "Load" },
 #ifdef DEVELOPMENT_MODE
         { { TCODK_F1,           0, 1, 0, 0, 0, 0, 0 }, CMD_WIZARDMODE,  "Toggle wizard mode" },
-        //{ TCODK_F2,  CMD_INCTIME,     "Time travel!?" },
+        { { TCODK_F2,           0, 1, 0, 0, 0, 0, 0 }, CMD_DUMPOBJECTS, "" },
+        { { TCODK_F5,           0, 1, 0, 0, 0, 0, 0 }, CMD_SAVE,        "Save game" },
         { { TCODK_CHAR,       '+', 1, 0, 0, 0, 0, 0 }, CMD_INCFOV,      "Increase FOV" },
         { { TCODK_CHAR,       '-', 1, 0, 0, 0, 0, 0 }, CMD_DECFOV,      "Decrease FOV" },
         { { TCODK_CHAR,       'f', 1, 0, 0, 0, 0, 0 }, CMD_FLOODFILL,   "Floodfill (debug)" },
@@ -65,15 +77,11 @@ cmd_t outsidecommands[] = {
         { { TCODK_HOME,        0,  1, 0, 0, 0, 0, 0 }, CMD_LONGLEFT,    "" },
         { { TCODK_END,         0,  1, 0, 0, 0, 0, 0 }, CMD_LONGRIGHT,   "" },
 
-        /*{ { TCODK_CHAR,       'K', 1, 0, 0, 0, 0, 0 }, CMD_LONGUP,      "" },
-        { { TCODK_CHAR,       'J', 1, 0, 0, 0, 0, 0 }, CMD_LONGDOWN,    "" },
-        { { TCODK_CHAR,       'H', 1, 0, 0, 0, 0, 0 }, CMD_LONGLEFT,    "" },
-        { { TCODK_CHAR,       'L', 1, 0, 0, 0, 0, 0 }, CMD_LONGRIGHT,   "" },*/
+        { { TCODK_CHAR,       'K', 1, 0, 0, 0, 0, 1 }, CMD_LONGUP,      "" },
+        { { TCODK_CHAR,       'J', 1, 0, 0, 0, 0, 1 }, CMD_LONGDOWN,    "" },
+        { { TCODK_CHAR,       'H', 1, 0, 0, 0, 0, 1 }, CMD_LONGLEFT,    "" },
+        { { TCODK_CHAR,       'L', 1, 0, 0, 0, 0, 1 }, CMD_LONGRIGHT,   "" },
         { { TCODK_CHAR,       'v', 1, 0, 0, 0, 0, 0 }, CMD_TOGGLEFOV,   "Toggle FOV" },
-        //{ KEY_F(4),  CMD_DUMPOBJECTS, "Dump objects" },
-        { { TCODK_CHAR,       'o', 1, 0, 0, 0, 0, 0 }, CMD_DUMPOBJECTS, "" },
-        { { TCODK_CHAR,       'c', 1, 0, 0, 0, 0, 0 }, CMD_DUMPCOLORS, "" },
-        { { TCODK_CHAR,       'p', 1, 0, 0, 0, 0, 0 }, CMD_PATHFINDER, "" },
 #endif
         //{ , CMD_IDENTIFYALL, "Identify everything" },
         //{ , CMD_SKILLSCREEN, "Show skills" },
@@ -120,7 +128,7 @@ int get_command()
 
 void init_commands()
 {
-        curcommands = outsidecommands;
-        numcommands = (sizeof(outsidecommands) / sizeof(cmd_t));
+        curcommands = normalcommands;
+        numcommands = (sizeof(normalcommands) / sizeof(cmd_t));
 }
 // vim: fdm=syntax guifont=Terminus\ 8
