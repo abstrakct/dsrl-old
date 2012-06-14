@@ -47,6 +47,7 @@ typedef struct {                              // game_t
         short          createdareas;         // number of areas which have been created
         int            num_objects;             // number of spawned objects
         int            num_monsters;            // number of spawned monsters
+        int            num_npcs;
         bool           wizardmode;              // yay!
         char           savefile[255];           // filename of the save file for this game
         obj_t         *objects[2000];

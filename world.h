@@ -60,6 +60,7 @@ typedef struct {                 // cell_t
         signed int   height;
         short        exitindex;
         monster_t   *monster;
+        actor_t     *npc;
         inv_t       *inventory;
 } cell_t;
 
@@ -68,9 +69,10 @@ struct levelstruct {
         short       level, type;
         int         zero;           // for defining the "zero" level of a heightmap (i.e. the mean value)
         int         lakelimit;
-        cell_t    **c;
-        monster_t  *monsters;      // point to head of linked lists of monsters on this level
-        obj_t      *objects;
+        cell_t      **c;
+        monster_t   *monsters;      // point to head of linked lists of monsters on this level
+        obj_t       *objects;
+        actor_t     *npcs;
         exit_t      exit[10];
         TCOD_map_t  map;
 };

@@ -19,6 +19,7 @@
 #include "world.h"
 #include "datafiles.h"
 #include "display.h"
+#include "npc.h"
 #include "dstime.h"
 #include "dsrl.h"
 
@@ -77,6 +78,7 @@ void init_level(level_t *level)
 
         level->c = (cell_t **) dsmalloc2d(level->ysize, level->xsize, sizeof(cell_t));
         level->monsters = dsmalloc(sizeof(monster_t));
+        level->npcs     = dsmalloc(sizeof(actor_t));
 }
 
 /**
@@ -826,6 +828,7 @@ void generate_collinwood()
         spawn_monsters(ri(1,3), 3, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         spawn_golds(ri(1, 2), 30, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         spawn_objects(4, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
+        spawn_npcs(ri(1,10), &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
 
         world->area[AREA_COLLINWOOD_MAIN_FLOOR].map = TCOD_map_new(world->area[AREA_COLLINWOOD_MAIN_FLOOR].xsize, world->area[AREA_COLLINWOOD_MAIN_FLOOR].ysize);
         newfov_initmap(&world->area[AREA_COLLINWOOD_MAIN_FLOOR]);

@@ -376,6 +376,9 @@ void draw_map(level_t *level)
                                         if(TCOD_map_is_in_fov(level->map, i, j) && level->c[j][i].monster /*&& actor_in_lineofsight(player, level->c[j][i].monster)*/)
                                                 dsmapaddch(dy, dx, TCOD_red, level->c[j][i].backcolor, (char) level->c[j][i].monster->c);
 
+                                        if(TCOD_map_is_in_fov(level->map, i, j) && level->c[j][i].npc)
+                                                dsmapaddch(dy, dx, TCOD_blue, TCOD_black, '@');
+
                                         if(j == ply && i == plx)
                                                 dsmapaddch(dy, dx, TCOD_blue, level->c[j][i].backcolor, '@');
                                 }

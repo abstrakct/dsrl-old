@@ -343,6 +343,8 @@ bool do_action(action_t *aqe)
                                         a_victim = world->curlevel->c[ply-1][plx].monster;
                                         setup_attack();
                                         break;
+                                } else if(world->curlevel->c[ply-1][plx].npc) {
+                                        dsprintf("%s is standing in your way.", world->curlevel->c[ply-1][plx].npc->name);
                                 } else
                                         ply--;
                         } else {
