@@ -70,6 +70,17 @@ int dice(int num, int sides, signed int modifier)
         return result;
 }
 
+bool trueorfalse()
+{
+        int i;
+
+        i = perc(50);
+        if(i)
+                return true;
+        else
+                return false;
+}
+
 int perc(int i)
 {
         int x;

@@ -37,6 +37,7 @@ void   dsfree(void *ptr);
 int dice(int num, int sides, signed int modifier);
 int perc(int i);
 int ri(int a, int b);
+bool trueorfalse();
 
 void you(char *fmt, ...);
 void youc(TCOD_color_t color, char *fmt, ...);

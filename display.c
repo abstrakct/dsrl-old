@@ -215,7 +215,7 @@ void draw_left()
         TCOD_console_set_default_foreground(game->left.c, TCOD_light_blue);
         TCOD_console_print(game->left.c, (game->left.w/2)-(strlen(player->name)/2), i+1, "%c %s %c", 236, player->name, 236);
         TCOD_console_set_default_foreground(game->left.c, TCOD_white);
-        TCOD_console_print(game->left.c, (game->left.w/2)-9, i+2, "%02d:%02d - %s %d, %d", game->t.hour, game->t.minute, monthstring[game->t.month], game->t.day, game->t.year);
+        TCOD_console_print(game->left.c, (game->left.w/2)-9, i+2, "%s %d, %d - %02d:%02d", monthstring[game->t.month], game->t.day, game->t.year, game->t.hour, game->t.minute);
 
         i++;
         TCOD_console_print(game->left.c, 1, i+3, "Weapon: %s", player->weapon ? player->weapon->fullname : "bare hands");

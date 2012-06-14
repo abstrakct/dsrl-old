@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "saveload.h"
 #include "commands.h"
+#include "npc-names.h"
 #include "dstime.h"
 #include "dsrl.h"
 
@@ -998,7 +999,8 @@ void do_turn()
                 look_for_monsters();
                 increase_ticks(1);
                 
-                s = d(1, 10);
+                //s = d(1, 10);
+                s = 1;
                 inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
                 inc_second(&game->total, s);
 
