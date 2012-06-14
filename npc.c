@@ -178,7 +178,13 @@ void spawn_npc(actor_t *head)
         tmp = head->next;
         head->next = dsmalloc(sizeof(actor_t));
         
-        generate_npc_name(head->next->name, trueorfalse());
+        if(trueorfalse()) {
+                generate_npc_name(head->next->name, true);
+                setbit(head->next->flags, MF_MALE);
+        } else {
+                generate_npc_name(head->next->name, false);
+                clearbit(head->next->flags, MF_MALE);
+        }
         head->next->speed = 10;
 
         hpadj = head->next->level * 2;
