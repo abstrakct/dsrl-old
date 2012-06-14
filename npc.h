@@ -9,5 +9,7 @@
 #define _NPC_H
 
 void spawn_npcs(int num, void *p);
+void process_npcs(level_t *l);
+void move_npc(actor_t *m);
 
 #endif

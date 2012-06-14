@@ -377,7 +377,7 @@ void draw_map(level_t *level)
                                                 dsmapaddch(dy, dx, TCOD_red, level->c[j][i].backcolor, (char) level->c[j][i].monster->c);
 
                                         if(TCOD_map_is_in_fov(level->map, i, j) && level->c[j][i].npc)
-                                                dsmapaddch(dy, dx, TCOD_blue, TCOD_black, '@');
+                                                dsmapaddch(dy, dx, TCOD_green, TCOD_black, '@');
 
                                         if(j == ply && i == plx)
                                                 dsmapaddch(dy, dx, TCOD_blue, level->c[j][i].backcolor, '@');
@@ -471,14 +471,15 @@ void init_display()
         	//dsconfig.rows *= 2;
         } else {
                 sprintf(font, "fonts/df.png");
+                sprintf(font, "fonts/terminal8x14_gs_ro.png");
+                TCOD_console_set_custom_font(font, TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
                 dsconfig.rows = screenheight / 28;
                 dsconfig.cols = screenwidth  / 30;
         }
 
 	//sprintf(font, "fonts/font-%i.png", fontsize);
 	
-	sprintf(font, "fonts/terminal8x14_gs_ro.png");
-        TCOD_console_set_custom_font(font, TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
+        TCOD_console_set_custom_font(font, /*TCOD_FONT_TYPE_GREYSCALE |*/ TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
 
         TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_SDL);
 	TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);

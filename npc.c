@@ -24,10 +24,140 @@
 #include "npc-names.h"
 #include "dsrl.h"
 
+void npc_ai(actor_t *m)
+{
+        int dir, ox, oy;
+
+        //dsprintf("hello it's simpleai!");
+        dir = ri(1,9);
+        ox = m->x; oy = m->y;
+
+        switch(dir) {
+                case 1:
+                        m->x--;
+                        m->y++;
+                        break;
+                case 2: 
+                        m->y++;
+                        break;
+                case 3:
+                        m->y++;
+                        m->x++;
+                        break;
+                case 4:
+                        m->x--;
+                        break;
+                case 5: 
+                        break;
+                case 6:
+                        m->x++;
+                        break;
+                case 7:
+                        m->x--;
+                        m->y--;
+                        break;
+                case 8:
+                        m->y--;
+                        break;
+                case 9:
+                        m->x++;
+                        m->y--;
+                        break;
+        }
+
+        if(m->x == plx && m->y == ply) {
+                m->x = ox; m->y = oy;
+                //attack(m, player);
+        }
+
+        if(monster_passable(world->curlevel, m->y, m->x)) {
+                world->cmap[oy][ox].npc = NULL;
+                world->cmap[m->y][m->x].npc = m;
+        } else {
+                m->x = ox; m->y = oy;
+        }
+}
+
+void process_npcs(level_t *l)
+{
+        actor_t *m;
+
+        //dsprintf("processing npcs...");
+
+        m = l->npcs;
+        if(!m)
+                return;
+
+
+        while(m) {
+                m = m->next;
+                while(m && hasbit(m->flags, MF_ISDEAD))
+                        m = m->next;
+
+                if(m) {
+                        //if(!hasbit(m->flags, MF_SEENBYPLAYER)) {
+                        //        setbit(m->flags, MF_SEENBYPLAYER);
+                        //        dsprintf("%s comes into view!", Upper((m->name)));
+                                schedule_npc(m);
+                        //}
+                }
+        }
+}
+
+/**
+ * @brief Make a move for a specific npc. 
+ *
+ * @param m NPC to move.
+ *
+ */
+void move_npc(actor_t *m)
+{
+        //int i;
+
+        //dsprintf("moving NPC %s", m->name);
+
+        if(!m) {
+                fprintf(stderr, "DEBUG: %s:%d - no such npc!\n", __FILE__, __LINE__);
+                return;
+        }
+
+        if(hasbit(m->flags, MF_ISDEAD)) {
+                //fprintf(stderr, "DEBUG: %s:%d - monster is dead!\n", __FILE__, __LINE__);
+                return;
+        }
+
+        if(hasbit(m->flags, MF_SLEEPING)) {
+                if(actor_in_lineofsight(m, player))
+                        clearbit(m->flags, MF_SLEEPING);
+        }
+
+        /*if(!hasbit(m->flags, MF_SLEEPING)) {
+                hostile_ai(m);
+                if(m->hp < m->maxhp) {
+                        i = 17 - m->attr.phy;
+                        if(i <= 0)
+                                i = 1;
+                        if(game->tick % i) {
+                                if(perc(40+m->attr.phy)) {
+                                        int j;
+
+                                        j = ability_modifier(m->attr.phy);
+                                        if(j < 1)
+                                                j = 1;
+                                        heal_monster(m, ri(1, j));
+                                }
+                        }
+                }
+        }*/
+
+        npc_ai(m);
+        schedule_npc(m);
+}
+
 /*
  * place a spawned npc at (y,x)
  */
-bool place_npc_at(int y, int x, monster_t *npc, level_t *l)
+bool place_npc_at(int y, int x, actor_t *npc, level_t *l)
 {
         npc->x = x;
         npc->y = y;
@@ -49,6 +179,7 @@ void spawn_npc(actor_t *head)
         head->next = dsmalloc(sizeof(actor_t));
         
         generate_npc_name(head->next->name, trueorfalse());
+        head->next->speed = 10;
 
         hpadj = head->next->level * 2;
         head->next->maxhp += ri((-(hpadj/2)), hpadj);

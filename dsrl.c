@@ -29,6 +29,7 @@
 #include "saveload.h"
 #include "commands.h"
 #include "npc-names.h"
+#include "npc.h"
 #include "dstime.h"
 #include "dsrl.h"
 
@@ -673,6 +674,10 @@ bool do_action(action_t *aqe)
                         if(aqe)
                                 move_monster(aqe->monster);
                         break;
+                case ACTION_MOVE_NPC:
+                        if(aqe)
+                                move_npc(aqe->monster);
+                        break;
                 case ACTION_PLAYER_NEXTMOVE:
                         process_player_input();
 
@@ -784,6 +789,16 @@ void schedule_monster(monster_t *m)
         act[i].monster = m;
 
         //dsprintfc(COLOR_SKYBLUE, "Scheduled monster %s at tick %d", m->name, act[i].tick);
+}
+
+void schedule_npc(actor_t *m)
+{
+        int i;
+
+        i = schedule_action(ACTION_MOVE_NPC, m);
+        act[i].monster = m;
+
+        dsprintfc(TCOD_sky, "Scheduled NPC %s at tick %d", m->name, act[i].tick);
 }
 
 void unschedule_all_monsters()
@@ -988,8 +1003,8 @@ void do_turn()
                 dsprintf("animating.....");
         } else {*/
 
-
         look_for_monsters();
+        //process_npcs(world->curlevel);
         update_screen();
 
         // autoexplore
@@ -1295,6 +1310,7 @@ int main(int argc, char *argv[])
         initial_update_screen();
 
         schedule_action_delayed(ACTION_PLAYER_NEXTMOVE, player, 0, 1);
+        process_npcs(world->curlevel);
 
         game_loop();
 

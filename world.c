@@ -826,9 +826,9 @@ void generate_collinwood()
         insert_areadef_at(&world->area[AREA_COLLINWOOD_MAIN_FLOOR], 1, 1, AREA_COLLINWOOD_MAIN_FLOOR);
 
         spawn_monsters(ri(1,3), 3, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
+        spawn_npcs(ri(1,10), &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         spawn_golds(ri(1, 2), 30, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
         spawn_objects(4, &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
-        spawn_npcs(ri(1,10), &world->area[AREA_COLLINWOOD_MAIN_FLOOR]);
 
         world->area[AREA_COLLINWOOD_MAIN_FLOOR].map = TCOD_map_new(world->area[AREA_COLLINWOOD_MAIN_FLOOR].xsize, world->area[AREA_COLLINWOOD_MAIN_FLOOR].ysize);
         newfov_initmap(&world->area[AREA_COLLINWOOD_MAIN_FLOOR]);

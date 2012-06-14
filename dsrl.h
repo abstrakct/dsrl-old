@@ -109,6 +109,7 @@ typedef struct action {
 #define ACTION_USE_EXIT          21
 #define ACTION_MOVE_MONSTER      22
 #define ACTION_PLAYER_NEXTMOVE   23
+#define ACTION_MOVE_NPC          24
 
 #define TICKS_MOVEMENT  1000
 #define TICKS_ATTACK    1000
@@ -161,6 +162,7 @@ void queuemany(actor_t *actor, int first, ...);
 void schedule_actionx(int num, int action, actor_t *actor);
 void unschedule_all_monsters();
 void schedule_monster(monster_t *m);
+void schedule_npc(actor_t *m);
 void unschedule_action(int index);
 int schedule_action_immediately(int action, actor_t *actor);
 int schedule_action_delayed(int action, actor_t *actor, obj_t *object, int delay);
