@@ -979,6 +979,7 @@ void increase_ticks(int i)
 void do_turn()
 {
         int i, s;
+        //char test[100];
 
         /*if(animate_only) {
                 // Add cool animations here?!
@@ -1003,6 +1004,9 @@ void do_turn()
                 s = 1;
                 inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
                 inc_second(&game->total, s);
+
+                //generate_npc_name(test, trueorfalse());
+                //dsprintf("Generated name %s!", test);
 
                 update_screen();
         }
