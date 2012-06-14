@@ -798,7 +798,7 @@ void schedule_npc(actor_t *m)
         i = schedule_action(ACTION_MOVE_NPC, m);
         act[i].monster = m;
 
-        dsprintfc(TCOD_sky, "Scheduled NPC %s at tick %d", m->name, act[i].tick);
+        //dsprintfc(TCOD_sky, "Scheduled NPC %s at tick %d", m->name, act[i].tick);
 }
 
 void unschedule_all_monsters()
