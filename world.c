@@ -678,6 +678,9 @@ bool passable(level_t *l, int y, int x)
         if(game->wizardmode)   // if we are in wizard mode, anything goes!
                 return true;
 
+        if(l->c[y][x].npc)
+                return false; // change this when we add interaction with npcs?!
+
         type = l->c[y][x].type;
 
         if(type == CELL_WALL)
@@ -701,6 +704,9 @@ bool monster_passable(level_t *l, int y, int x)
         int type;
 
         if(l->c[y][x].monster)
+                return false;
+        
+        if(l->c[y][x].npc)
                 return false;
         
         if(y < 0)
