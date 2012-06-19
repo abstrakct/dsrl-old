@@ -18,6 +18,7 @@
 #include <libconfig.h>
 #include <getopt.h>
 
+#include "npc-names.h"
 #include "objects.h"
 #include "actor.h"
 #include "monsters.h"
@@ -28,7 +29,6 @@
 #include "debug.h"
 #include "saveload.h"
 #include "commands.h"
-#include "npc-names.h"
 #include "npc.h"
 #include "dstime.h"
 #include "dsrl.h"
@@ -313,6 +313,9 @@ bool do_action(action_t *aqe)
 
         switch(aqe->action) {
                 case ACTION_PLAYER_MOVE_DOWN:
+                        if(world->curlevel->c[ply+1][plx].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply+1][plx].npc->name);
+
                         if(passable(world->curlevel, ply+1, plx)) {
                                 if(world->curlevel->c[ply+1][plx].monster) {
                                         a_attacker = player;
@@ -338,14 +341,15 @@ bool do_action(action_t *aqe)
                                 ppy = 0;
                         break;
                 case ACTION_PLAYER_MOVE_UP:
+                        if(world->curlevel->c[ply-1][plx].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply-1][plx].npc->name);
+
                         if(passable(world->curlevel, ply-1,plx)) {
                                 if(world->curlevel->c[ply-1][plx].monster) {
                                         a_attacker = player;
                                         a_victim = world->curlevel->c[ply-1][plx].monster;
                                         setup_attack();
                                         break;
-                                } else if(world->curlevel->c[ply-1][plx].npc) {
-                                        dsprintf("%s is standing in your way.", world->curlevel->c[ply-1][plx].npc->name);
                                 } else
                                         ply--;
                         } else {
@@ -363,6 +367,9 @@ bool do_action(action_t *aqe)
                                 ppy = 0;
                         break;
                 case ACTION_PLAYER_MOVE_LEFT:
+                        if(world->curlevel->c[ply][plx-1].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply][plx-1].npc->name);
+
                         if(passable(world->curlevel, ply, plx-1)) {
                                 if(world->curlevel->c[ply][plx-1].monster) {
                                         a_attacker = player;
@@ -386,6 +393,9 @@ bool do_action(action_t *aqe)
                                 ppx = 0;
                         break;
                 case ACTION_PLAYER_MOVE_RIGHT:
+                        if(world->curlevel->c[ply][plx+1].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply][plx+1].npc->name);
+
                         if(passable(world->curlevel, ply,plx+1)) {
                                 if(world->curlevel->c[ply][plx+1].monster) {
                                         a_attacker = player;
@@ -411,6 +421,9 @@ bool do_action(action_t *aqe)
                                 ppx = 0;
                         break;
                 case ACTION_PLAYER_MOVE_NW:
+                        if(world->curlevel->c[ply-1][plx-1].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply-1][plx-1].npc->name);
+
                         if(passable(world->curlevel, ply-1,plx-1)) {
                                 if(world->curlevel->c[ply-1][plx-1].monster) {
                                         a_attacker = player;
@@ -445,6 +458,9 @@ bool do_action(action_t *aqe)
                                 ppx = 0;
                         break;
                 case ACTION_PLAYER_MOVE_NE:
+                        if(world->curlevel->c[ply-1][plx+1].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply-1][plx+1].npc->name);
+
                         if(passable(world->curlevel, ply-1,plx+1)) {
                                 if(world->curlevel->c[ply-1][plx+1].monster) {
                                         a_attacker = player;
@@ -482,6 +498,9 @@ bool do_action(action_t *aqe)
                                 ppy = 0;
                         break;
                 case ACTION_PLAYER_MOVE_SW:
+                        if(world->curlevel->c[ply+1][plx-1].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply+1][plx-1].npc->name);
+
                         if(passable(world->curlevel, ply+1, plx-1)) {
                                 if(world->curlevel->c[ply+1][plx-1].monster) {
                                         a_attacker = player;
@@ -517,6 +536,9 @@ bool do_action(action_t *aqe)
                                 ppx = 0;
                         break;
                 case ACTION_PLAYER_MOVE_SE:
+                        if(world->curlevel->c[ply+1][plx+1].npc)
+                                dsprintf("%s is standing in your way.", world->curlevel->c[ply+1][plx+1].npc->name);
+
                         if(passable(world->curlevel, ply+1, plx+1)) {
                                 if(world->curlevel->c[ply+1][plx+1].monster) {
                                         a_attacker = player;
@@ -637,6 +659,7 @@ bool do_action(action_t *aqe)
                         game->currentlevel = src->location;
                         newfov_initmap(&world->area[src->location]);
                         player->path = TCOD_path_new_using_map(world->curlevel->map, 1.0f);
+                        process_npcs(world->curlevel);
                         update_screen();
 
                         //ply = world->curlevel->exit[world->curlevel->c[tmpy][tmpx].exitindex].

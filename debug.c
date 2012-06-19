@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "npc-names.h"
 #include "objects.h"
 #include "actor.h"
 #include "monsters.h"

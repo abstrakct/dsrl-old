@@ -69,12 +69,30 @@ typedef struct { // uattr_t
 
 #define PROTECTIONS 2
 
+enum relation_e {
+        father,
+        mother,
+        brother,
+        sister,
+        cousin,
+        son,
+        daughter,
+        friend,
+        enemy,
+        acquaintance,
+        like,
+        dislike
+};
+
+#define MAX_RELATIONS 15;
+
 typedef struct actorstruct {                               // actor_t 
         short        id;                                   // id = monsterdef id
         unsigned int mid;                                  // mid = unique id for this monster; in monsterdefs mid = index into aitable! (that should work right?)
         short        x, y, oldx, oldy, px, py;
         char         viewradius;
         char         name[50];
+        enum fam     family;
         int          hp, maxhp;
         int          xp;
         char         ac;
@@ -103,7 +121,18 @@ typedef struct actorstruct {                               // actor_t
         struct actorstruct *next;
         struct actorstruct *attacker;
         struct actorstruct *head;
+
+        /* NPC specific stuff (relations etc.) */
+        int birth, death, children;
+        struct actorstruct *spouse;
+        struct actorstruct *father;
+        struct actorstruct *mother;
+        struct actorstruct *cousin[10];
+        struct actorstruct *brother[3];
+        struct actorstruct *sister[3];
+        struct actorstruct *child[6];
 } actor_t;
+
 
 #define is_invisible(a) (hasbit(a->flags, MF_INVISIBLE))
 

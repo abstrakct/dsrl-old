@@ -12,28 +12,20 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include "npc-names.h"
+#include "objects.h"
+#include "actor.h"
 #include "utils.h"
 
 
-enum family {
-        stoddard,
-        evans,
-        loomis,
-        stokes,
-        bradford,
-        blair,
-        trask,
+
+// last one must always be Collins!
+char *familyname[] = {
+        "Evans", "Loomis", "Stokes", "Bradford", "Blair", "Trask", "Stoddard", "Malloy", "McGuire", "Patterson", "Peterson", "Devlin", "Morgan", "Drummond", "Chavez", "Forbes", "Woodard", "Winters", "Braithwaite", "Hanley", "Hackett", "Gifford", "Garner", "Faye", "DuPres", "Murdoch", "Stockbridge", "Collins"
 };
 
-char *commonlastname[] = {
-        "Evans", "Loomis", "Stokes", "Bradford", "Blair", "Trask", "Stoddard"
-};
-#define COMMON_LAST_NAMES 7
-
-char *uncommonlastname[] = {
-        "Malloy", "McGuire", "Patterson", "Peterson", "Devlin", "Morgan", "Drummond", "Chavez", "Forbes", "Woodard", "Winters", "Braithwaite", "Hanley", "Hackett", "Gifford", "Garner", "Faye", "DuPres"
-};
-#define UNCOMMON_LAST_NAMES 16
+#define COMMON_LAST_NAMES_END 6
+#define UNCOMMON_LAST_NAMES_END 26
 
 char *malegivenname[] = {
 "Aaron", "Abdul", "Abe", "Abel", "Abraham", "Abram", "Adalberto", "Adam", "Adan", "Adolfo", "Adolph", "Adrian", "Agustin",
@@ -478,30 +470,37 @@ char *femalegivenname[] = {
 #define FEMALE_GIVEN_NAMES 4273
 
 
-void generate_npc_name(char *result, bool male)
+void generate_npc_name(void *a, bool male, bool firstnameonly)
 {
-        char name[100];
         int i, j;
+        actor_t *actor;
+
+        actor = (actor_t *) a;
 
         if (male) {
-                i = d(1, MALE_GIVEN_NAMES);
-                strcpy(name, malegivenname[i]);
+                i = ri(0, MALE_GIVEN_NAMES);
+                strcpy(actor->name, malegivenname[i]);
         } else {
-                i = d(1, FEMALE_GIVEN_NAMES);
-                strcpy(name, femalegivenname[i]);
+                i = ri(0, FEMALE_GIVEN_NAMES);
+                strcpy(actor->name, femalegivenname[i]);
         }
 
-        j = ri(1, 100);
-        if(j <= 66) {
-                strcat(name, " Collins");
-        } else if(j > 66 && j < 90) {
-                i = ri(0, COMMON_LAST_NAMES);
-                sprintf(name, "%s %s", name, commonlastname[i]);
-        } else if(j >= 85) {
-                i = ri(0, UNCOMMON_LAST_NAMES);
-                sprintf(name, "%s %s", name, uncommonlastname[i]);
+        if(!firstnameonly) {
+                j = ri(1, 100);
+                // TODO: change percentages? too much collins?
+                if(j <= 66) {
+                        strcat(actor->name, " Collins");
+                } else if(j > 66 && j < 88) {
+                        i = ri(0, COMMON_LAST_NAMES_END);
+                        strcat(actor->name, " ");
+                        strcat(actor->name, familyname[i]);
+                        actor->family = i;
+                } else if(j >= 88) {
+                        i = ri(COMMON_LAST_NAMES_END+1, UNCOMMON_LAST_NAMES_END);
+                        strcat(actor->name, " ");
+                        strcat(actor->name, familyname[i]);
+                        actor->family = i;
+                }
         }
-
-        strcpy(result, name);
 }
 // vim: fdm=syntax guifont=Terminus\ 8

@@ -11,6 +11,7 @@
 #include <libconfig.h>
 #include <stdbool.h>
 
+#include "npc-names.h"
 #include "objects.h"
 #include "o_effects.h"
 #include "actor.h"

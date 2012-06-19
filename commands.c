@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <libtcod/libtcod.h>
 
+#include "npc-names.h"
 #include "objects.h"
 #include "actor.h"
 #include "monsters.h"
@@ -56,8 +57,8 @@ cmd_t normalcommands[] = {
         { { TCODK_CHAR,       'r',   0,     0,   0,   0,    0,    0 }, CMD_UNWIELDWEAR, "Remove or unwield an item" },
         { { TCODK_CHAR,       ',',   1,     0,   0,   0,    0,    0 }, CMD_PICKUP,      "Pick up something" },
         { { TCODK_CHAR,       '.',   1,     0,   0,   0,    0,    0 }, CMD_REST,        "Rest one turn" },
-        { { TCODK_CHAR,       '<',   1,     0,   0,   0,    0,    0 }, CMD_ASCEND,      "Go up stairs" },
-        { { TCODK_CHAR,       '>',   1,     0,   0,   0,    0,    1 }, CMD_DESCEND,     "Go down stairs" },
+        { { TCODK_CHAR,       '<',   1,     0,   0,   0,    0,    0 }, CMD_USE_EXIT,    "Use an exit/go up stairs" },
+        { { TCODK_CHAR,       '>',   1,     0,   0,   0,    0,    1 }, CMD_USE_EXIT,    "Use an exit/go down stairs" },
         { { TCODK_CHAR,       'd',   0,     0,   0,   0,    0,    0 }, CMD_DROP,        "Drop an object" },
         //{ { TCODK_CHAR,       'q',   0,     0,   0,   0,    0,    0 }, CMD_QUAFF,       "Quaff a potion" },
         //{ { TCODK_CHAR,       'o',   1,     0,   0,   0,    0,    0 }, CMD_AUTOEXPLORE, "Autoexplore" },

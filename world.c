@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+#include "npc-names.h"
 #include "objects.h"
 #include "actor.h"
 #include "monsters.h"
@@ -874,6 +875,7 @@ void generate_collinwood_study()
         //spawn_monsters(ri(1,3), 3, &world->area[AREA_COLLINWOOD_STUDY]);
         spawn_golds(ri(1, 2), 30, &world->area[AREA_COLLINWOOD_STUDY]);
         spawn_objects(4, &world->area[AREA_COLLINWOOD_STUDY]);
+        spawn_named_npc("Roger Collins", &world->area[AREA_COLLINWOOD_STUDY]);
 
         world->area[AREA_COLLINWOOD_STUDY].map = TCOD_map_new(world->area[AREA_COLLINWOOD_STUDY].xsize, world->area[AREA_COLLINWOOD_STUDY].ysize);
         newfov_initmap(&world->area[AREA_COLLINWOOD_STUDY]);
@@ -1017,6 +1019,8 @@ void generate_world()
         generate_collinwood_study();
         generate_collinwood();
         world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
+
+        generate_family(0, 0, collins, 1796);
 
 
 //        spawn_monsters(ri(75,125), 3, world->out); 

@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <libtcod/libtcod.h>
 
+#include "npc-names.h"
 #include "objects.h"
 #include "actor.h"
 #include "monsters.h"

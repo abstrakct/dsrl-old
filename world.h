@@ -89,6 +89,7 @@ typedef struct {
         level_t  *area;
         level_t  *curlevel;          // needed?
         cell_t   **cmap;
+        actor_t  *npcs;
 } world_t;
 
 typedef struct {
