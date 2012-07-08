@@ -26,6 +26,7 @@
 #include "dsrl.h"
 
 extern char *familyname[];
+actor_t *ancestor;            // move to world or somewhere?
 
 void npc_ai(actor_t *m)
 {
@@ -173,9 +174,38 @@ bool place_npc_at(int y, int x, actor_t *npc, level_t *l)
         }
 }
 
+/**
+ * @brief See if there are any NPCs in players LOS. If so, take note.
+ */
+void look_for_npcs()
+{
+        actor_t *m;
+
+        m = world->curlevel->npcs;
+        if(!m)
+                return;
+
+
+        while(m) {
+                m = m->next;
+                while(m && hasbit(m->flags, MF_ISDEAD))
+                        m = m->next;
+
+                if(m) {
+                        if(actor_in_lineofsight(player, m)) {
+                                if(!hasbit(m->flags, MF_SEENBYPLAYER)) {
+                                        setbit(m->flags, MF_SEENBYPLAYER);
+                                        dsprintf("%s (born %d) comes into view.", Upper(m->name), m->birth);
+                                        //schedule_monster(m);
+                                }
+                        }
+                }
+        }
+}
+
 #define MALE 1
 #define FEMALE 2
-actor_t *spawn_npc(actor_t *head, int gender, bool firstnameonly)
+actor_t *spawn_npc(actor_t *head, int gender, bool firstnameonly, int birthyear)
 {
         actor_t *tmp;
         int hpadj;
@@ -208,6 +238,8 @@ actor_t *spawn_npc(actor_t *head, int gender, bool firstnameonly)
         hpadj = head->next->level * 2;
         head->next->maxhp += ri((-(hpadj/2)), hpadj);
         head->next->hp = head->next->maxhp;
+        head->next->birth = birthyear;
+        head->next->death = birthyear + d(25, 4);
 
         head->next->next = tmp;
         head->next->prev = head;
@@ -254,7 +286,7 @@ void unspawn_npc(actor_t *m)
  */
 bool spawn_npc_at(int y, int x, actor_t *head, void *level)
 {
-        spawn_npc(head, 0, false);
+        spawn_npc(head, 0, false, 0);
         /*if(head->next->level > maxlevel) {
                 unspawn_npc(head->next);
                 return false;
@@ -329,15 +361,15 @@ bool set_child(actor_t *child, actor_t *father, actor_t *mother)
         return result;
 } 
 
-actor_t *add_child(actor_t *father, actor_t *mother)
+actor_t *add_child(actor_t *father, actor_t *mother, int year)
 {
         actor_t *child;
-        bool c;
+        //bool c;
 
         if(trueorfalse())
-                child = spawn_npc(world->npcs, MALE, true);
+                child = spawn_npc(world->npcs, MALE, true, year);
         else
-                child = spawn_npc(world->npcs, FEMALE, true);
+                child = spawn_npc(world->npcs, FEMALE, true, year);
 
         strcat(child->name, " ");
         strcat(child->name, familyname[(int)father->family]); 
@@ -345,98 +377,214 @@ actor_t *add_child(actor_t *father, actor_t *mother)
 
         child->father = father;
         child->mother = mother;
-        c = set_child(child, father, mother);
 
-        if(c)
-                printf("add_child: %s and %s has given birth to %s!\n", father->name, mother->name, child->name);
+        //c = set_child(child, father, mother);
+
+        //c = true;
+        //if(c)
+        //        printf("- Year %d: %s and %s has given birth to %s!\n", year, father->name, mother->name, child->name);
+
+        //if(!c) { // abort! (Sorry.... bad joke!)
+        //        unspawn_npc(child);
+        //        return 0;
+        //}
 
         return child;
 }
 
+void set_spouse(actor_t *a, actor_t *b)
+{
+        a->spouse = b;
+        b->spouse = a;
+        printf("%s and %s are now married! They will have %d children.\n", a->name, b->name, a->children);
+        //woman->family = man->family;
+}
 
+void remove_lastname(actor_t *a)
+{
+        int i;
+
+        for(i = 0; i < strlen(a->name); i++) {
+                if(a->name[i] == ' ')
+                        a->name[i] = '\0';
+        }
+}
+
+void generate_children_of(actor_t *man, actor_t *woman)
+{
+        int i, year;
+
+
+fprintf(stderr, "DEBUG: %s:%d - generate_children_of: generating the %d children of %s and %s.\n", __FILE__, __LINE__, man->children, man->name, woman->name);
+        
+        year = max(man->birth, woman->birth);
+        year += ri(18,25);
+        
+        for(i = 0; i < man->children; i++) {
+                man->child[i] = add_child(man, woman, year);
+fprintf(stderr, "DEBUG: %s:%d - generate_children_of: generated child %s (%s) (%d-%d).\n", __FILE__, __LINE__, man->child[i]->name, hasbit(man->child[i]->flags, MF_MALE) ? "male" : "female", man->child[i]->birth, man->child[i]->death);
+
+                year += ri(1, 6);
+
+                if(year >= game->t.year - 10)
+                        return;
+
+                //if(year >= man->death || year >= woman->death)      // let's not give birth after death... shouldn't happen, but just in case.
+                //        year = (min(man->death, woman->death)) - 5;
+        }
+}
 
 /**
- * @brief Generate/simulate a family!
+ * @brief Find a spouse for a. Keep it simple for now. Males get female spouses, females get male. Females take their husband's last name.
  *
- * @param man    The "first man"
- * @param woman  The "first woman" (his wife)
- * @param family Which family?
+ * TODO: search existing NPCs for suitable spouse.
+ *
+ * @param a pointer to actor need a spouse.
+ *
+ * @return pointer to actor_t of spouse.
  */
-void generate_family(actor_t *man, actor_t *woman, enum fam family, int startyear)
+actor_t *find_spouse(actor_t *a)
 {
-        int year, lastyear, i;
-        actor_t *child;
+        actor_t *spouse;
+        int i;
 
-        if((!man && !woman)) {
-                world->npcs = dsmalloc(sizeof(actor_t));
+        if(!a)
+                return 0;
 
-                man = spawn_npc(world->npcs, MALE, true);
-                strcat(man->name, " ");
-                strcat(man->name, familyname[(int)family]); 
-                man->family = family;
-                man->birth = startyear + ri(-5, 5);
-                man->death = man->birth + d(25, 3);
+        i = d(1, 6);
 
-                woman = spawn_npc(world->npcs, FEMALE, true);
-                strcat(woman->name, " ");
-                strcat(woman->name, familyname[(int)family]); 
-                woman->family = family;
-                woman->birth = startyear + ri(-5, 5);
-                woman->death = woman->birth + d(25, 3);
+        //if(a->father->children == 1)  {           // is an only child?
+        //        i = 5;
+        //}
 
-                printf("Spawned ancestors!\n");
-                printf("%s - %d-%d\n", man->name, man->birth, man->death);
-                printf("%s - %d-%d\n", woman->name, woman->birth, woman->death);
-        }
-
-        if(!man && woman) {
-                man = spawn_npc(world->npcs, MALE, true);
-                strcat(man->name, " ");
-                strcat(man->name, familyname[(int)family]); 
-                man->family = family;
-                man->birth = startyear;
-                man->death = man->birth + d(25, 3);
-        }
-
-        if(man && !woman) {
-                woman = spawn_npc(world->npcs, FEMALE, true);
-                strcat(woman->name, " ");
-                strcat(woman->name, familyname[(int)family]); 
-                woman->family = family;
-                woman->birth = startyear;
-                woman->death = woman->birth + d(25, 3);
-        }
-
-        if(man->birth < woman->birth)
-                year = man->birth;
-        else
-                year = woman->birth;
-
-        year += ri(20, 22);
-        lastyear = man->death;
-
-        for(i = year; i <= lastyear; i++) {
-                if(i == man->death)
-                        setbit(man->flags, MF_ISDEAD);
-                if(i == woman->death)
-                        setbit(woman->flags, MF_ISDEAD);
-
-                printf("Year: %d\n", i);
-                if(perc(20)) {
-                        child = add_child(man, woman);
-                        if(child) {
-                                if(hasbit(child->flags, MF_MALE)) 
-                                        generate_family(child, 0, child->family, i);
-                                else
-                                        generate_family(0, child, child->family, i);
-                        } else 
-                                printf("???\n");
+        if(i <= 5) {
+                if(hasbit(a->flags, MF_MALE)) {
+                        spouse = spawn_npc(world->npcs, FEMALE, true, a->birth + ri(-5, 5));
+                        spouse->family = a->family;
+                        fprintf(stderr, "DEBUG: %s:%d - %s met his spouse %s!\n", __FILE__, __LINE__, a->name, spouse->name);
+                        remove_lastname(spouse);
+                        strcat(spouse->name, " ");
+                        strcat(spouse->name, familyname[(int)spouse->family]); 
+                } else {
+                        spouse = spawn_npc(world->npcs, MALE, false, a->birth + ri(-5, 5));
+                        a->family = spouse->family;
+                        fprintf(stderr, "DEBUG: %s:%d - %s met her spouse %s!\n", __FILE__, __LINE__, a->name, spouse->name);
+                        remove_lastname(a);
+                        strcat(a->name, " ");
+                        strcat(a->name, familyname[(int)a->family]); 
                 }
 
-                if(i == game->t.year)
-                        break;
+                if(i == 1)
+                        a->children = spouse->children = 0;
+                if(i > 1)
+                        a->children = spouse->children = ri(1, 6);
 
+                set_spouse(a, spouse);
+
+                fprintf(stderr, "DEBUG: %s:%d - They will have %d children.\n", __FILE__, __LINE__, a->children);
         }
+
+        if(i == 6) {
+                spouse = NULL;
+                fprintf(stderr, "DEBUG: %s:%d - %s ended up forever alone :(\n", __FILE__, __LINE__, a->name);
+        }
+
+        return spouse;
+}
+
+/**
+ * @brief Generate the next generation - the children of this couple's children!
+ *
+ * @param man
+ * @param woman
+ */
+void generate_next_generation(actor_t *man, actor_t *woman)
+{
+        int i;
+        actor_t *a, *spouse;
+
+        for(i = 0; i < man->children; i++) {
+                a = man->child[i];
+                spouse = find_spouse(a);
+                if(spouse) {
+                        if(a->children) {
+                                generate_children_of(a, spouse);
+                                generate_next_generation(a, spouse);
+                        }
+                }
+        }
+}
+
+void generate_family(actor_t *man, actor_t *woman, enum fam family, int startyear)
+{
+        //int i;
+        //actor_t *next, *spouse;
+
+        world->npcs = dsmalloc(sizeof(actor_t));
+
+        man = spawn_npc(world->npcs, MALE, true, startyear + ri(-5, 5));
+        strcat(man->name, " ");
+        strcat(man->name, familyname[(int)family]); 
+        man->family = family;
+
+        woman = spawn_npc(world->npcs, FEMALE, true, startyear + ri(-5, 5));
+        remove_lastname(woman);
+        strcat(woman->name, " ");
+        strcat(woman->name, familyname[(int)family]);
+        woman->family = man->family;
+        set_spouse(man, woman);
+
+        man->children = woman->children = ri(1, 6);
+
+        printf("Spawned ancestors!\n");
+        printf("%s - %d-%d\n", man->name, man->birth, man->death);
+        printf("%s - %d-%d\n", woman->name, woman->birth, woman->death);
+
+        generate_children_of(man, woman);
+        generate_next_generation(man, woman);
+        ancestor = man;
+}
+
+void dump_family(actor_t *a, int indentlevel)
+{
+        int i;
+
+        printf("\n");
+
+        for(i = 0; i < indentlevel; i++)
+                printf("\t");
+
+        if(a->spouse) {
+                printf("%s (%d) and %s (%d)\n", a->name, a->birth, a->spouse->name, a->spouse->birth);
+        } else {
+                printf("%s: forever alone :(\n", a->name);
+        }
+
+        if(a->children) {
+                for(i = 0; i < indentlevel; i++)
+                        printf("\t");
+                printf("Children: ");
+                for(i = 0; i < a->children; i++) {
+                        if(a->child[i]) {
+                                printf("%s, ", a->child[i]->name);
+                                dump_family(a->child[i], indentlevel+1);
+                        }
+                }
+        }
+}
+
+void dump_npcs()
+{
+        actor_t *a;
+
+        printf("*** DUMPING NPCS ***\n");
+        while(1) {
+                a = ancestor;
+                dump_family(a, 1);
+                break;
+        }
+
+        printf("*** FINISHED ***\n");
 }
 
 // vim: fdm=syntax guifont=Terminus\ 8

@@ -145,7 +145,7 @@ void init_player()
         ppy = ply - game->map.h / 2;
         game->mapcx = game->map.w - 2;
         game->mapcy = game->map.h - 2;
-        player->viewradius = 42;
+        player->viewradius = game->map.w / 2;
         player->level = 1;
 
         player->attr.str  = dice(3, 6, 0);
@@ -1038,6 +1038,7 @@ void do_turn()
         for(i = 0; i < 10; i++) {
                 do_everything_at_tick(game->tick);
                 look_for_monsters();
+                look_for_npcs();
                 increase_ticks(1);
                 
                 //s = d(1, 10);
