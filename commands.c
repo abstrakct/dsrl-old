@@ -60,6 +60,7 @@ cmd_t normalcommands[] = {
         { { TCODK_CHAR,       '<',   1,     0,   0,   0,    0,    0 }, CMD_USE_EXIT,    "Use an exit/go up stairs" },
         { { TCODK_CHAR,       '>',   1,     0,   0,   0,    0,    1 }, CMD_USE_EXIT,    "Use an exit/go down stairs" },
         { { TCODK_CHAR,       'd',   0,     0,   0,   0,    0,    0 }, CMD_DROP,        "Drop an object" },
+        { { TCODK_CHAR,       'i',   0,     0,   0,   0,    0,    0 }, CMD_INVENTORY,   "Show inventory" },
         //{ { TCODK_CHAR,       'q',   0,     0,   0,   0,    0,    0 }, CMD_QUAFF,       "Quaff a potion" },
         //{ { TCODK_CHAR,       'o',   1,     0,   0,   0,    0,    0 }, CMD_AUTOEXPLORE, "Autoexplore" },
         //{ { TCODK_CHAR,       'i', 1, 0, 0, 0, 0, 0 }, CMD_INVENTORY,   "Show inventory" },

@@ -925,6 +925,19 @@ int get_next_used_slot_after(int n, inv_t *i)
         return -1;
 }
 
+int get_num_used_slots(inv_t *i)
+{
+        int j, num;
+
+        num=0;
+        for(j=0;j<52;j++) {
+                if(i->object[j])
+                        num++;
+        }
+
+        return num;
+}
+
 void pick_up(obj_t *o, void *p)
 {
         actor_t *a;
@@ -1013,4 +1026,5 @@ void init_objects()
 
         }
 }
+
 // vim: fdm=syntax guifont=Terminus\ 8

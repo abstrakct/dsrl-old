@@ -6,6 +6,7 @@
  * Copyright 2012 Rolf Klausen
  */
 
+#include "objects.h"
 #include "utils.h"
 #include "dstime.h"
 

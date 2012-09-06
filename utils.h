@@ -52,6 +52,8 @@ void more();
 
 char *a_an(char *s);
 char *Upper(char *s);
+char *pair(obj_t *o);
+char *plural(obj_t *o);
 
 extern int garbageindex;
 extern void *garbage[MAX_GARBAGE];

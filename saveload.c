@@ -150,7 +150,8 @@ void save_objdef(obj_t *o, FILE *f)
 
         memset(&s, 0, sizeof(struct objdef_save_struct));
         s.id = o->id;
-        s.color = o->color;
+        s.fore = o->fore;
+        s.back = o->back;
         s.type = o->type;
         s.flags = o->flags;
         s.attackmod = o->attackmod;
@@ -489,7 +490,8 @@ bool load_objdef(obj_t *o, FILE *f)
 
         fread(&s, sizeof(struct objdef_save_struct), 1, f);
         o->id = s.id;
-        o->color = s.color;
+        o->fore = s.fore;
+        o->back = s.back;
         o->type = s.type;
         o->flags = s.flags;
         o->attackmod = s.attackmod;

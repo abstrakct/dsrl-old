@@ -293,6 +293,7 @@ void draw_map(level_t *level)
         int i,j, slot;
         int dx, dy;  // coordinates on screen!
         TCOD_color_t color;
+        TCOD_color_t fore, back;
 
         //FOV(player, level);
         //if(game->context == CONTEXT_INSIDE)
@@ -342,8 +343,9 @@ void draw_map(level_t *level)
                                                 } else {                                                         // TODO ADD OBJECT COLORS!!!
                                                         slot = get_first_used_slot(level->c[j][i].inventory);
                                                         if(level->c[j][i].inventory->num_used > 0 && slot >= 0 && level->c[j][i].inventory->object[slot]) {
-                                                                color = level->c[j][i].inventory->object[slot]->color;
-                                                                dsmapaddch(dy, dx, color, level->c[j][i].backcolor, objchars[level->c[j][i].inventory->object[slot]->type]);
+                                                                fore = level->c[j][i].inventory->object[slot]->fore;
+                                                                back = level->c[j][i].inventory->object[slot]->back;
+                                                                dsmapaddch(dy, dx, fore, back, objchars[level->c[j][i].inventory->object[slot]->type]);
                                                         }
                                                 }
                                         }
@@ -444,6 +446,18 @@ TCOD_key_t dsgetch()
         return key;
 }
 
+bool ds_checkforkeypress()
+{
+        TCOD_key_t key;
+
+        //TCOD_console_flush();
+        key = TCOD_console_check_for_keypress(TCOD_KEY_PRESSED);
+        if(key.vk == TCODK_NONE)
+                return false;
+        else
+                return true;
+}
+
 void init_display()
 { 
         /* font selection code is stolen from brogue! */
@@ -523,4 +537,117 @@ void shutdown_display()
 {
         printf("Shutting down!\n");
 }
+
+// Messageboxes etc.
+
+void gtmsgbox(char *header, char *message)
+{
+        TCOD_console_t c;
+        int w, h, x, y;
+
+        w = game->width / 4;
+        w += 4;
+        h = TCOD_console_get_height_rect(NULL, 1, 1, w-4, game->height, message);
+        h += 2;
+
+        c = TCOD_console_new(w, h);
+        
+        TCOD_console_set_default_background(c, TCOD_black);
+        TCOD_console_set_default_foreground(c, TCOD_white);
+        //TCOD_console_clear(c);
+
+        //TCOD_console_print_rect(c, 0, 0, w, h, header);
+        // write msg
+        TCOD_console_print_frame(c, 0, 0, w, h, true, TCOD_BKGND_NONE, header);
+        TCOD_console_print_rect(c, 1, 1, w-4, game->height, message);
+        //TCOD_console_print_rect_ex(c, 1, 1, w, h, TCOD_BKGND_NONE, TCOD_LEFT, header);
+
+        x = ((game->map.w + game->left.w + game->right.w) / 2) - (w / 2);
+        y = ((game->map.h + game->messages.h) / 2) - (h / 2);
+
+        TCOD_console_blit(c, 0, 0, w, h, NULL, x, y, 1.0, 1.0);
+        TCOD_console_flush();
+
+        while(!ds_checkforkeypress());
+        ds_checkforkeypress();
+
+        TCOD_console_clear(c);
+        TCOD_console_blit(c, 0, 0, w, h, NULL, x, y, 1.0, 1.0);
+        TCOD_console_flush();
+}
+
+void show_inventory(void *inv_p)
+{
+        TCOD_console_t c;
+        int w, h, x, y;
+        obj_t *o;
+        inv_t *inv;
+        int i, j;
+
+        inv = (inv_t *) inv_p;
+
+        w = game->width / 4;
+        w += 4;
+        h = get_num_used_slots(inv); //TCOD_console_get_height_rect(NULL, 1, 1, w-4, game->height, message);
+        h += 2;
+
+        c = TCOD_console_new(w, h);
+        
+        TCOD_console_set_default_background(c, TCOD_black);
+        TCOD_console_set_default_foreground(c, TCOD_white);
+
+        TCOD_console_print_frame(c, 0, 0, w, h, true, TCOD_BKGND_NONE, "* INVENTORY *");
+
+        TCOD_console_set_default_foreground(game->right.c, TCOD_white);
+        
+        i = 1;
+        for(j = 0; j < 52; j++) {
+                if(inv->object[j]) {
+                        //TODO:SIMPLIFY
+                        o = inv->object[j];
+                        if(is_worn(o)) {
+                                TCOD_console_print(c, 1, i, "%c", slot_to_letter(j));
+                                TCOD_console_put_char_ex(c, 3, i, '*', TCOD_light_green, TCOD_black);
+                                TCOD_console_set_default_foreground(c, o->fore);
+                                TCOD_console_set_default_background(c, o->back);
+                                TCOD_console_print(c, 5, i, "%s %s", a_an(pair(o)), is_bracelet(o) ? (o == pw_leftbracelet ? "[<]" : "[>]") : "\0");
+                                TCOD_console_set_default_foreground(c, TCOD_white);
+                                TCOD_console_set_default_background(c, TCOD_black);
+                        } else {
+                                TCOD_console_print(c, 1, i, "%c", slot_to_letter(j));
+                                TCOD_console_put_char_ex(c, 3, i, '-', TCOD_white, TCOD_black);
+                                TCOD_console_set_default_foreground(c, o->fore);
+                                TCOD_console_set_default_background(c, o->back);
+                                if(o->quantity <= 1)
+                                        TCOD_console_print(c, 5, i, "%s", a_an(pair(o)));
+                                else if(o->quantity > 1) 
+                                        TCOD_console_print(c, 5, i, "%d %s", o->quantity, plural(o));
+                                TCOD_console_set_default_foreground(c, TCOD_white);
+                                TCOD_console_set_default_background(c, TCOD_black);
+                        }
+                        i++;
+                }
+        }
+
+        x = ((game->map.w + game->left.w + game->right.w) / 2) - (w / 2);
+        y = ((game->map.h + game->messages.h) / 2) - (h / 2);
+
+        TCOD_console_blit(c, 0, 0, w, h, NULL, x, y, 1.0, 1.0);
+        TCOD_console_flush();
+
+        while(!ds_checkforkeypress());
+        ds_checkforkeypress();
+
+        TCOD_console_clear(c);
+        TCOD_console_blit(c, 0, 0, w, h, NULL, x, y, 1.0, 1.0);
+        TCOD_console_flush();
+
+}
+
+void show_player_inventory()
+{
+        show_inventory(player->inventory);
+}
+
+
 // vim: fdm=syntax guifont=Terminus\ 8

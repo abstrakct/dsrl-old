@@ -19,12 +19,16 @@ void update_screen();
 void update_player();
 void initial_update_screen();
 TCOD_key_t dsgetch();
+bool ds_checkforkeypress();
 
 void domess();
 void scrollmessages();
 void mess(char *message);
 void messc(TCOD_color_t color, char *message);
 void delete_last_message();
+
+void gtmsgbox(char *header, char *message);
+void show_player_inventory();
 
 bool blocks_light(level_t *l, int y, int x);
 void newfov_initmap(level_t *l);

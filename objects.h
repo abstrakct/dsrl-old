@@ -19,7 +19,8 @@ struct object {
         struct object *next;
         int           id;                   // objdef-id
         int           oid;                  // unique id
-        TCOD_color_t  color;                // color!
+        TCOD_color_t  fore;                 // color!
+        TCOD_color_t  back;                 // color!
         short         type;                 // see OT_defines below
         long          flags;                // 4 bytes = 32 bits/flags, see OF_defines below - CONSIDER CHANGE TO LONG LONG
         signed short  attackmod;            // +/- on attack; for armor: acmodifier
@@ -130,8 +131,9 @@ extern int mats_amulets[MATERIALS];
 // and some nice macros
 #define is_armor(a)         (a->type  == OT_ARMOR)
 #define is_weapon(a)        (a->type  == OT_WEAPON)
-#define is_bracelet(a)          (a->type  == OT_BRACELET)
+#define is_bracelet(a)      (a->type  == OT_BRACELET)
 #define is_amulet(a)        (a->type  == OT_AMULET)
+#define is_potion(a)        (a->type  == OT_POTION)
 
 #define do_identify(a)      (a->flags|= OF_IDENTIFIED)
 #define is_identified(a)    (a->flags & OF_IDENTIFIED)
@@ -171,6 +173,7 @@ bool   is_worn(obj_t *o);      // worn by player, that is..
 bool   move_to_inventory(obj_t *o, inv_t *i);
 int    get_first_used_slot(inv_t *i);
 int    get_next_used_slot_after(int n, inv_t *i);
+int    get_num_used_slots(inv_t *i);
 
 void   pick_up(obj_t *o, void *a);
 void   wieldwear(obj_t *o);
