@@ -244,7 +244,7 @@ void draw_left()
         TCOD_console_print(game->left.c, 1, i+12, "CHA:   %d", player->attr.cha);
         TCOD_console_print(game->left.c, 1, i+13, "XP:    %d", player->xp);
         TCOD_console_print(game->left.c, 1, i+14, "Level: %d", player->level);
-        TCOD_console_print(game->left.c, 1, i+15, "TICK:  %d", game->tick);
+        TCOD_console_print(game->left.c, 1, i+15, "Tick:  %d", game->tick);
         
         //TCOD_console_print(game->left.c, 1, i+9, 1, "Dungeon level: %d (out of %d)", game->currentlevel, game->createdareas);
         //mvwprintw(wleft, 3, 1, "y,x     %d,%d", ply, plx);
@@ -407,7 +407,7 @@ void update_screen()
 {
         TCOD_console_clear(game->map.c);
         TCOD_console_clear(game->left.c);
-        TCOD_console_clear(game->right.c);
+        //TCOD_console_clear(game->right.c);
 
         //TCOD_console_rect(game->map.c, game->map.x, game->map.y, game->map.w, game->map.h, true, TCOD_BKGND_NONE);
         /*TCOD_console_print_frame(game->map.c, 0, 0, game->map.w, game->map.h, true, TCOD_BKGND_NONE, "Map");
@@ -416,12 +416,12 @@ void update_screen()
 
         draw_map(world->curlevel);
         draw_left();
-        draw_right();
+        //draw_right();
 
         TCOD_console_blit(game->map.c, 0, 0, game->map.w, game->map.h, NULL, game->map.x, game->map.y, 1.0, 1.0);
         TCOD_console_blit(game->messages.c, 0, 0, game->messages.w, game->messages.h, NULL, game->messages.x, game->messages.y, 1.0, 1.0);
         TCOD_console_blit(game->left.c, 0, 0, game->left.w, game->left.h, NULL, game->left.x, game->left.y, 1.0, 1.0);
-        TCOD_console_blit(game->right.c, 0, 0, game->right.w, game->right.h, NULL, game->right.x, game->right.y, 1.0, 1.0);
+        //TCOD_console_blit(game->right.c, 0, 0, game->right.w, game->right.h, NULL, game->right.x, game->right.y, 1.0, 1.0);
 
         TCOD_console_flush();
 }
@@ -509,17 +509,17 @@ void init_display()
         game->left.y = 0;
         game->left.c = TCOD_console_new(game->left.w, game->left.h);
 
-        game->map.w = dsconfig.cols/2;
+        game->map.w = dsconfig.cols/4*3;
         game->map.h = (dsconfig.rows/3) * 2;
         game->map.x = game->left.w + 1;
         game->map.y = 0;
         game->map.c = TCOD_console_new(game->map.w, game->map.h);
 
-        game->right.w = dsconfig.cols/4;
+        /*game->right.w = dsconfig.cols/4;
         game->right.h = (dsconfig.rows/3) * 2;
         game->right.x = game->map.x + game->map.w + 1;
         game->right.y = 0;
-        game->right.c = TCOD_console_new(game->left.w, game->left.h);
+        game->right.c = TCOD_console_new(game->left.w, game->left.h);*/
 
         game->messages.w = dsconfig.cols;
         game->messages.h = dsconfig.rows / 3;

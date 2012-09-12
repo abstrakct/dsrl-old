@@ -1021,7 +1021,7 @@ void generate_world()
         world->curlevel = &world->area[AREA_COLLINWOOD_MAIN_FLOOR];
 
         generate_family(0, 0, collins, 1796);
-        dump_npcs();
+        //dump_npcs();
 
 
 //        spawn_monsters(ri(75,125), 3, world->out); 
