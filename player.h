@@ -20,16 +20,21 @@
 #define PC_SERVANT   10
 #define PC_GYPSY     11
 #define PC_ZOMBIE    12
+#define PC_PROFESSOR 13
 
 #define PC_TYPEDEFS  12
 
 typedef struct {
         char title[20];
         int  starthp;
+        long flags;
 } pc_typedef_t;
 
 
-
+// Player character type flags
+#define PCT_MUST_BE_MALE   (1 << 0)
+#define PCT_MUST_BE_FEMALE (1 << 1)
+#define PCT_IS_UNDEAD      (1 << 2)
 
 // Function prototypes
 

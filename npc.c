@@ -396,7 +396,7 @@ void set_spouse(actor_t *a, actor_t *b)
 {
         a->spouse = b;
         b->spouse = a;
-        printf("%s and %s are now married! They will have %d children.\n", a->name, b->name, a->children);
+        //printf("%s and %s are now married! They will have %d children.\n", a->name, b->name, a->children);
         //woman->family = man->family;
 }
 
@@ -415,14 +415,14 @@ void generate_children_of(actor_t *man, actor_t *woman)
         int i, year;
 
 
-fprintf(stderr, "DEBUG: %s:%d - generate_children_of: generating the %d children of %s and %s.\n", __FILE__, __LINE__, man->children, man->name, woman->name);
+//fprintf(stderr, "DEBUG: %s:%d - generate_children_of: generating the %d children of %s and %s.\n", __FILE__, __LINE__, man->children, man->name, woman->name);
         
         year = max(man->birth, woman->birth);
         year += ri(18,25);
         
         for(i = 0; i < man->children; i++) {
                 man->child[i] = add_child(man, woman, year);
-fprintf(stderr, "DEBUG: %s:%d - generate_children_of: generated child %s (%s) (%d-%d).\n", __FILE__, __LINE__, man->child[i]->name, hasbit(man->child[i]->flags, MF_MALE) ? "male" : "female", man->child[i]->birth, man->child[i]->death);
+//fprintf(stderr, "DEBUG: %s:%d - generate_children_of: generated child %s (%s) (%d-%d).\n", __FILE__, __LINE__, man->child[i]->name, hasbit(man->child[i]->flags, MF_MALE) ? "male" : "female", man->child[i]->birth, man->child[i]->death);
 
                 year += ri(1, 6);
 
@@ -461,14 +461,14 @@ actor_t *find_spouse(actor_t *a)
                 if(hasbit(a->flags, MF_MALE)) {
                         spouse = spawn_npc(world->npcs, FEMALE, true, a->birth + ri(-5, 5));
                         spouse->family = a->family;
-                        fprintf(stderr, "DEBUG: %s:%d - %s met his spouse %s!\n", __FILE__, __LINE__, a->name, spouse->name);
+                        //fprintf(stderr, "DEBUG: %s:%d - %s met his spouse %s!\n", __FILE__, __LINE__, a->name, spouse->name);
                         remove_lastname(spouse);
                         strcat(spouse->name, " ");
                         strcat(spouse->name, familyname[(int)spouse->family]); 
                 } else {
                         spouse = spawn_npc(world->npcs, MALE, false, a->birth + ri(-5, 5));
                         a->family = spouse->family;
-                        fprintf(stderr, "DEBUG: %s:%d - %s met her spouse %s!\n", __FILE__, __LINE__, a->name, spouse->name);
+                        //fprintf(stderr, "DEBUG: %s:%d - %s met her spouse %s!\n", __FILE__, __LINE__, a->name, spouse->name);
                         remove_lastname(a);
                         strcat(a->name, " ");
                         strcat(a->name, familyname[(int)a->family]); 
@@ -481,12 +481,12 @@ actor_t *find_spouse(actor_t *a)
 
                 set_spouse(a, spouse);
 
-                fprintf(stderr, "DEBUG: %s:%d - They will have %d children.\n", __FILE__, __LINE__, a->children);
+                //fprintf(stderr, "DEBUG: %s:%d - They will have %d children.\n", __FILE__, __LINE__, a->children);
         }
 
         if(i == 6) {
                 spouse = NULL;
-                fprintf(stderr, "DEBUG: %s:%d - %s ended up forever alone :(\n", __FILE__, __LINE__, a->name);
+                //fprintf(stderr, "DEBUG: %s:%d - %s ended up forever alone :(\n", __FILE__, __LINE__, a->name);
         }
 
         return spouse;
@@ -536,9 +536,9 @@ void generate_family(actor_t *man, actor_t *woman, enum fam family, int startyea
 
         man->children = woman->children = ri(1, 6);
 
-        printf("Spawned ancestors!\n");
-        printf("%s - %d-%d\n", man->name, man->birth, man->death);
-        printf("%s - %d-%d\n", woman->name, woman->birth, woman->death);
+        //printf("Spawned ancestors!\n");
+        //printf("%s - %d-%d\n", man->name, man->birth, man->death);
+        //printf("%s - %d-%d\n", woman->name, woman->birth, woman->death);
 
         generate_children_of(man, woman);
         generate_next_generation(man, woman);
