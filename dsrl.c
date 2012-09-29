@@ -1164,7 +1164,7 @@ void process_player_input()
                                 floodfill(world->curlevel, y, x);
                                 break;
                 case CMD_INVENTORY:
-                                dump_objects(player->inventory);
+                                show_player_inventory();
                                 break;
                 case CMD_PICKUP:
                                 schedule_action(ACTION_PICKUP, player);

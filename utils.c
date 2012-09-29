@@ -343,6 +343,41 @@ char *Upper(char *s)
         return s;
 }
 
+char *pair(obj_t *o)
+{
+        char *s;
+        s = dsmalloc(300*sizeof(char));
+
+        if(hasbit(o->flags, OF_GLOVES) || hasbit(o->flags, OF_FOOTWEAR))
+                sprintf(s, "pair of %s", o->displayname);
+        else
+                strcpy(s, o->displayname);
+
+        return s;
+}
+
+char *plural(obj_t *o)
+{
+        char *s;
+        int i;
+
+        s = dsmalloc(300*sizeof(char));
+
+        if(!is_identified(o))
+                sprintf(s, "%ss", o->displayname);
+        else {
+                if(is_potion(o)) {
+                        strcpy(s, o->displayname);
+                        for(i = strlen(o->basename); i >= 6; i--)
+                                s[i] = s[i-1];
+
+                        s[6] = 's';
+                }
+        }
+
+        return s;
+}
+
 char *a_an(char *s)
 {
         static char ret[4];
@@ -354,8 +389,8 @@ char *a_an(char *s)
            s[0] == 'e' || s[0] == 'A' ||
            s[0] == 'i' || s[0] == 'I' ||
            s[0] == 'o' || s[0] == 'O' ||
-           s[0] == 'u' || s[0] == 'U' ||
-           s[0] == 'y' || s[0] == 'Y')
+           s[0] == 'u' || s[0] == 'U'/* ||
+           s[0] == 'y' || s[0] == 'Y'*/)
                 strcpy(ret, "an");
         else
                 strcpy(ret, "a");
@@ -363,4 +398,5 @@ char *a_an(char *s)
         sprintf(test, "%s %s", ret, s);
         return test;
 }
+
 // vim: fdm=syntax guifont=Terminus\ 8
