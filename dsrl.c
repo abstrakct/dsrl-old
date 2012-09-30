@@ -30,6 +30,7 @@
 #include "saveload.h"
 #include "commands.h"
 #include "npc.h"
+#include "player.h"
 #include "dstime.h"
 #include "dsrl.h"
 
@@ -133,6 +134,8 @@ void init_variables()
         i = ri(72, 18000);
         for(j=0;j<i;j++)
                 inc_second(&game->t, 1);
+
+        init_pc_types();
 }
 
 /*! \brief Initialize player struct */
