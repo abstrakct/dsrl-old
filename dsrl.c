@@ -1039,7 +1039,7 @@ void do_turn()
                 return;
 
         for(i = 0; i < 10; i++) {
-                dump_scheduled_actions();
+                //dump_scheduled_actions();
                 do_everything_at_tick(game->tick);
                 look_for_monsters();
                 look_for_npcs();
