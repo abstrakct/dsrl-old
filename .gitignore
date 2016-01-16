@@ -8,3 +8,5 @@ core
 obsolete
 *.vimsession
 doc
+lib/
+include/
