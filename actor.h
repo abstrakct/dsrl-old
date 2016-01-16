@@ -8,7 +8,7 @@
 #ifndef _ACTOR_H
 #define _ACTOR_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 #define SKILL_SWORD    0
 #define SKILL_KNIFE    1

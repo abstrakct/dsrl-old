@@ -6,7 +6,7 @@
 #ifndef _COMMANDS_H
 #define _COMMANDS_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 typedef struct {
         TCOD_key_t key;

@@ -7,7 +7,7 @@
 #define _WORLD_H
 
 #include <stdbool.h>
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 #define CELL_NOTHING         0
 #define CELL_WALL            1

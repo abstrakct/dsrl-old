@@ -12,8 +12,8 @@
 #include <unistd.h>
 #include <math.h>
 #include <stdbool.h>
-#include <libtcod/libtcod.h>
 
+#include "libtcod.h"
 #include "npc-names.h"
 #include "objects.h"
 #include "actor.h"
@@ -464,11 +464,12 @@ void init_display()
 	char font[60];
 	int fontsize = -1;
 	
-	int screenwidth, screenheight;
+	int screenwidth = 1920;
+	int screenheight = 1080;
 	int fontwidths[13] = {112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304}; // widths of the font graphics (divide by 16 to get individual character width)
 	int fontheights[13] = {176, 208, 240, 272, 304, 336, 368, 400, 432, 464, 496, 528, 528}; // heights of the font graphics (divide by 16 to get individual character height)
 
-	TCOD_sys_get_current_resolution(&screenwidth, &screenheight);
+	//TCOD_sys_get_current_resolution(&screenwidth, &screenheight);
 
 	// adjust for title bars and whatever -- very approximate, but better than the alternative
 	screenwidth -= 6;
@@ -488,15 +489,15 @@ void init_display()
                 sprintf(font, "fonts/df.png");
                 sprintf(font, "fonts/terminal8x14_gs_ro.png");
                 TCOD_console_set_custom_font(font, TCOD_FONT_TYPE_GREYSCALE | TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
-                dsconfig.rows = screenheight / 28;
-                dsconfig.cols = screenwidth  / 30;
+                dsconfig.rows = screenheight / 18;
+                dsconfig.cols = screenwidth  / 18;
         }
 
 	//sprintf(font, "fonts/font-%i.png", fontsize);
 	
         TCOD_console_set_custom_font(font, /*TCOD_FONT_TYPE_GREYSCALE |*/ TCOD_FONT_LAYOUT_ASCII_INROW, 16, 16);
 
-        TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_SDL);
+        TCOD_console_init_root(dsconfig.cols, dsconfig.rows, GAME_NAME, false, TCOD_RENDERER_GLSL);
 	TCOD_console_map_ascii_codes_to_font(0, 255, 0, 0);
 	TCOD_console_set_keyboard_repeat(350, 70);
 

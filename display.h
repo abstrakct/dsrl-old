@@ -6,7 +6,7 @@
 #ifndef _DISPALY_H
 #define _DISPALY_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 // Prototypes
 void init_display();

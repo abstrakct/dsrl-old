@@ -11,8 +11,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <libtcod/libtcod.h>
 
+#include "libtcod.h"
 #include "npc-names.h"
 #include "objects.h"
 #include "o_effects.h"
