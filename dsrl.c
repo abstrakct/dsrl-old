@@ -1039,6 +1039,7 @@ void do_turn()
                 return;
 
         for(i = 0; i < 10; i++) {
+                //dump_scheduled_actions();
                 do_everything_at_tick(game->tick);
                 look_for_monsters();
                 look_for_npcs();
@@ -1052,7 +1053,7 @@ void do_turn()
                 //generate_npc_name(test, trueorfalse());
                 //dsprintf("Generated name %s!", test);
 
-                update_screen();
+//                update_screen();
         }
 
         look();

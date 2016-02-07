@@ -303,26 +303,6 @@ void more()
         }
 }
 
-/*
-#ifdef DS_USE_LIBTCOD
-void dsprintfwc(WINDOW *win, int color, char *fmt, ...)
-{
-        va_list argp;
-        char s[1000];
-
-        va_start(argp, fmt);
-        vsprintf(s, fmt, argp);
-        va_end(argp);
-
-        wattron(win, COLOR_PAIR(color));
-        wprintw(win, s);
-        wattroff(win, COLOR_PAIR(color));
-
-        //messc(color, s);
-}
-#endif
-*/
-
 void uppercase(char *s)
 {
         int i;

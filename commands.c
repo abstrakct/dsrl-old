@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include "libtcod.h"
 
+#include "libtcod.h"
 #include "npc-names.h"
 #include "objects.h"
 #include "actor.h"

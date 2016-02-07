@@ -1,8 +1,13 @@
 CC = gcc 
-CFLAGS = -Wall -g -ggdb3 -I. -Iinclude -DDS_USE_LIBTCOD
+# CFLAGS = -Wall -g -ggdb3 -I. -Iinclude -DDS_USE_LIBTCOD
+# #DEFINES = -DGT_USE_DUMMY
+# LIBS = -lm -lconfig -ltcod -Llib
+# LDFLAGS = $(LIBS)  -Wl,-rpath=lib 
+
+CFLAGS = -Wall -g -ggdb3 -I. -Iinclude #-DDS_USE_LIBTCOD
 #DEFINES = -DGT_USE_DUMMY
-LIBS = -lm -lconfig -ltcod -Llib
-LDFLAGS = $(LIBS)  -Wl,-rpath=lib 
+LIBS = -lm -lconfig -ltcod -Llib -Wl,-rpath=lib
+LDFLAGS = $(LIBS)     #,-rpath=lib 
  
 SOURCES = dsrl.c utils.c monsters.c datafiles.c world.c display.c debug.c saveload.c commands.c actor.c objects.c o_effects.c fractmod.c dstime.c npc-names.c npc.c player.c
 HEADERS = dsrl.h utils.h monsters.h datafiles.h world.h display.h debug.h saveload.h commands.h actor.h objects.h o_effects.h fractmod.h dstime.h npc-names.h npc.h player.h
