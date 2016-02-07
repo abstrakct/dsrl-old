@@ -16,6 +16,13 @@
 
 #define DEVELOPMENT_MODE
 
+typedef enum {
+    state_unknown = 0,
+    state_playing,
+    state_menu,
+    state_whatever,
+} state_e;
+
 typedef struct {                              // ds_config_t
         int  mind, maxd;
         int  dxsize, dysize;
@@ -37,6 +44,7 @@ typedef struct {                              // game_t
         short          mapw, maph;              // width, height of map window
         int            mapcx, mapcy;
         bool           dead;                    // is the game/player dead?
+        state_e        state;
         short          context;                 // which context are we in? see CONTEXT_ defines
         short          currentlevel;            // what's the current level?
         int            turn;                    // count turns

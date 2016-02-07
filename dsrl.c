@@ -1029,36 +1029,47 @@ void do_turn()
                 dsprintf("animating.....");
         } else {*/
 
-        look_for_monsters();
-        //process_npcs(world->curlevel);
-        update_screen();
-
-        // autoexplore
-
-        if(game->dead)
-                return;
-
-        for(i = 0; i < 10; i++) {
-                //dump_scheduled_actions();
-                do_everything_at_tick(game->tick);
+        switch(game->state) {
+            case state_playing:
                 look_for_monsters();
-                look_for_npcs();
-                increase_ticks(1);
-                
-                //s = d(1, 10);
-                s = 1;
-                inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
-                inc_second(&game->total, s);
+                //process_npcs(world->curlevel);
+                update_screen();
 
-                //generate_npc_name(test, trueorfalse());
-                //dsprintf("Generated name %s!", test);
+                // autoexplore
 
-//                update_screen();
+                if(game->dead)
+                    return;
+
+                for(i = 0; i < 10; i++) {
+                    //dump_scheduled_actions();
+                    do_everything_at_tick(game->tick);
+                    look_for_monsters();
+                    look_for_npcs();
+                    increase_ticks(1);
+
+                    //s = d(1, 10);
+                    s = 1;
+                    inc_second(&game->t, s);    // replace with more precise time measuring? or keep it somewhat random, like it seems to be in the show?
+                    inc_second(&game->total, s);
+
+                    //generate_npc_name(test, trueorfalse());
+                    //dsprintf("Generated name %s!", test);
+
+                    //                update_screen();
+                }
+
+                look();
+                update_screen();
+                break;
+            case state_menu:
+                break;
+            case state_whatever:
+                break;
+            default:
+                break;
         }
-
-        look();
-        update_screen();
 }
+
 
 void process_player_input()
 {
@@ -1251,9 +1262,9 @@ void process_player_input()
 
 void game_loop()
 {
-        while(!game->dead) {
-                do_turn();
-        };
+    while(!game->dead) {
+        do_turn();
+    };
 }
 
 /**
@@ -1340,12 +1351,13 @@ int main(int argc, char *argv[])
         schedule_action_delayed(ACTION_PLAYER_NEXTMOVE, player, 0, 1);
         process_npcs(world->curlevel);
 
+        game->state = state_playing;
         game_loop();
 
         shutdown_display();
         shutdown_ds();
 
-        dump_npcs();
+        //dump_npcs();
         return 0;
 }
 // vim: fdm=syntax guifont=Terminus\ 8

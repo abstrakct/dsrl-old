@@ -96,7 +96,7 @@ void dump_action_queue()
 
 void dump_scheduled_actions()
 {
-    printf("\nSCHEDULED ACTIONS (tick = %d)\n", game->tick);
+//    printf("\nSCHEDULED ACTIONS (tick = %d)\n", game->tick);
 
     int i;
 

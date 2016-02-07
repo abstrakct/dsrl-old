@@ -462,12 +462,12 @@ void init_display()
 { 
     /* font selection code is stolen from brogue! */
     char font[60];
-    int fontsize = -1;
+    //int fontsize = -1;
 
-    int screenwidth = 1024;
-    int screenheight = 600;
-    int fontwidths[13] = {112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304}; // widths of the font graphics (divide by 16 to get individual character width)
-    int fontheights[13] = {176, 208, 240, 272, 304, 336, 368, 400, 432, 464, 496, 528, 528}; // heights of the font graphics (divide by 16 to get individual character height)
+    //int screenwidth = 1024;
+    //int screenheight = 600;
+    //int fontwidths[13] = {112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304}; // widths of the font graphics (divide by 16 to get individual character width)
+    //int fontheights[13] = {176, 208, 240, 272, 304, 336, 368, 400, 432, 464, 496, 528, 528}; // heights of the font graphics (divide by 16 to get individual character height)
 
     //TCOD_sys_get_current_resolution(&screenwidth, &screenheight);
     //screenwidth = 1024;
