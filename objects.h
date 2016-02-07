@@ -9,7 +9,7 @@
 #ifndef _OBJECTS_H
 #define _OBJECTS_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 #define MAX_EFFECTS  10
 

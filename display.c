@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <stdbool.h>
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 #include "npc-names.h"
 #include "objects.h"
@@ -468,11 +468,13 @@ void init_display()
 	int fontwidths[13] = {112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304}; // widths of the font graphics (divide by 16 to get individual character width)
 	int fontheights[13] = {176, 208, 240, 272, 304, 336, 368, 400, 432, 464, 496, 528, 528}; // heights of the font graphics (divide by 16 to get individual character height)
 
-	TCOD_sys_get_current_resolution(&screenwidth, &screenheight);
+	//TCOD_sys_get_current_resolution(&screenwidth, &screenheight);
+	screenwidth = 1024;
+	screenheight = 600;
 
 	// adjust for title bars and whatever -- very approximate, but better than the alternative
-	screenwidth -= 6;
-	screenheight -= 48;
+	/*screenwidth -= 6;
+	screenheight -= 48;*/
 
 	dsconfig.rows = ROWS;
 	dsconfig.cols = COLS;

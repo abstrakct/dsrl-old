@@ -26,89 +26,26 @@
 #include "player.h"
 #include "dsrl.h"
 
-pc_typedef_t pc_typedefs[PC_TYPEDEFS];
-
-pc_typedef_t pct_human     = {
-        "human",
-        10,
-        0,
-};
-pc_typedef_t pct_vampire   = {
-        "vampire",
-        10,
-        PCT_IS_UNDEAD,
-};
-pc_typedef_t pct_werewolf  = {
-        "werewolf",
-        10,
-        PCT_IS_UNDEAD,
-};
-pc_typedef_t pct_phoenix   = {
-        "phoenix",
-        10,
-        0,
-};
-pc_typedef_t pct_witch     = {
-        "witch",
-        10,
-        PCT_MUST_BE_FEMALE,
-};
-pc_typedef_t pct_warlock   = {
-        "warlock",
-        10,
-        PCT_MUST_BE_MALE,
-};
-pc_typedef_t pct_zombie    = {
-        "zombie",
-        10,
-        PCT_IS_UNDEAD,
-};
-pc_typedef_t pct_gypsy     = {
-        "gypsy",
-        10,
-        0,
-};
-pc_typedef_t pct_doctor    = {
-        "doctor",
-        10,
-        0,
-};
-pc_typedef_t pct_governess = {
-        "governess",
-        10,
-        PCT_MUST_BE_FEMALE,
-};
-pc_typedef_t pct_servant   = {
-        "servant",
-        10,
-        0,
-};
-pc_typedef_t pct_manmade   = {
-        "man-made monster",
-        10,
-        PCT_IS_UNDEAD,
-};
-pc_typedef_t pct_professor = {
-        "professor",
-        10,
-        0,
+role_t roledefs[] = {
+        { "vampire", 10, ACTOR_IS_UNDEAD, false, false },
+        { "werewolf", 10, 0, false, false },
+        { "phoenix", 10, 0, false, false },
+        { "witch", 10, 0, false, true },
+        { "warlock", 10, 0, true, false },
+        { "human", 10, 0, false, false },
+        { "man-made monster", 10, 0, false, false },
+        { "governess", 10, 0, false, true },
+        { "doctor", 10, 0, false, false },
+        { "servant", 10, 0, false, false },
+        { "gypsy", 10, 0, false, false },
+        { "zombie", 10, ACTOR_IS_UNDEAD, false, false },
+        { "professor", 10, 0, false, false },
+        { "ghost", 10, ACTOR_IS_UNDEAD, false, false },
 };
 
-void init_pc_types()
+
+void init_roles()
 {
-        pc_typedefs[PC_HUMAN]     = pct_human;
-        pc_typedefs[PC_VAMPIRE]   = pct_vampire;
-        pc_typedefs[PC_WEREWOLF]  = pct_werewolf;
-        pc_typedefs[PC_PHOENIX]   = pct_phoenix;
-        pc_typedefs[PC_WITCH]     = pct_witch;
-        pc_typedefs[PC_WARLOCK]   = pct_warlock;
-        pc_typedefs[PC_MANMADE]   = pct_manmade;
-        pc_typedefs[PC_GOVERNESS] = pct_governess;
-        pc_typedefs[PC_DOCTOR]    = pct_doctor;
-        pc_typedefs[PC_SERVANT]   = pct_servant;
-        pc_typedefs[PC_ZOMBIE]    = pct_zombie;
-        pc_typedefs[PC_GYPSY]     = pct_gypsy;
-        pc_typedefs[PC_PROFESSOR] = pct_professor;
 }
 
 

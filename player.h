@@ -8,38 +8,50 @@
  * Copyright 2012 Rolf Klausen
  */
 
-#define PC_VAMPIRE   1
-#define PC_WEREWOLF  2
-#define PC_PHOENIX   3
-#define PC_WITCH     4
-#define PC_WARLOCK   5
-#define PC_HUMAN     6
-#define PC_MANMADE   7
-#define PC_GOVERNESS 8
-#define PC_DOCTOR    9
-#define PC_SERVANT   10
-#define PC_GYPSY     11
-#define PC_ZOMBIE    12
-#define PC_PROFESSOR 13
-
-#define PC_TYPEDEFS  12
+enum {
+        vampire,
+        werewolf,
+        phoenix,
+        witch,
+        warlock,
+        human,
+        manmade,
+        governess,
+        doctor,
+        servant,
+        gypsy,
+        zombie,
+        professor,
+        ghost,
+} role_e;
 
 typedef struct {
         char title[20];
         int  starthp;
         long flags;
-} pc_typedef_t;
+        bool mustbemale, mustbefemale;
+} role_t;
 
+#define ROLE_VAMPIRE   1
+#define ROLE_WEREWOLF  2
+#define ROLE_PHOENIX   3
+#define ROLE_WITCH     4
+#define ROLE_WARLOCK   5
+#define ROLE_HUMAN     6
+#define ROLE_MANMADE   7
+#define ROLE_GOVERNESS 8
+#define ROLE_DOCTOR    9
+#define ROLE_SERVANT   10
+#define ROLE_GYPSY     11
+#define ROLE_ZOMBIE    12
+#define ROLE_PROFESSOR 13
 
-// Player character type flags
-#define PCT_MUST_BE_MALE   (1 << 0)
-#define PCT_MUST_BE_FEMALE (1 << 1)
-#define PCT_IS_UNDEAD      (1 << 2)
+#define ROLE_TYPEDEFS  13
+
 
 // Function prototypes
 
-void init_pc_types();
-
+void init_roles();
 
 #endif
 // vim: fdm=syntax guifont=Terminus\ 8

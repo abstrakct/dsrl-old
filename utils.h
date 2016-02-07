@@ -6,7 +6,7 @@
 #ifndef _DS_UTILS_H
 #define _DS_UTILS_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 #define clearbit(a, b) ((a) &= ~(b))
 #define   setbit(a, b) ((a) |=  (b))

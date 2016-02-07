@@ -135,7 +135,7 @@ void init_variables()
         for(j=0;j<i;j++)
                 inc_second(&game->t, 1);
 
-        init_pc_types();
+        init_roles();
 }
 
 /*! \brief Initialize player struct */
@@ -1344,6 +1344,7 @@ int main(int argc, char *argv[])
         shutdown_display();
         shutdown_ds();
 
+        dump_npcs();
         return 0;
 }
 // vim: fdm=syntax guifont=Terminus\ 8

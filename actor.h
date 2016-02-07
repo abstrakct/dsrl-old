@@ -8,7 +8,7 @@
 #ifndef _ACTOR_H
 #define _ACTOR_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 #define SKILL_SWORD    0
 #define SKILL_KNIFE    1
@@ -132,6 +132,14 @@ typedef struct actorstruct {                               // actor_t
         struct actorstruct *sister[3];
         struct actorstruct *child[6];
 } actor_t;
+
+/*
+ * Actor flags
+ */
+
+#define ACTOR_IS_UNDEAD     (1 << 0)
+#define ACTOR_IS_DEAD       (1 << 1)
+
 
 
 #define is_invisible(a) (hasbit(a->flags, MF_INVISIBLE))

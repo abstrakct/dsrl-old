@@ -1,7 +1,7 @@
 #ifndef _DS_SAVELOAD_H
 #define _DS_SAVELOAD_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 #define SAVE_DIRECTORY ".saves"
 #define DS_SAVEFILE_MAGIC  0xDEAD71FE

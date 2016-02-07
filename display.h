@@ -6,7 +6,7 @@
 #ifndef _DISPALY_H
 #define _DISPALY_H
 
-#include <libtcod/libtcod.h>
+#include "libtcod.h"
 
 // Prototypes
 void init_display();
@@ -37,8 +37,8 @@ void fov_initmap(void *level);
 void fov_updatemap(void *level);
 
 #define MESSAGE_LINES   5
-#define COLS  119                             // x
-#define ROWS  (45 + MESSAGE_LINES)         // y
+#define COLS  125                             // x
+#define ROWS  (65 + MESSAGE_LINES)         // y
 
 #define COLOR_PLAIN    C_BLACK_WHITE
 #define COLOR_FOREST   C_BLACK_GREEN
