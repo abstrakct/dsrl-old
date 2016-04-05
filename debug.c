@@ -134,4 +134,4 @@ void dump_scheduled_actions()
         }
     }
 }
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

@@ -43,4 +43,4 @@ void advancedai(monster_t *m);
 void hostile_ai(monster_t *m);
 
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

@@ -58,4 +58,4 @@ char *plural(obj_t *o);
 extern int garbageindex;
 extern void *garbage[MAX_GARBAGE];
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

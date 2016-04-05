@@ -680,4 +680,4 @@ void main()
 
         return;
 }*/
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

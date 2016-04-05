@@ -503,4 +503,4 @@ void generate_npc_name(void *a, bool male, bool firstnameonly)
                 }
         }
 }
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

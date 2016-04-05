@@ -50,4 +50,4 @@ void init_roles()
 
 
 
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

@@ -64,4 +64,4 @@ void fov_updatemap(void *level);
 // #define COLOR
 
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

@@ -15,4 +15,4 @@ void dump_action_queue();
 void dump_scheduled_actions();
 
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

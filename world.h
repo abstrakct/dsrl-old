@@ -139,4 +139,4 @@ void generate_terrain(int visible);
 extern char mapchars[];
 
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

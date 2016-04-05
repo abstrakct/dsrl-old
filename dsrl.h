@@ -182,4 +182,4 @@ bool do_action(action_t *aqe);
 void shutdown_ds();
 
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

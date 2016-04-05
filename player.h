@@ -54,4 +54,4 @@ typedef struct {
 void init_roles();
 
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

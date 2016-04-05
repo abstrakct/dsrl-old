@@ -1028,4 +1028,4 @@ void init_objects()
         }
 }
 
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

@@ -379,4 +379,4 @@ char *a_an(char *s)
         return test;
 }
 
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

@@ -587,4 +587,4 @@ void dump_npcs()
         printf("*** FINISHED ***\n");
 }
 
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

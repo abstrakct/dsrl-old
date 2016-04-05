@@ -679,4 +679,4 @@ bool load_game(char *filename, int ingame)
         printf("Loading successful!");
         return true;
 }
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

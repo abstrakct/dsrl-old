@@ -36,4 +36,4 @@ void draw2DFractArrayAsTriangles (float *, int);
 #ifdef __cplusplus
 }
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

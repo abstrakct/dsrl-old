@@ -75,4 +75,4 @@ bool save_game(char *filename);
 bool load_game(char *filename, int ingame);
 
 #endif
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 

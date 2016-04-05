@@ -1360,4 +1360,4 @@ int main(int argc, char *argv[])
         //dump_npcs();
         return 0;
 }
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax

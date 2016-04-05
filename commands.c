@@ -133,4 +133,4 @@ void init_commands()
         curcommands = normalcommands;
         numcommands = (sizeof(normalcommands) / sizeof(cmd_t));
 }
-// vim: fdm=syntax guifont=Terminus\ 8
+// vim: fdm=syntax 
