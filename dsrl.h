@@ -10,7 +10,7 @@
 #define DS_VERSION_MIN 0
 #define DS_VERSION_REV 1
 
-#define GAME_NAME "Dark Shadows RL"
+#define GAME_NAME "Dark Shadows RL REDUX"
 
 #define MAIN_DATA_FILE "data/data.cfg"
 
